@@ -1,0 +1,454 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import React, { useState, useRef, useEffect } from "react";
+import { Sparkles, Send, Bot, RefreshCw, User, HelpCircle, Dumbbell, AlertTriangle, PlayCircle } from "lucide-react";
+import { AIChatMessage, AISuggestion } from "../types";
+
+const SUGGESTIONS: AISuggestion[] = [
+  { title: "USRPT Race pace set", description: "Create an ultra-short race pace training set for 100m pacing.", prompt: "Generate a USRPT set focusing on 100m Freestyle pacing for an advanced swimmer." },
+  { title: "Taper weekly schedule", description: "Plan a volume reduction taper block for a meet in 2 weeks.", prompt: "What is a good tapering schedule for an athlete 2 weeks out from a major target swim meet?" },
+  { title: "High-elbow catch drill", description: "Get technique drills to improve catch and pull mechanics.", prompt: "My coach says my arm drops on the pull. Give me 3 drills with snorkel to fix high-elbow catch." }
+];
+
+export default function AICopilot() {
+  const [activeTab, setActiveTab] = useState<"chat" | "generator" | "modifier">("chat");
+
+  // Chat state
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState<AIChatMessage[]>([
+    {
+      id: "m1",
+      sender: "copilot",
+      text: "Hello! I'm **Coach Block**, your personal AI swim strategist. Ask me about custom set pacing, tapering progressions, or stroke technique drills!",
+      timestamp: "05:47 AM"
+    }
+  ]);
+  const [loadingChat, setLoadingChat] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Generator state
+  const [genFocus, setGenFocus] = useState("Lactate Threshold");
+  const [genLevel, setGenLevel] = useState("advanced");
+  const [genDist, setGenDist] = useState(1500);
+  const [genEquip, setGenEquip] = useState<string[]>(["Paddles", "Fins"]);
+  const [genResult, setGenResult] = useState<string>("");
+  const [loadingGen, setLoadingGen] = useState(false);
+
+  // Modifier state
+  const [modOriginal, setModOriginal] = useState(
+    `### Main Set
+* 8 x 100m Free on a 1:40 cycle interval (RPE 8/10)
+* 4 x 50m Kick on 1:15 cycle interval (RPE 5/10)`
+  );
+  const [modRequest, setModRequest] = useState("Adapt this set to be safe for someone recovering from a rotator cuff shoulder injury.");
+  const [modResult, setModResult] = useState<string>("");
+  const [loadingMod, setLoadingMod] = useState(false);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages]);
+
+  // 1. Submit Chat
+  const handleChatSubmit = async (textToSend?: string) => {
+    const text = textToSend || chatInput;
+    if (!text.trim()) return;
+
+    const userMsg: AIChatMessage = {
+      id: `u-${Date.now()}`,
+      sender: "user",
+      text,
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    };
+
+    setChatMessages(prev => [...prev, userMsg]);
+    if (!textToSend) setChatInput("");
+    setLoadingChat(true);
+
+    try {
+      const response = await fetch("/api/gemini/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: [...chatMessages, userMsg] })
+      });
+      const data = await response.json();
+
+      const copilotMsg: AIChatMessage = {
+        id: `c-${Date.now()}`,
+        sender: "copilot",
+        text: data.text,
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      };
+      setChatMessages(prev => [...prev, copilotMsg]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingChat(false);
+    }
+  };
+
+  // 2. Submit Generator
+  const handleGenerateSet = async () => {
+    setLoadingGen(true);
+    setGenResult("");
+    try {
+      const response = await fetch("/api/gemini/generate-set", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          focus: genFocus,
+          swimmerLevel: genLevel,
+          targetDistance: genDist,
+          equipment: genEquip
+        })
+      });
+      const data = await response.json();
+      setGenResult(data.text);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingGen(false);
+    }
+  };
+
+  // 3. Submit Modifier
+  const handleModifySet = async () => {
+    setLoadingMod(true);
+    setModResult("");
+    try {
+      const response = await fetch("/api/gemini/edit-set", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          originalSet: modOriginal,
+          modificationRequest: modRequest
+        })
+      });
+      const data = await response.json();
+      setModResult(data.text);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingMod(false);
+    }
+  };
+
+  const toggleEquip = (eq: string) => {
+    if (genEquip.includes(eq)) {
+      setGenEquip(genEquip.filter(e => e !== eq));
+    } else {
+      setGenEquip([...genEquip, eq]);
+    }
+  };
+
+  return (
+    <div className="bg-white border border-slate-200/80 rounded-2xl p-8 shadow-sm" id="ai-copilot-workspace">
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-6 mb-8 gap-4">
+        <div>
+          <h2 className="text-xl font-display font-bold text-slate-900 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-indigo-600" />
+            AI Coach Copilot
+          </h2>
+          <p className="text-slate-500 text-xs mt-1">
+            Personalized training progressions, structural modifications, and technique safety auditing.
+          </p>
+        </div>
+
+        {/* TABS */}
+        <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200/60 text-xs self-start sm:self-auto">
+          <button
+            onClick={() => setActiveTab("chat")}
+            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
+              activeTab === "chat" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            Coach Chat
+          </button>
+          <button
+            onClick={() => setActiveTab("generator")}
+            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
+              activeTab === "generator" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            AI Set Generator
+          </button>
+          <button
+            onClick={() => setActiveTab("modifier")}
+            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
+              activeTab === "modifier" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            AI Set Modifier
+          </button>
+        </div>
+      </div>
+
+      {/* CHAT TAB */}
+      {activeTab === "chat" && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="copilot-chat-grid">
+          {/* Messages block (8 cols) */}
+          <div className="lg:col-span-8 flex flex-col h-[520px] bg-slate-50/50 rounded-2xl border border-slate-200 overflow-hidden">
+            {/* Messages box */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {chatMessages.map((m) => (
+                <div
+                  key={m.id}
+                  className={`flex gap-3 max-w-[85%] ${m.sender === "user" ? "ml-auto flex-row-reverse" : "mr-auto"}`}
+                >
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                    m.sender === "user" ? "bg-slate-800 text-white" : "bg-indigo-600 text-white"
+                  }`}>
+                    {m.sender === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                  </div>
+
+                  <div className={`rounded-2xl p-4 text-xs leading-relaxed shadow-xs ${
+                    m.sender === "user" ? "bg-slate-900 text-slate-50" : "bg-white border border-slate-200/80 text-slate-800"
+                  }`}>
+                    {/* Markdown emulation for simple formats */}
+                    <div className="whitespace-pre-wrap">
+                      {m.text.split("**").map((chunk, idx) => 
+                        idx % 2 === 1 ? <strong key={idx} className="font-bold text-slate-900">{chunk}</strong> : chunk
+                      )}
+                    </div>
+                    <span className="text-[9px] text-slate-400 font-mono block text-right mt-2">{m.timestamp}</span>
+                  </div>
+                </div>
+              ))}
+              {loadingChat && (
+                <div className="flex items-center gap-2 text-xs text-slate-500 italic pl-11">
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-indigo-600" />
+                  Coach is drafting recommendations...
+                </div>
+              )}
+              <div ref={chatEndRef} />
+            </div>
+
+            {/* Input box */}
+            <div className="border-t border-slate-200/80 p-4 bg-white flex gap-3">
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleChatSubmit()}
+                placeholder="Ask about swim mechanics, energy systems, tapered cycles..."
+                className="flex-1 bg-slate-50 border border-slate-200 text-slate-955 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-slate-300 font-sans"
+              />
+              <button
+                onClick={() => handleChatSubmit()}
+                className="bg-slate-900 hover:bg-slate-800 text-white rounded-xl px-5 flex items-center justify-center font-bold text-xs transition shadow-sm"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Quick recommendations panel (4 cols) */}
+          <div className="lg:col-span-4 space-y-4">
+            <h3 className="text-[10px] text-slate-400 font-mono uppercase tracking-wider">Coach Quick Presets</h3>
+            <div className="space-y-3.5">
+              {SUGGESTIONS.map((s, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleChatSubmit(s.prompt)}
+                  className="w-full text-left bg-white hover:bg-slate-50 border border-slate-200 p-4 rounded-xl transition hover:border-slate-300 shadow-2xs flex flex-col justify-between"
+                >
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <HelpCircle className="w-4 h-4 text-slate-500" />
+                    {s.title}
+                  </span>
+                  <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">{s.description}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* GENERATOR TAB */}
+      {activeTab === "generator" && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="copilot-generator-grid">
+          {/* Controls form (5 cols) */}
+          <div className="lg:col-span-5 bg-slate-50/50 p-6 rounded-2xl border border-slate-200 space-y-4">
+            <h3 className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">Configure Parameters</h3>
+
+            <div>
+              <label className="text-xs text-slate-500 block mb-1.5 font-medium">Target Training Focus</label>
+              <select
+                value={genFocus}
+                onChange={(e) => setGenFocus(e.target.value)}
+                className="bg-white border border-slate-200 text-slate-800 text-xs rounded-lg p-2.5 w-full focus:outline-none focus:ring-1 focus:ring-slate-300 shadow-xs"
+              >
+                <option>Lactate Threshold builders</option>
+                <option>Aerobic Capacity base</option>
+                <option>Sprint Cycle / USRPT</option>
+                <option>Active Stroke Recovery</option>
+                <option>Kick-heavy leg burn</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs text-slate-500 block mb-1.5 font-medium">Target Volume (m/yd)</label>
+              <input
+                type="number"
+                step="100"
+                value={genDist}
+                onChange={(e) => setGenDist(Math.max(100, parseInt(e.target.value) || 0))}
+                className="bg-white border border-slate-200 text-slate-800 text-xs rounded-lg p-2.5 w-full font-mono focus:outline-none focus:ring-1 focus:ring-slate-300 shadow-xs"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs text-slate-500 block mb-1.5 font-medium">Swimmer Skill Class</label>
+              <div className="grid grid-cols-3 gap-2">
+                {["beginner", "intermediate", "advanced"].map((lvl) => (
+                  <button
+                    key={lvl}
+                    onClick={() => setGenLevel(lvl)}
+                    className={`py-2 px-3 text-[10px] rounded-lg border font-bold capitalize transition shadow-2xs ${
+                      genLevel === lvl ? "bg-indigo-50 text-indigo-700 border-indigo-200" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    {lvl}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs text-slate-500 block mb-2 font-medium">Permitted Equipment</label>
+              <div className="flex flex-wrap gap-1.5">
+                {["Fins", "Paddles", "Kickboard", "Snorkel", "Pull Buoy"].map((eq) => {
+                  const active = genEquip.includes(eq);
+                  return (
+                    <button
+                      key={eq}
+                      onClick={() => toggleEquip(eq)}
+                      className={`text-[10px] px-2.5 py-1 rounded-lg border transition shadow-2xs font-medium ${
+                        active ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                      }`}
+                    >
+                      {eq}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <button
+              onClick={handleGenerateSet}
+              disabled={loadingGen}
+              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-sm"
+            >
+              {loadingGen ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  Formulating Workout...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Generate Custom Set
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Output block (7 cols) */}
+          <div className="lg:col-span-7 bg-slate-50/50 p-6 rounded-2xl border border-slate-200 flex flex-col min-h-[300px]">
+            <span className="text-[10px] text-slate-400 font-mono uppercase tracking-wider mb-3 block">AI PRODUCED TRAINING SET</span>
+            {genResult ? (
+              <div className="text-xs text-slate-700 leading-relaxed overflow-y-auto space-y-3 prose max-h-[380px] bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+                {/* Parse lines of markdown simply */}
+                {genResult.split("\n").map((line, i) => {
+                  if (line.startsWith("###")) return <h4 key={i} className="text-sm font-bold text-slate-900 mt-3">{line.replace("###", "")}</h4>;
+                  if (line.startsWith("**")) return <strong key={i} className="text-slate-950 block mt-3">{line.replace(/\*\*/g, "")}</strong>;
+                  if (line.startsWith("*")) return <div key={i} className="pl-3 py-0.5 text-slate-600 font-medium">── {line.replace("*", "")}</div>;
+                  return <p key={i} className="mt-1 text-slate-500">{line}</p>;
+                })}
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-slate-400">
+                <Dumbbell className="w-8 h-8 text-slate-300 mb-2" />
+                <p className="text-xs italic">No workout formulated yet.</p>
+                <p className="text-[10px] text-slate-400 mt-1 max-w-xs leading-relaxed">Configure your training focus and block size on the left, then click generate.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* MODIFIER TAB */}
+      {activeTab === "modifier" && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="copilot-modifier-grid">
+          {/* Controls form (5 cols) */}
+          <div className="lg:col-span-5 bg-slate-50/50 p-6 rounded-2xl border border-slate-200 space-y-4">
+            <h3 className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">Tune Swim Blocks</h3>
+
+            <div>
+              <label className="text-xs text-slate-500 block mb-1.5 font-medium">Paste Original Swim Set Structure</label>
+              <textarea
+                value={modOriginal}
+                onChange={(e) => setModOriginal(e.target.value)}
+                rows={5}
+                className="bg-white border border-slate-200 text-slate-800 text-xs rounded-lg p-2.5 w-full font-mono focus:outline-none focus:ring-1 focus:ring-slate-300 shadow-xs"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs text-slate-500 block mb-1.5 font-medium">Describe Modification Request</label>
+              <input
+                type="text"
+                value={modRequest}
+                onChange={(e) => setModRequest(e.target.value)}
+                placeholder="e.g. Adapt this for a beginner-safe set..."
+                className="bg-white border border-slate-200 text-slate-800 text-xs rounded-lg p-2.5 w-full focus:outline-none focus:ring-1 focus:ring-slate-300 shadow-xs"
+              />
+            </div>
+
+            <button
+              onClick={handleModifySet}
+              disabled={loadingMod}
+              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-sm"
+            >
+              {loadingMod ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  Adapting Set...
+                </>
+              ) : (
+                <>
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  Adapt Swim Set
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Output block (7 cols) */}
+          <div className="lg:col-span-7 bg-slate-50/50 p-6 rounded-2xl border border-slate-200 flex flex-col min-h-[300px]">
+            <span className="text-[10px] text-slate-400 font-mono uppercase tracking-wider mb-3 block">REVISED AI SWIM BLOCK</span>
+            {modResult ? (
+              <div className="text-xs text-slate-700 leading-relaxed overflow-y-auto space-y-3 prose max-h-[380px] bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+                {modResult.split("\n").map((line, i) => {
+                  if (line.startsWith("###")) return <h4 key={i} className="text-sm font-bold text-slate-900 mt-3">{line.replace("###", "")}</h4>;
+                  if (line.startsWith("**")) return <strong key={i} className="text-slate-950 block mt-3">{line.replace(/\*\*/g, "")}</strong>;
+                  if (line.startsWith("*")) return <div key={i} className="pl-3 py-0.5 text-slate-600 font-medium">── {line.replace("*", "")}</div>;
+                  return <p key={i} className="mt-1 text-slate-500">{line}</p>;
+                })}
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-slate-400">
+                <PlayCircle className="w-8 h-8 text-slate-300 mb-2" />
+                <p className="text-xs italic">Set has not been revised yet.</p>
+                <p className="text-[10px] text-slate-400 mt-1 max-w-xs leading-relaxed">Paste your original workout block and state your goal on the left to see adaptation splits.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

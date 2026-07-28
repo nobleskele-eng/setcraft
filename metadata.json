@@ -1,0 +1,9 @@
+{
+  "name": "SetCraft Swim Studio v7",
+  "description": "Scratch-style swim workout programming with flexible lane plans, goal-time tables, seasonal project folders, an editable Coach Library, deterministic calculations, and one-page deck-sheet PDF export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ],
+  "version": "0.7.0"
+}
