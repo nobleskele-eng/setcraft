@@ -6,7 +6,6 @@ import {
   FolderPlus,
   Grid2X2,
   List,
-  MoreHorizontal,
   Plus,
   Search,
   Trash2,
@@ -247,7 +246,7 @@ export default function ProjectsView({ onOpenProject, onCreateProject }: Project
               const stats = calculateStats(project.nodes);
               return <article key={project.id} className={`professional-card group relative overflow-hidden rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm ${view === "list" ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center" : ""}`}>
                 <div>
-                  <div className="flex items-start justify-between gap-3"><div className="min-w-0"><span className="inline-flex rounded-full bg-indigo-50 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-indigo-700">{project.phase}</span><h3 className="mt-3 truncate font-display text-xl font-extrabold text-slate-950">{project.name}</h3><p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-slate-600">{project.focus || "No training focus written yet."}</p></div><button type="button" className="rounded-xl p-2 text-slate-300 hover:bg-slate-100 hover:text-slate-600" title="Project actions"><MoreHorizontal className="h-5 w-5" /></button></div>
+                  <div className="flex items-start justify-between gap-3"><div className="min-w-0"><span className="inline-flex rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider text-indigo-700">{project.phase}</span><h3 className="mt-3 truncate font-display text-xl font-extrabold text-slate-950">{project.name}</h3><p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-slate-600">{project.focus || "No training focus written yet."}</p></div><span className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-500">{project.folder || "Inbox"}</span></div>
                   <div className="mt-4 flex flex-wrap gap-2">{(project.tags || []).slice(0, 4).map((tag) => <span key={tag} className="rounded-lg bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-600">#{tag}</span>)}</div>
                 </div>
                 <div>

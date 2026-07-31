@@ -283,7 +283,7 @@ button:not(:disabled) { cursor: pointer; }
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 
-/* v7 spacious professional workspace */
+/* Final spacious professional workspace */
 html { font-size: 17px; }
 body { font-size: 17px; }
 
@@ -367,4 +367,19 @@ body { font-size: 17px; }
 
 @media (max-width: 1279px) {
   .studio-workflow { top: 0; }
+}
+
+/* User accessibility preferences stored by SettingsView. */
+html[data-setcraft-reduce-motion="true"] *,
+html[data-setcraft-reduce-motion="true"] *::before,
+html[data-setcraft-reduce-motion="true"] *::after {
+  scroll-behavior: auto !important;
+  animation-duration: .01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .01ms !important;
+}
+
+html[data-setcraft-large-deck="true"] #setcraft-swim-studio pre {
+  font-size: .88rem !important;
+  line-height: 2rem !important;
 }

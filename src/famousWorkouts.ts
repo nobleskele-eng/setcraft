@@ -51,6 +51,15 @@ const note = (label: string, text: string): StudioNode => ({
 });
 
 const sourceDisclaimer = "Adapted into editable SetCraft blocks from a publicly described workout concept. Intervals and volumes must be adjusted by a qualified coach for the swimmers, pool and training phase.";
+const originalDisclaimer = "SetCraft original coaching template. A qualified coach must adjust volume, pace, recovery, equipment and technical expectations for the actual swimmers and training context.";
+
+const originalWorkout = (workout: Omit<FamousWorkout, "attribution" | "sourceName" | "sourceUrl" | "disclaimer">): FamousWorkout => ({
+  ...workout,
+  attribution: "Created for the SetCraft editable practice library",
+  sourceName: "SetCraft Original",
+  sourceUrl: "",
+  disclaimer: originalDisclaimer,
+});
 
 export const FAMOUS_WORKOUTS: FamousWorkout[] = [
   {
@@ -531,7 +540,147 @@ export const FAMOUS_WORKOUTS: FamousWorkout[] = [
       section("Pace rotation", "Repeat race-specific speed with enough easy work to preserve quality", "Stop or adjust when pace repeatedly drops", [repeat("Pace rotation", 3, [createSetNode("USRPT", { label: "Race-pace 25s", reps: 8, distance: 25, interval: "0:30", missLimit: 3, intensity: 9 }), createSetNode("recovery", { label: "Easy aerobic", reps: 1, distance: 200, interval: "3:30" }), createSetNode("race-pace", { label: "Race-pace 50s", reps: 4, distance: 50, interval: "1:00", intensity: 9 }), createSetNode("recovery", { label: "Easy reset", reps: 1, distance: 100, interval: "2:00" })])]),
       section("Cool-down", "Finish relaxed", "Long strokes", [createSetNode("recovery", { label: "Easy choice", reps: 1, distance: 300, interval: "6:00" })]),
     ],
-  }
+  },
+  originalWorkout({
+    id: "setcraft-sprint-neural-quality",
+    title: "Sprint Neural Quality",
+    subtitle: "Low-volume, full-recovery speed built around starts, breakouts and technically perfect 25s.",
+    level: "Advanced", focus: "Maximum velocity and race skills", phase: "Speed", durationMinutes: 65, poolLength: 25, poolUnit: "m", tags: ["Sprint", "Starts", "Quality"],
+    nodes: [
+      section("Preparation", "Raise readiness without fatigue", "Progress effort; protect shoulder range", [createSetNode("warm-up", { label: "Progressive choice", reps: 1, distance: 700, interval: "14:00" }), createSetNode("drill", { label: "Event drill to swim", reps: 6, distance: 50, interval: "1:05" })]),
+      section("Neural speed", "Produce maximum speed with full recovery", "Time every quality rep; stop when mechanics fall", [repeat("Quality round", 4, [createSetNode("sprint", { label: "Dive to 15", reps: 2, distance: 15, interval: "1:30", startMethod: "Dive", intensity: 10 }), createSetNode("sprint", { label: "Fast 25", reps: 2, distance: 25, interval: "1:00", intensity: 10 }), createSetNode("recovery", { label: "Easy reset", reps: 1, distance: 100, interval: "2:15" })])]),
+      section("Cool-down", "Finish fresh", "Long relaxed stroke", [createSetNode("recovery", { label: "Easy choice", reps: 1, distance: 300, interval: "6:00" })]),
+    ],
+  }),
+  originalWorkout({
+    id: "setcraft-200-free-speed-endurance",
+    title: "200 Freestyle Speed-Endurance Builder",
+    subtitle: "Target 50 pace, controlled broken 200s and closing-speed work for the 200 freestyle.",
+    level: "Advanced", focus: "200 freestyle pace and finish", phase: "Race preparation", durationMinutes: 80, poolLength: 25, poolUnit: "m", tags: ["200 free", "Race pace", "Speed endurance"],
+    nodes: [
+      section("Warm-up", "Prepare pace and turns", "Build final 200", [createSetNode("warm-up", { label: "Mixed progressive warm-up", reps: 1, distance: 900, interval: "18:00" }), createSetNode("drill", { label: "Turn in / out 15", reps: 6, distance: 15, interval: "0:45" })]),
+      section("Pace acquisition", "Lock in target 50 rhythm", "Record every split; identical stroke count range", [createSetNode("race-pace", { label: "Target 50s", reps: 8, distance: 50, interval: "1:15", intensity: 8 })]),
+      section("Broken race work", "Rehearse full-event pace with controlled recovery", "First half controlled; last 50 decisive", [repeat("Broken 200 round", 3, [createSetNode("race-pace", { label: "Broken 200", reps: 4, distance: 50, intervalMode: "rest", restSeconds: 10, interval: "0:45", intensity: 9 }), createSetNode("recovery", { label: "Easy between rounds", reps: 1, distance: 200, interval: "4:00" })])]),
+      section("Finish", "Practice closing speed", "Accelerate through wall", [createSetNode("sprint", { label: "Finish 25s", reps: 8, distance: 25, interval: "0:50", intensity: 10 }), createSetNode("recovery", { label: "Easy choice", reps: 1, distance: 300, interval: "6:00" })]),
+    ],
+  }),
+  originalWorkout({
+    id: "setcraft-distance-negative-split",
+    title: "Distance Negative-Split Control",
+    subtitle: "Long aerobic work with progressive second halves and repeatable pace discipline.",
+    level: "Advanced", focus: "Distance pacing and aerobic durability", phase: "Endurance", durationMinutes: 90, poolLength: 50, poolUnit: "m", tags: ["Distance", "Negative split", "Aerobic"],
+    nodes: [
+      section("Warm-up", "Establish long-course rhythm", "Patient first 400", [createSetNode("warm-up", { label: "Long-course warm-up", reps: 1, distance: 1000, interval: "18:00" })]),
+      section("Pace control", "Finish each repeat faster than it begins", "Second half 2–4 seconds per 100 faster without sprinting", [repeat("Negative-split round", 2, [createSetNode("aerobic", { label: "Negative-split 800", reps: 1, distance: 800, interval: "12:30", intensity: 7 }), createSetNode("pull", { label: "Steady pull", reps: 1, distance: 400, interval: "6:30", equipment: ["Pull buoy", "Snorkel"], intensity: 6 }), createSetNode("threshold", { label: "Strong 200", reps: 2, distance: 200, interval: "3:05", intensity: 8 }), createSetNode("recovery", { label: "Easy reset", reps: 1, distance: 200, interval: "4:00" })])]),
+      section("Cool-down", "Restore length", "Easy choice", [createSetNode("recovery", { label: "Easy choice", reps: 1, distance: 400, interval: "8:00" })]),
+    ],
+  }),
+  originalWorkout({
+    id: "setcraft-im-transition-race",
+    title: "IM Transition and Race-Rhythm Session",
+    subtitle: "Legal walls, underwater control and race-rhythm work across every IM transition.",
+    level: "Advanced", focus: "IM transitions and pace", phase: "Race preparation", durationMinutes: 85, poolLength: 25, poolUnit: "m", tags: ["IM", "Turns", "Race pace"],
+    nodes: [
+      section("All-stroke preparation", "Prepare range and legal walls", "Finish every stroke legally", [createSetNode("warm-up", { label: "IM order warm-up", reps: 4, distance: 200, stroke: "IM Order", interval: "3:30" })]),
+      section("Transition laboratory", "Repeat the wall between strokes", "Attack in; hold line out", [createSetNode("drill", { label: "Transition 50s", reps: 16, distance: 50, stroke: "IM Order", interval: "1:10", notes: "25 into transition + 25 out" })]),
+      section("Race rhythm", "Connect skill to race demand", "Do not sacrifice legality or breakout", [repeat("IM pace round", 4, [createSetNode("race-pace", { label: "100 IM race rhythm", reps: 2, distance: 100, stroke: "IM", interval: "2:00", intensity: 9 }), createSetNode("threshold", { label: "200 IM controlled", reps: 1, distance: 200, stroke: "IM", interval: "3:30", intensity: 8 }), createSetNode("recovery", { label: "Easy free/back", reps: 1, distance: 100, interval: "2:00" })])]),
+      section("Cool-down", "Relax shoulders and hips", "Easy choice", [createSetNode("recovery", { label: "Easy choice", reps: 1, distance: 300, interval: "6:00" })]),
+    ],
+  }),
+  originalWorkout({
+    id: "setcraft-breaststroke-tempo-turns",
+    title: "Breaststroke Tempo and Wall Speed",
+    subtitle: "Timing, pullout quality and race-tempo repetitions without excessive continuous volume.",
+    level: "Advanced", focus: "Breaststroke timing and turns", phase: "Race preparation", durationMinutes: 75, poolLength: 25, poolUnit: "m", tags: ["Breaststroke", "Tempo", "Turns"],
+    nodes: [
+      section("Warm-up", "Prepare hips, ankles and timing", "Long line; legal pullouts", [createSetNode("warm-up", { label: "Choice plus breast mix", reps: 1, distance: 800, interval: "16:00" }), createSetNode("drill", { label: "Breast timing drill", reps: 8, distance: 50, stroke: "Breast", interval: "1:10" })]),
+      section("Walls", "Improve approach, turn and pullout", "No glide into wall; tight feet; patient line", [createSetNode("drill", { label: "Breast turn in / out 15", reps: 10, distance: 15, stroke: "Breast", interval: "0:50" })]),
+      section("Tempo main set", "Hold race rhythm with quality recovery", "Count cycles; stable timing", [repeat("Tempo round", 4, [createSetNode("race-pace", { label: "Race-tempo 50s", reps: 4, distance: 50, stroke: "Breast", interval: "1:15", intensity: 9 }), createSetNode("recovery", { label: "Easy back/free", reps: 1, distance: 100, interval: "2:10" })])]),
+      section("Cool-down", "Restore range", "Easy choice", [createSetNode("recovery", { label: "Easy choice", reps: 1, distance: 300, interval: "6:00" })]),
+    ],
+  }),
+  originalWorkout({
+    id: "setcraft-backstroke-underwater",
+    title: "Backstroke Underwater and Breakout Builder",
+    subtitle: "Start alignment, underwater distance and first-stroke speed for backstroke specialists.",
+    level: "Advanced", focus: "Backstroke starts and underwaters", phase: "Power", durationMinutes: 70, poolLength: 25, poolUnit: "m", tags: ["Backstroke", "Underwater", "Starts"],
+    nodes: [
+      section("Preparation", "Prepare shoulders and line", "Stable head; hips high", [createSetNode("warm-up", { label: "Back/free progressive", reps: 1, distance: 700, interval: "14:00" }), createSetNode("drill", { label: "Back rotation drill", reps: 8, distance: 50, stroke: "Back", interval: "1:00" })]),
+      section("Start and underwater", "Produce repeatable start distance and breakout", "Tight line; legal distance; first stroke catches water", [repeat("Back start round", 4, [createSetNode("underwater", { label: "Back start to 15", reps: 2, distance: 15, stroke: "Back", interval: "1:30", startMethod: "Backstroke start", intensity: 9 }), createSetNode("sprint", { label: "Breakout 25 back", reps: 2, distance: 25, stroke: "Back", interval: "0:55", intensity: 9 }), createSetNode("recovery", { label: "Easy free", reps: 1, distance: 100, interval: "2:00" })])]),
+      section("Cool-down", "Relax shoulders", "Long easy strokes", [createSetNode("recovery", { label: "Easy choice", reps: 1, distance: 300, interval: "6:00" })]),
+    ],
+  }),
+  originalWorkout({
+    id: "setcraft-fly-rhythm-quality",
+    title: "Butterfly Rhythm Quality",
+    subtitle: "Short technical repetitions, controlled aerobic support and high-quality fly speed.",
+    level: "Advanced", focus: "Butterfly rhythm and sustainable mechanics", phase: "General preparation", durationMinutes: 70, poolLength: 25, poolUnit: "m", tags: ["Butterfly", "Technique", "Quality"],
+    nodes: [
+      section("Preparation", "Prepare shoulders, trunk and timing", "Chest presses down; hips follow", [createSetNode("warm-up", { label: "Choice warm-up", reps: 1, distance: 700, interval: "14:00" }), createSetNode("drill", { label: "Fly drill / swim", reps: 8, distance: 50, stroke: "Fly", interval: "1:10" })]),
+      section("Rhythm circuit", "Maintain fly quality through controlled support work", "Stop before stroke collapses", [repeat("Fly quality round", 5, [createSetNode("drill", { label: "Single-arm / full fly", reps: 2, distance: 50, stroke: "Fly", interval: "1:05" }), createSetNode("race-pace", { label: "Race-rhythm fly 25s", reps: 4, distance: 25, stroke: "Fly", interval: "0:45", intensity: 9 }), createSetNode("aerobic", { label: "Smooth free", reps: 1, distance: 200, stroke: "Free", interval: "3:10" })])]),
+      section("Cool-down", "Restore range", "Easy back/free", [createSetNode("recovery", { label: "Easy choice", reps: 1, distance: 300, interval: "6:00" })]),
+    ],
+  }),
+  originalWorkout({
+    id: "setcraft-taper-sharpening",
+    title: "Taper Sharpening Session",
+    subtitle: "Reduced volume with race skills, target pace and generous recovery for a coach-managed taper.",
+    level: "Advanced", focus: "Race readiness and speed retention", phase: "Taper", durationMinutes: 55, poolLength: 25, poolUnit: "m", tags: ["Taper", "Race pace", "Low volume"],
+    nodes: [
+      section("Warm-up", "Feel smooth and responsive", "No fatigue chasing", [createSetNode("warm-up", { label: "Easy progressive", reps: 1, distance: 600, interval: "12:00" }), createSetNode("drill", { label: "Event drill", reps: 4, distance: 50, interval: "1:05" })]),
+      section("Sharpening", "Touch race speed with full control", "Perfect execution; generous recovery", [repeat("Sharpening round", 3, [createSetNode("race-pace", { label: "Target 50", reps: 2, distance: 50, interval: "2:00", intensity: 9 }), createSetNode("sprint", { label: "Start to 15", reps: 1, distance: 15, interval: "2:00", startMethod: "Dive", intensity: 9 }), createSetNode("recovery", { label: "Easy reset", reps: 1, distance: 150, interval: "3:30" })])]),
+      section("Cool-down", "Leave feeling sharp", "Easy choice", [createSetNode("recovery", { label: "Easy choice", reps: 1, distance: 300, interval: "6:00" })]),
+    ],
+  }),
+  originalWorkout({
+    id: "setcraft-recovery-technique",
+    title: "Recovery and Technique Reset",
+    subtitle: "Low-intensity movement, sculling, body-line work and easy aerobic swimming for recovery days.",
+    level: "Intermediate", focus: "Recovery and technical quality", phase: "Recovery", durationMinutes: 50, poolLength: 25, poolUnit: "m", tags: ["Recovery", "Technique", "Low intensity"],
+    nodes: [
+      section("Easy entry", "Lower tension and establish breathing", "Comfortable effort", [createSetNode("recovery", { label: "Easy choice", reps: 1, distance: 500, interval: "10:00" })]),
+      section("Technique reset", "Improve feel without loading intensity", "Small corrections; relaxed speed", [repeat("Technique round", 4, [createSetNode("drill", { label: "Scull choice", reps: 2, distance: 50, interval: "1:10" }), createSetNode("drill", { label: "Body-line drill", reps: 2, distance: 50, interval: "1:05" }), createSetNode("aerobic", { label: "Smooth swim", reps: 1, distance: 200, interval: "3:30", intensity: 4 })])]),
+      section("Finish", "Leave recovered", "Easy choice", [createSetNode("recovery", { label: "Easy choice", reps: 1, distance: 300, interval: "6:00" })]),
+    ],
+  }),
+  originalWorkout({
+    id: "setcraft-css-efficiency-test",
+    title: "Critical-Speed and Efficiency Test Day",
+    subtitle: "A controlled test session for 400/200 results plus stroke-count and efficiency tracking.",
+    level: "Advanced", focus: "Benchmark critical speed and mechanics", phase: "Testing", durationMinutes: 90, poolLength: 25, poolUnit: "m", tags: ["Testing", "Critical speed", "Stroke count"],
+    nodes: [
+      section("Warm-up", "Prepare for repeatable testing", "Progress gradually; rehearse pace", [createSetNode("warm-up", { label: "Progressive warm-up", reps: 1, distance: 1000, interval: "20:00" }), createSetNode("drill", { label: "Stroke-count 50s", reps: 4, distance: 50, interval: "1:15" })]),
+      section("400 test", "Collect maximal long test", "Record every 100 split", [createSetNode("test-set", { label: "Timed 400", reps: 1, distance: 400, intervalMode: "target-time", targetTime: "5:00", interval: "8:00", intensity: 10 })]),
+      section("Recovery", "Restore before second test", "Coach extends if necessary", [createSetNode("recovery", { label: "Easy recovery", reps: 1, distance: 600, interval: "15:00" })]),
+      section("200 test", "Collect maximal short test", "Record every 50 split and stroke cycles", [createSetNode("test-set", { label: "Timed 200", reps: 1, distance: 200, intervalMode: "target-time", targetTime: "2:20", interval: "5:00", intensity: 10 })]),
+      section("Cool-down", "Lower stress", "Easy choice", [createSetNode("recovery", { label: "Easy choice", reps: 1, distance: 500, interval: "10:00" })]),
+    ],
+  }),
+  originalWorkout({
+    id: "setcraft-multi-lane-aerobic",
+    title: "Multi-Lane Aerobic Equivalence",
+    subtitle: "A full practice designed to be adapted through send-offs, repetition counts or time caps without changing the objective.",
+    level: "Intermediate", focus: "Equivalent aerobic work across lanes", phase: "Aerobic base", durationMinutes: 75, poolLength: 25, poolUnit: "m", tags: ["Multi-lane", "Aerobic", "Adaptation"],
+    nodes: [
+      section("Shared warm-up", "Prepare all lanes together", "Use lane-specific send-offs", [createSetNode("warm-up", { label: "Mixed warm-up", reps: 1, distance: 700, interval: "14:00" })]),
+      section("Aerobic time block", "Accumulate comparable work time", "Use pace-appropriate distance and repeat count", [{ id: "setcraft-multi-lane-cap", kind: "time-cap", label: "Twenty-minute aerobic block", minutes: 20, behavior: "finish-current-rep", locked: false, children: [createSetNode("aerobic", { label: "Aerobic repeats", reps: 4, distance: 200, interval: "3:00", intensity: 6 })] }]),
+      section("Shared skill", "Reconnect lanes through technique", "Quality before speed", [createSetNode("drill", { label: "Drill / swim", reps: 8, distance: 50, interval: "1:05" })]),
+      section("Threshold time block", "Create comparable controlled intensity", "Adjust repetition distance before sacrificing rest", [{ id: "setcraft-threshold-cap", kind: "time-cap", label: "Fifteen-minute threshold block", minutes: 15, behavior: "finish-current-rep", locked: false, children: [createSetNode("threshold", { label: "Threshold repeats", reps: 6, distance: 100, interval: "1:30", intensity: 8 })] }]),
+      section("Cool-down", "Finish together", "Easy choice", [createSetNode("recovery", { label: "Easy choice", reps: 1, distance: 300, interval: "6:00" })]),
+    ],
+  }),
+  originalWorkout({
+    id: "setcraft-meet-warmup",
+    title: "Competition Warm-Up Template",
+    subtitle: "An editable meet warm-up with general swimming, event skills, target pace and start readiness.",
+    level: "Advanced", focus: "Competition readiness", phase: "Competition week", durationMinutes: 35, poolLength: 25, poolUnit: "m", tags: ["Meet warm-up", "Competition", "Race skills"],
+    nodes: [
+      section("General warm-up", "Raise temperature and range", "Easy first 200; progressive finish", [createSetNode("warm-up", { label: "Progressive choice", reps: 1, distance: 500, interval: "10:00" })]),
+      section("Event preparation", "Rehearse stroke and walls", "Legal turns; race line", [createSetNode("drill", { label: "Event drill / swim", reps: 4, distance: 50, interval: "1:00" }), createSetNode("race-pace", { label: "Target pace 25s", reps: 4, distance: 25, interval: "0:50", intensity: 8 })]),
+      section("Starts", "Prime start and breakout", "Full recovery; no extra volume", [createSetNode("sprint", { label: "Start to 15", reps: 2, distance: 15, interval: "2:00", startMethod: "Dive", intensity: 9 })]),
+      section("Reset", "Finish ready to race", "Easy and confident", [createSetNode("recovery", { label: "Easy choice", reps: 1, distance: 200, interval: "4:00" })]),
+    ],
+  })
 ];
 
 export const FAMOUS_WORKOUT_TAGS = [...new Set(FAMOUS_WORKOUTS.flatMap((workout) => workout.tags))].sort();

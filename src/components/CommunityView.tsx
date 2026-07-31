@@ -20,7 +20,7 @@ const INITIAL_PROFILE: SwimmerProfile = {
   ],
   badges: [
     { name: "Yards Warrior", icon: "🔥", desc: "Logged over 50,000 yards in a single training month." },
-    { name: "Lactate Champ", icon: "⚡", desc: "Completed 3 safety-audited threshold sprints under goal cycles." },
+    { name: "Lactate Champ", icon: "⚡", desc: "Completed three coach-reviewed threshold sessions under goal cycles." },
     { name: "Early Bird", icon: "🌅", desc: "Logged a workout before 6:00 AM." }
   ]
 };
@@ -59,7 +59,7 @@ const FEED_ITEMS: FeedItem[] = [
     id: "f1",
     author: "Coach Sarah G. (SF TriMasters)",
     avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=100",
-    content: "Outstanding threshold set swam by everyone today! Paces were sharp. Make sure to check the active leaderboards — Alex and Marcus are neck-and-neck!",
+    content: "Example post: the group completed a threshold session and recorded lane splits for coach review.",
     likes: 18,
     comments: 4,
     timeAgo: "2 hours ago"
@@ -117,10 +117,10 @@ export default function CommunityView() {
         <div>
           <h2 className="text-xl font-display font-bold text-slate-900 flex items-center gap-2">
             <Users className="w-5 h-5 text-indigo-600" />
-            Swimmer Guild
+            Swimmer Guild — Prototype
           </h2>
           <p className="text-slate-500 text-xs mt-1">
-            Discover local swimming clubs, track informal leaderboards, and coordinate club vs. club challenges.
+            Preview future community, coach-sharing and club-challenge concepts. This page uses local demonstration data only.
           </p>
         </div>
 
@@ -176,7 +176,7 @@ export default function CommunityView() {
                 className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-300"
               />
               <div className="flex justify-between items-center">
-                <span className="text-[10px] text-slate-500 font-mono font-medium">POSTING TO SF TRI-COMMUNITY</span>
+                <span className="text-[10px] text-slate-500 font-mono font-medium">LOCAL DEMO POST — NOT PUBLISHED</span>
                 <button
                   onClick={handlePostSubmit}
                   className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-sm"
@@ -237,7 +237,7 @@ export default function CommunityView() {
                 <div className="space-y-4">
                   <div>
                     <h4 className="text-xs font-bold text-slate-800">SF TriMasters Club</h4>
-                    <span className="text-[10px] text-slate-400 font-mono">San Francisco, CA • 42 Active Athletes</span>
+                    <span className="text-[10px] text-slate-400 font-mono">San Francisco, CA • Example roster</span>
                   </div>
 
                   <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs text-xs space-y-2">
@@ -252,7 +252,7 @@ export default function CommunityView() {
                   </div>
 
                   <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
-                    You are linked to this roster. Your daily yards automatically contribute to the July Summer Volume Clash.
+                    Prototype preview only. Production club links, permissions and shared volume require accounts and a backend.
                   </p>
                 </div>
               ) : (
@@ -279,7 +279,7 @@ export default function CommunityView() {
               <Trophy className="w-4 h-4 text-indigo-600" />
               Regional Distance Leaderboard (Monthly Yards)
             </h3>
-            <span className="text-[10px] text-slate-400 font-mono font-medium">UPDATED 15 MINS AGO</span>
+            <span className="text-[10px] text-slate-400 font-mono font-medium">DEMONSTRATION DATA</span>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
@@ -318,7 +318,7 @@ export default function CommunityView() {
           <div className="bg-slate-50/50 p-5 rounded-xl border border-slate-200 text-xs text-slate-500 leading-relaxed flex items-center gap-3">
             <Award className="w-5 h-5 text-indigo-600 shrink-0" />
             <span>
-              <strong>Club-vs-Club Matches:</strong> Inter-club challenges allow local master teams to compete over total weekly yards, specific sprint cycle relay goals, and median RPE load metrics.
+              <strong>Concept preview:</strong> Club challenges could compare agreed team metrics after consent, identity and anti-gaming controls are implemented.
             </span>
           </div>
 
@@ -400,7 +400,7 @@ export default function CommunityView() {
                 <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
                   <span className="text-[9px] text-slate-400 font-mono block uppercase font-bold">{pb.stroke} {pb.distance}m</span>
                   <span className="text-xl font-display font-extrabold text-indigo-600 block mt-1">{pb.time}</span>
-                  <span className="text-[9px] text-slate-400 block mt-1 font-mono font-bold">VERIFIED COMPETITION</span>
+                  <span className="text-[9px] text-slate-400 block mt-1 font-mono font-bold">EXAMPLE PB</span>
                 </div>
               ))}
             </div>
@@ -408,7 +408,7 @@ export default function CommunityView() {
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-2 text-xs">
               <span className="font-bold text-slate-800 block">Coach Assignments Link</span>
               <p className="text-slate-500 leading-relaxed text-[11px] font-medium">
-                Your linked coach, <strong>Sarah G.</strong>, can view these personal best milestones directly to scale your lactate threshold intervals in Swim Studio.
+                A future shared-account version could let an authorized coach reference athlete-entered best times while building lane targets. This prototype does not publish or synchronize these records.
               </p>
             </div>
           </div>

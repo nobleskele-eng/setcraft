@@ -572,6 +572,9 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
   const [laneAssignments, setLaneAssignments] = useState<LaneAssignmentConfig>(DEFAULT_LANE_ASSIGNMENTS);
   const [deckSheetMeta, setDeckSheetMeta] = useState<DeckSheetMeta>(DEFAULT_DECK_SHEET_META);
   const [quickSetDraft, setQuickSetDraft] = useState<QuickSetDraft>(DEFAULT_QUICK_SET);
+  const [aiAudit, setAiAudit] = useState<{ isSafe: boolean; warnings: string[]; recommendations: string[] } | null>(null);
+  const [aiAuditLoading, setAiAuditLoading] = useState(false);
+  const [aiAuditError, setAiAuditError] = useState("");
   const paletteSearchRef = useRef<HTMLInputElement | null>(null);
 
 
@@ -685,6 +688,11 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
   const previewText = useMemo(() => formatWorkoutText(nodes, poolUnit), [nodes, poolUnit]);
   const warningCount = validation.filter((issue) => issue.severity === "warning").length;
   const laneWorkoutOptions = useMemo(() => workoutNodeOptions(nodes), [nodes]);
+
+  useEffect(() => {
+    setAiAudit(null);
+    setAiAuditError("");
+  }, [nodes]);
   const containerIds = useMemo(() => {
     const ids: string[] = [];
     const walk = (items: StudioNode[]) => items.forEach((item) => {
@@ -978,6 +986,29 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
     localStorage.setItem("setcraft_favorite_presets", JSON.stringify(updated));
   };
 
+  const runAiAudit = async () => {
+    setAiAuditLoading(true);
+    setAiAuditError("");
+    try {
+      const response = await fetch("/api/gemini/audit-workout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sets: nodes }),
+      });
+      if (!response.ok) throw new Error(`Audit request failed (${response.status})`);
+      const result = await response.json();
+      setAiAudit({
+        isSafe: Boolean(result?.isSafe),
+        warnings: Array.isArray(result?.warnings) ? result.warnings.map(String) : [],
+        recommendations: Array.isArray(result?.recommendations) ? result.recommendations.map(String) : [],
+      });
+    } catch (error) {
+      setAiAuditError(error instanceof Error ? error.message : "Could not run the AI review.");
+    } finally {
+      setAiAuditLoading(false);
+    }
+  };
+
   const exportJson = () => {
     const payload = { version: 5, session: { name: sessionName, focus, phase, poolLength, poolUnit, targetMinutes }, laneAssignments, deckSheetMeta, stats, nodes };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -1238,14 +1269,14 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
             <div className="min-w-0">
               <div className="border-b border-slate-100 p-3">
                 <div className="relative"><Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" /><input ref={paletteSearchRef} value={paletteSearch} onChange={(event) => setPaletteSearch(event.target.value)} placeholder="Search all blocks (Ctrl+K)" className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs text-slate-700 outline-none focus:border-indigo-400 focus:bg-white" /></div>
-                <p className="mt-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">{searchQuery ? "Search results" : activeCategory}</p>
+                <p className="mt-2 text-xs font-bold uppercase tracking-wider text-slate-400">{searchQuery ? "Search results" : activeCategory}</p>
               </div>
               <div className="max-h-[950px] space-y-2 overflow-y-auto p-3">
                 {activeCategory === "My Blocks" && !searchQuery && (
                   <div className="mb-3 space-y-2 rounded-2xl border border-rose-100 bg-rose-50/60 p-3">
                     <button type="button" onClick={() => setMakeBlockOpen(true)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-rose-500 px-3 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-rose-600"><Plus className="h-4 w-4" /> Make a Block</button>
-                    <button type="button" onClick={() => setQuickWriteOpen(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white px-3 py-2 text-[10px] font-bold text-rose-700 hover:bg-rose-50"><PenLine className="h-4 w-4" /> Quick-write sets</button>
-                    <p className="text-[9px] leading-relaxed text-rose-700/70">Create reusable swim blocks, empty sections, repeat containers or coach-note blocks from scratch.</p>
+                    <button type="button" onClick={() => setQuickWriteOpen(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-50"><PenLine className="h-4 w-4" /> Quick-write sets</button>
+                    <p className="text-[11px] leading-relaxed text-rose-700/70">Create reusable swim blocks, empty sections, repeat containers or coach-note blocks from scratch.</p>
                   </div>
                 )}
                 {(searchQuery || !["My Blocks", "Backpack"].includes(activeCategory)) && paletteItems.map((item) => {
@@ -1265,8 +1296,8 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
                 {(searchQuery || activeCategory === "My Blocks") && customItems.map((item) => (
                   <div key={item.id} className="group relative">
                     <button type="button" draggable onDragStart={(event) => handlePaletteDragStart({ source: "custom", customId: item.id }, event)} onDragEnd={handleDragEnd} onClick={() => addFromPalette(`custom:${item.id}`)} className="palette-puzzle w-full cursor-grab rounded-xl bg-rose-500 px-3 py-2.5 text-left text-white shadow-sm hover:bg-rose-600">
-                      <div className="flex items-center gap-2"><GripVertical className="h-4 w-4" /><span className="truncate text-xs font-bold">{item.name}</span><Sparkles className="ml-auto h-4 w-4" /></div>
-                      <p className="mt-1 pl-5 text-[9px] text-white/80">{item.description || "Reusable custom block"}</p>
+                      <div className="flex items-center gap-2"><GripVertical className="h-4 w-4" /><span className="truncate text-sm font-bold">{item.name}</span><Sparkles className="ml-auto h-4 w-4" /></div>
+                      <p className="mt-1 pl-5 text-[11px] text-white/80">{item.description || "Reusable custom block"}</p>
                     </button>
                     <button type="button" onClick={() => deleteCustom(item.id)} className="absolute right-1 top-1 rounded p-1 text-white/60 opacity-0 hover:bg-white/15 hover:text-white group-hover:opacity-100"><X className="h-3 w-3" /></button>
                   </div>
@@ -1275,17 +1306,17 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
                 {(searchQuery || activeCategory === "Backpack") && backpackItems.map((item) => (
                   <div key={item.id} className="group relative">
                     <button type="button" draggable onDragStart={(event) => handlePaletteDragStart({ source: "custom", customId: item.id }, event)} onDragEnd={handleDragEnd} onClick={() => addFromPalette(`custom:${item.id}`)} className="palette-puzzle w-full cursor-grab rounded-xl bg-violet-600 px-3 py-2.5 text-left text-white shadow-sm hover:bg-violet-700">
-                      <div className="flex items-center gap-2"><GripVertical className="h-4 w-4" /><span className="truncate text-xs font-bold">{item.name}</span><ClipboardList className="ml-auto h-4 w-4" /></div>
-                      <p className="mt-1 pl-5 text-[9px] text-white/80">{item.description || "Portable reusable block"}</p>
+                      <div className="flex items-center gap-2"><GripVertical className="h-4 w-4" /><span className="truncate text-sm font-bold">{item.name}</span><ClipboardList className="ml-auto h-4 w-4" /></div>
+                      <p className="mt-1 pl-5 text-[11px] text-white/80">{item.description || "Portable reusable block"}</p>
                     </button>
                     <button type="button" onClick={() => deleteBackpackItem(item.id)} className="absolute right-1 top-1 rounded p-1 text-white/60 opacity-0 hover:bg-white/15 hover:text-white group-hover:opacity-100"><X className="h-3 w-3" /></button>
                   </div>
                 ))}
 
-                {activeCategory === "Favorites" && paletteItems.length === 0 && !searchQuery && <div className="rounded-xl border border-dashed border-yellow-200 bg-yellow-50 p-5 text-center"><Star className="mx-auto h-5 w-5 text-yellow-400" /><p className="mt-2 text-[10px] font-bold text-yellow-800">No favorite blocks yet</p><p className="mt-1 text-[9px] leading-relaxed text-yellow-700/70">Use the star on any palette block to pin it here.</p></div>}
-                {activeCategory === "Backpack" && backpackBlocks.length === 0 && !searchQuery && <div className="rounded-xl border border-dashed border-violet-200 bg-violet-50 p-5 text-center"><ClipboardList className="mx-auto h-5 w-5 text-violet-400" /><p className="mt-2 text-[10px] font-bold text-violet-800">Backpack is empty</p><p className="mt-1 text-[9px] leading-relaxed text-violet-700/70">Select any canvas block and save it to Backpack to carry it between projects.</p></div>}
+                {activeCategory === "Favorites" && paletteItems.length === 0 && !searchQuery && <div className="rounded-xl border border-dashed border-yellow-200 bg-yellow-50 p-5 text-center"><Star className="mx-auto h-5 w-5 text-yellow-400" /><p className="mt-2 text-xs font-bold text-yellow-800">No favorite blocks yet</p><p className="mt-1 text-[11px] leading-relaxed text-yellow-700/70">Use the star on any palette block to pin it here.</p></div>}
+                {activeCategory === "Backpack" && backpackBlocks.length === 0 && !searchQuery && <div className="rounded-xl border border-dashed border-violet-200 bg-violet-50 p-5 text-center"><ClipboardList className="mx-auto h-5 w-5 text-violet-400" /><p className="mt-2 text-xs font-bold text-violet-800">Backpack is empty</p><p className="mt-1 text-[11px] leading-relaxed text-violet-700/70">Select any canvas block and save it to Backpack to carry it between projects.</p></div>}
 
-                {activeCategory === "My Blocks" && customBlocks.length === 0 && !searchQuery && <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-5 text-center"><Sparkles className="mx-auto h-5 w-5 text-slate-300" /><p className="mt-2 text-[10px] font-bold text-slate-500">No custom blocks</p><p className="mt-1 text-[9px] leading-relaxed text-slate-400">Choose “Make a Block,” or select a canvas block and save it here.</p></div>}
+                {activeCategory === "My Blocks" && customBlocks.length === 0 && !searchQuery && <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-5 text-center"><Sparkles className="mx-auto h-5 w-5 text-slate-300" /><p className="mt-2 text-xs font-bold text-slate-500">No custom blocks</p><p className="mt-1 text-[11px] leading-relaxed text-slate-400">Choose “Make a Block,” or select a canvas block and save it here.</p></div>}
               </div>
             </div>
           </aside>
@@ -1386,7 +1417,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
                 <div className="space-y-4">
                   <div><h2 className="text-sm font-bold text-slate-950">Live calculations</h2><p className="mt-1 text-[10px] text-slate-400">Updated recursively from every nested block.</p></div>
                   <div className="grid grid-cols-2 gap-2"><Metric label="Distance" value={stats.totalDistance.toLocaleString()} suffix={poolUnit} /><Metric label="Duration" value={String(stats.estimatedDuration)} suffix="min" /><Metric label="Average load" value={String(stats.averageIntensity)} suffix="/10" /><Metric label="Executed reps" value={String(stats.setCount)} suffix="" /><Metric label="High intensity" value={stats.highIntensityDistance.toLocaleString()} suffix={poolUnit} /><Metric label="Recovery" value={stats.recoveryDistance.toLocaleString()} suffix={poolUnit} /></div>
-                  <div className="rounded-xl border border-slate-100 bg-slate-50 p-3"><div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400"><span>Booking usage</span><span className={stats.estimatedDuration > targetMinutes ? "text-rose-600" : "text-slate-600"}>{stats.estimatedDuration}/{targetMinutes} min</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200"><div className={`h-full rounded-full ${stats.estimatedDuration > targetMinutes ? "bg-rose-500" : "bg-indigo-500"}`} style={{ width: `${Math.min(100, (stats.estimatedDuration / Math.max(1, targetMinutes)) * 100)}%` }} /></div></div>
+                  <div className="rounded-xl border border-slate-100 bg-slate-50 p-3"><div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-400"><span>Booking usage</span><span className={stats.estimatedDuration > targetMinutes ? "text-rose-600" : "text-slate-600"}>{stats.estimatedDuration}/{targetMinutes} min</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200"><div className={`h-full rounded-full ${stats.estimatedDuration > targetMinutes ? "bg-rose-500" : "bg-indigo-500"}`} style={{ width: `${Math.min(100, (stats.estimatedDuration / Math.max(1, targetMinutes)) * 100)}%` }} /></div></div>
                   <div><div className="mb-2 flex items-center justify-between"><h3 className="text-xs font-bold text-slate-800">Validation</h3><span className={`rounded-full px-2 py-1 text-[11px] font-extrabold ${warningCount ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>{warningCount ? `${warningCount} warnings` : "Clear"}</span></div><div className="space-y-2">{validation.map((issue) => <React.Fragment key={issue.id}><ValidationRow issue={issue} onSelect={(id) => { setSelectedId(id); setRightTab("inspector"); }} /></React.Fragment>)}</div></div>
                   {stats.equipment.length > 0 && <div><p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Equipment list</p><div className="mt-2 flex flex-wrap gap-1.5">{stats.equipment.map((item) => <span key={item} className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-600">{item}</span>)}</div></div>}
                 </div>
@@ -1464,6 +1495,11 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
                 <section className="professional-card rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
                   <div className="flex items-center justify-between"><div><h2 className="text-base font-extrabold text-slate-950">Final checks</h2><p className="mt-1 text-xs text-slate-500">Resolve warnings before sending the practice to the deck.</p></div><span className={`rounded-full px-3 py-1.5 text-xs font-extrabold ${warningCount ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>{warningCount ? `${warningCount} warnings` : "All clear"}</span></div>
                   <div className="mt-4 space-y-2">{validation.map((issue) => <React.Fragment key={issue.id}><ValidationRow issue={issue} onSelect={(id) => { setSelectedId(id); setStudioPage("build"); setRightTab("inspector"); }} /></React.Fragment>)}</div>
+                  <div className="mt-5 border-t border-slate-100 pt-5">
+                    <div className="flex items-start justify-between gap-3"><div><h3 className="flex items-center gap-2 text-sm font-extrabold text-slate-900"><Sparkles className="h-4 w-4 text-indigo-600" />Optional AI second review</h3><p className="mt-1 text-[11px] leading-5 text-slate-500">The deterministic checks above remain the trusted math layer. AI can suggest additional questions for coach review.</p></div><button type="button" onClick={runAiAudit} disabled={aiAuditLoading} className="flex shrink-0 items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-extrabold text-indigo-700 hover:bg-indigo-100 disabled:opacity-50">{aiAuditLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}{aiAuditLoading ? "Reviewing…" : "Run review"}</button></div>
+                    {aiAuditError && <p className="mt-3 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-bold text-rose-800">{aiAuditError}</p>}
+                    {aiAudit && <div className="mt-3 space-y-3 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4"><span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider ${aiAudit.isSafe ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>{aiAudit.isSafe ? "No major AI flags" : "Coach review needed"}</span>{aiAudit.warnings.length > 0 && <div><p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Questions / warnings</p><ul className="mt-2 space-y-1 text-xs leading-5 text-slate-700">{aiAudit.warnings.map((item, index) => <li key={`${item}-${index}`}>• {item}</li>)}</ul></div>}{aiAudit.recommendations.length > 0 && <div><p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Possible checks</p><ul className="mt-2 space-y-1 text-xs leading-5 text-slate-700">{aiAudit.recommendations.map((item, index) => <li key={`${item}-${index}`}>• {item}</li>)}</ul></div>}</div>}
+                  </div>
                 </section>
                 <section className="professional-card rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
                   <h2 className="text-base font-extrabold text-slate-950">Project actions</h2>
@@ -1739,7 +1775,7 @@ function LaneAssignmentPanel({ config, onChange, deckMeta, onDeckMetaChange, ope
                 <div key={table.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                   <div className="flex gap-2"><input value={table.title} onChange={(event) => updateGoalTable(table.id, { title: event.target.value })} className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-extrabold outline-none focus:border-cyan-400" /><button type="button" onClick={() => removeGoalTable(table.id)} className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600"><Trash2 className="h-4 w-4" /></button></div>
                   <div className="mt-3 overflow-x-auto"><table className="w-full min-w-[520px] border-collapse text-xs"><thead><tr><th className="border border-slate-200 bg-white p-2 text-left">Label</th>{table.columns.map((column, index) => <th key={`${table.id}-col-${index}`} className="border border-slate-200 bg-white p-1"><input value={column} onChange={(event) => { const columns = [...table.columns]; columns[index] = event.target.value; updateGoalTable(table.id, { columns }); }} className="w-full min-w-[70px] border-0 bg-transparent p-1 text-center font-bold outline-none" /></th>)}</tr></thead><tbody>{table.rows.map((row) => <tr key={row.id}><td className="border border-slate-200 bg-white p-1"><input value={row.label} onChange={(event) => updateGoalTable(table.id, { rows: table.rows.map((item) => item.id === row.id ? { ...item, label: event.target.value } : item) })} className="w-full border-0 bg-transparent p-1 font-bold outline-none" /></td>{table.columns.map((_, index) => <td key={`${row.id}-${index}`} className="border border-slate-200 bg-white p-1"><input value={row.values[index] || ""} onChange={(event) => { const values = [...row.values]; values[index] = event.target.value; updateGoalTable(table.id, { rows: table.rows.map((item) => item.id === row.id ? { ...item, values } : item) }); }} className="w-full min-w-[70px] border-0 bg-transparent p-1 text-center outline-none" /></td>)}</tr>)}</tbody></table></div>
-                  <div className="mt-2 flex flex-wrap gap-2"><button type="button" onClick={() => updateGoalTable(table.id, { columns: [...table.columns, "New"] , rows: table.rows.map((row) => ({ ...row, values: [...row.values, ""] })) })} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-bold text-slate-600">+ Column</button><button type="button" onClick={() => updateGoalTable(table.id, { rows: [...table.rows, { id: `goal-row-${Date.now()}`, label: "Goal", values: table.columns.map(() => "") }] })} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-bold text-slate-600">+ Row</button>{table.columns.length > 1 && <button type="button" onClick={() => updateGoalTable(table.id, { columns: table.columns.slice(0, -1), rows: table.rows.map((row) => ({ ...row, values: row.values.slice(0, -1) })) })} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-bold text-slate-500">Remove last column</button>}{table.rows.length > 1 && <button type="button" onClick={() => updateGoalTable(table.id, { rows: table.rows.slice(0, -1) })} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-bold text-slate-500">Remove last row</button>}</div>
+                  <div className="mt-2 flex flex-wrap gap-2"><button type="button" onClick={() => updateGoalTable(table.id, { columns: [...table.columns, "New"] , rows: table.rows.map((row) => ({ ...row, values: [...row.values, ""] })) })} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-bold text-slate-600">+ Column</button><button type="button" onClick={() => updateGoalTable(table.id, { rows: [...table.rows, { id: `goal-row-${Date.now()}`, label: "Goal", values: table.columns.map(() => "") }] })} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-bold text-slate-600">+ Row</button>{table.columns.length > 1 && <button type="button" onClick={() => updateGoalTable(table.id, { columns: table.columns.slice(0, -1), rows: table.rows.map((row) => ({ ...row, values: row.values.slice(0, -1) })) })} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-500">Remove last column</button>}{table.rows.length > 1 && <button type="button" onClick={() => updateGoalTable(table.id, { rows: table.rows.slice(0, -1) })} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-500">Remove last row</button>}</div>
                 </div>
               ))}
             </div>}
