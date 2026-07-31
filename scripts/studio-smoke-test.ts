@@ -4,15 +4,20 @@ import {
   PALETTE_PRESETS,
   calculateStats,
   createPaletteNode,
+  createSetNode,
   findNode,
   insertNode,
   parseQuickWrite,
   removeNode,
   starterWorkout,
+  validateWorkout,
 } from "../src/swimStudioEngine";
+import { FAMOUS_WORKOUTS } from "../src/famousWorkouts";
 import { createWorkoutPdfBytes } from "../src/pdfExport";
 
 async function main() {
+  assert.equal(PALETTE_PRESETS.length, 131, "Final build should expose 131 palette presets");
+  assert.equal(FAMOUS_WORKOUTS.length, 30, "Final build should expose 30 editable library workouts");
   // Every palette item must create a usable node with an ID.
   const ids = new Set<string>();
   for (const preset of PALETTE_PRESETS) {
@@ -50,6 +55,17 @@ async function main() {
   const stats = calculateStats(quick);
   assert.equal(stats.totalDistance, 900, "Nested repeat distance was calculated incorrectly");
   assert.equal(stats.setCount, 15, "Nested repeat count was calculated incorrectly");
+
+  // Target time must be faster than the send-off.
+  const impossible = createSetNode("threshold", { reps: 4, distance: 100, targetTime: "1:20", intervalMode: "send-off", interval: "1:10" });
+  const timingIssues = validateWorkout([impossible], 90, 25);
+  assert.ok(timingIssues.some((issue) => issue.id.startsWith("negative-rest-")), "Impossible send-off did not trigger a deterministic warning");
+
+  // Every library workout must remain calculable and non-empty.
+  for (const workout of FAMOUS_WORKOUTS) {
+    const workoutStats = calculateStats(workout.nodes);
+    assert.ok(Number.isFinite(workoutStats.totalDistance) && workoutStats.totalDistance > 0, `${workout.title} has invalid calculated distance`);
+  }
 
   // One-page PDF export must remain exactly one A4 portrait page.
   const starter = starterWorkout();
@@ -92,6 +108,8 @@ async function main() {
   assert.ok(size.height > size.width, "PDF export was not portrait");
 
   console.log(`✓ ${PALETTE_PRESETS.length} palette presets create unique nodes`);
+  console.log(`✓ ${FAMOUS_WORKOUTS.length} editable library workouts calculate correctly`);
+  console.log("✓ Infeasible target/send-off timing is detected");
   console.log("✓ All C-shaped containers accept sets and nested sections");
   console.log("✓ Move/remove/insert preserves block identity");
   console.log("✓ Quick Write parses nested repeats and calculates totals");

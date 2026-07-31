@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
@@ -14,8 +14,16 @@ dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 
-app.use(express.json());
+app.disable("x-powered-by");
+app.use(express.json({ limit: "1mb" }));
+
+const safeText = (value: unknown, fallback = "") => typeof value === "string" ? value.trim().slice(0, 12000) : fallback;
+const safeNumber = (value: unknown, fallback: number, min: number, max: number) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.min(max, Math.max(min, parsed)) : fallback;
+};
 
 // Initialize Gemini Client with User-Agent header for telemetry
 let ai: GoogleGenAI | null = null;
@@ -42,11 +50,10 @@ async function getGeminiResponse(systemPrompt: string, userPrompt: string, fallb
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: GEMINI_MODEL,
       contents: userPrompt,
       config: {
         systemInstruction: systemPrompt,
-        temperature: 0.7,
       }
     });
 
@@ -61,26 +68,24 @@ async function getGeminiResponse(systemPrompt: string, userPrompt: string, fallb
 
 // 1. Generate swim set
 app.post("/api/gemini/generate-set", async (req, res) => {
-  const { focus, swimmerLevel, targetDistance, equipment } = req.body;
+  const focus = safeText(req.body?.focus, "Aerobic endurance");
+  const swimmerLevel = safeText(req.body?.swimmerLevel, "intermediate");
+  const targetDistance = safeNumber(req.body?.targetDistance, 1500, 100, 12000);
+  const equipment = Array.isArray(req.body?.equipment)
+    ? req.body.equipment.map((item: unknown) => safeText(item)).filter(Boolean).slice(0, 12)
+    : [];
 
-  const systemPrompt = "You are an elite, Olympic-caliber swim coach and training programmer. Your goal is to write a highly realistic, specific swim set that athletes can do in a pool. Format the output in clean, readable markdown with a clear set title, repeat structures, intervals, equipment tags, and the physiological reason (energy system) for this set. Keep your explanation concise and direct.";
+  const systemPrompt = "You are a swim-workout drafting assistant for qualified coaches. Produce a practical draft, not medical advice or an autonomous prescription. Use SetCraft Quick Write syntax so the result can become editable blocks: headings start with #; set lines look like 8x100 Free @ 1:30 RPE 7 - coaching cue; optional containers use Repeat 3x: followed later by end. Include warm-up/recovery when appropriate, state assumptions, and never invent athlete readiness.";
   
   const userPrompt = `Generate a swim set for a ${swimmerLevel} swimmer focusing on ${focus}. The target distance for this main block should be around ${targetDistance} meters/yards. Allowed equipment: ${equipment ? equipment.join(", ") : "none"}.`;
   
-  const fallback = `### ${focus.toUpperCase()} Focus Set
-  
-**Main Set: Aerobic Endurance Builders**
-*   **4 x 200m Free** on a 3:15 interval
-    *   *Intensity*: Aerobic (RPE 6/10)
-    *   *Equipment*: Snorkel / Pull Buoy optional
-    *   *Focus*: Even split paces on each 100m. Keep head down and alignment pristine.
-*   **6 x 50m Kick** on a 1:15 interval
-    *   *Intensity*: Active recovery (RPE 4/10)
-    *   *Equipment*: Kickboard
-    *   *Focus*: Consistent vertical flutter kick, focusing on hip rotation.
-
-**Physiological Purpose:**
-This set builds aerobic base capacity (A1/A2 threshold) by maintaining a steady heart rate, strengthening cardiovascular output, and reinforcing high elbow pull positioning over long intervals.`;
+  const fallback = `# Main Set
+4x200 Free @ 3:15 RPE 6 - even splits, long line${equipment.length ? `, equipment: ${equipment.join(", ")}` : ""}
+6x50 Kick @ 1:15 RPE 5 - consistent tempo from the hips
+4x100 Choice @ 1:45 RPE 7 - descend 1 to 4
+# Recovery
+1x200 Choice @ 4:00 RPE 2 - easy reset
+Coach note: Offline draft for ${focus}; adjust volume and intervals for the ${swimmerLevel} group.`;
 
   const text = await getGeminiResponse(systemPrompt, userPrompt, fallback);
   res.json({ text });
@@ -88,9 +93,10 @@ This set builds aerobic base capacity (A1/A2 threshold) by maintaining a steady 
 
 // 2. Edit or Adapt Swim Set
 app.post("/api/gemini/edit-set", async (req, res) => {
-  const { originalSet, modificationRequest } = req.body;
+  const originalSet = safeText(req.body?.originalSet, "# Main Set\n8x100 Free @ 1:40 RPE 7");
+  const modificationRequest = safeText(req.body?.modificationRequest, "Make the set easier while preserving its purpose.");
 
-  const systemPrompt = "You are an expert swim coach. You will be given a swim set and a request to modify it (e.g., adapt for a beginner, adjust distance, focus on pull, etc.). Return the revised set in clean markdown, highlighting what was modified and why.";
+  const systemPrompt = "You are a swim-workout editing assistant for qualified coaches. Preserve the stated training objective while following the modification request. Return the revised workout in SetCraft Quick Write syntax: headings start with #; set lines look like 8x100 Free @ 1:30 RPE 7 - coaching cue; Repeat 3x: containers end with end. Do not make medical-readiness decisions; flag assumptions for coach review.";
   
   const userPrompt = `Original Swim Set:
 ${originalSet}
@@ -98,15 +104,12 @@ ${originalSet}
 Modification request:
 ${modificationRequest}`;
 
-  const fallback = `### Adapted Swim Set
-
-**Revised Set Structure:**
-*   **3 x 150m Free** on a 2:45 interval (Reduced from 4x200m to lower physical stress)
-    *   *RPE Focus*: 5/10 (Relaxed Aerobic)
-    *   *Equipment*: Optional fins to assist body position and reduce fatigue.
-
-**Why this modification works:**
-Reduced overall distance and reps slightly while adding fin options to assist alignment and keep heart rate controlled, meeting your request for a beginner-safe version of the aerobic set.`;
+  const fallback = `# Adapted Main Set
+3x150 Free @ 2:45 RPE 5 - relaxed aerobic quality; optional fins
+4x50 Choice @ 1:05 RPE 4 - technique reset between rounds
+# Recovery
+1x200 Easy @ 4:00 RPE 2 - easy reset
+Coach note: Offline adaptation. Review the athlete restriction and preserve the original training objective before assigning.`;
 
   const text = await getGeminiResponse(systemPrompt, userPrompt, fallback);
   res.json({ text });
@@ -114,7 +117,7 @@ Reduced overall distance and reps slightly while adding fin options to assist al
 
 // 3. Swim Safety Audit & Warning Flags
 app.post("/api/gemini/audit-workout", async (req, res) => {
-  const { sets } = req.body;
+  const sets = Array.isArray(req.body?.sets) ? req.body.sets.slice(0, 500) : [];
 
   const systemPrompt = "You are a professional swim coach safety auditor. You will analyze a swim workout and flag issues like: unrealistic pace intervals, lack of warm-up/cool-down, extreme overtraining warnings, or weird structural flow. Return your audit report in JSON with 'isSafe': boolean, 'warnings': string[], and 'recommendations': string[]. Always output clean, parsing-friendly content.";
   
@@ -124,12 +127,12 @@ ${JSON.stringify(sets)}`;
   const fallbackJSON = {
     isSafe: true,
     warnings: [
-      "No specific cool-down block is currently logged in this visual stack.",
-      "Check that your threshold send-offs allow for at least 10-15 seconds of rest per rep."
+      "No specific recovery or cool-down block is currently logged in this visual stack.",
+      "Verify every send-off against the actual lane completion times so the intended recovery is preserved."
     ],
     recommendations: [
-      "Add a 200m easy active recovery set at the end to flush out lactic acid.",
-      "Consider grouping the 50m kick reps with fins to prevent calf cramping."
+      "Add a coach-selected easy reset when it supports the session objective and available time.",
+      "Review equipment, stroke and intensity conflicts against each swimmer's entered restrictions."
     ]
   };
 
@@ -141,7 +144,7 @@ ${JSON.stringify(sets)}`;
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: GEMINI_MODEL,
       contents: userPrompt,
       config: {
         systemInstruction: systemPrompt,
@@ -174,21 +177,41 @@ ${JSON.stringify(sets)}`;
 
 // 4. Swim AI Coach Chat
 app.post("/api/gemini/chat", async (req, res) => {
-  const { messages } = req.body;
+  const messages = Array.isArray(req.body?.messages)
+    ? req.body.messages.slice(-20).map((message: any) => ({
+        sender: message?.sender === "user" ? "user" : "copilot",
+        text: safeText(message?.text),
+      })).filter((message: { text: string }) => message.text)
+    : [];
+  if (messages.length === 0) {
+    res.status(400).json({ error: "At least one chat message is required." });
+    return;
+  }
   
   // Format message history
-  const chatHistory = messages.map((m: any) => `${m.sender === "user" ? "Athlete" : "AI Coach"}: ${m.text}`).join("\n");
+  const chatHistory = messages.map((m: any) => `${m.sender === "user" ? "Coach" : "AI Coach"}: ${m.text}`).join("\n");
 
   const systemPrompt = "You are Coach Block, the friendly, supportive, yet rigorous AI Swimming Coach at SetCraft. Swimmers of all calibers come to you to ask about training pacing, taper plans, dryland workouts, stroke technique, and motivation. Answer direct, keeping it punchy, practical, and packed with professional swim coaching tips.";
 
-  const userPrompt = `Conversation History:\n${chatHistory}\n\nAthlete: ${messages[messages.length - 1].text}`;
+  const userPrompt = `Conversation History:\n${chatHistory}\n\nCoach: ${messages[messages.length - 1].text}`;
 
-  const fallback = "That is a great swimming question! To swim efficiently, focus on keeping your head down, hips high at the surface, and pulling with a high elbow (Early Vertical Forearm). If you are looking to taper for a meet, reduce your weekly volume by 20-30% each week leading up, but maintain a few short race-pace sprints to keep your central nervous system primed!";
+  const fallback = "Use the session objective to choose the next step: define the target pace or technical outcome, select a repeat distance that lets the coach observe it, and set recovery from the lane’s real completion time rather than a generic rule. For tapering or return-to-training decisions, use the athlete’s recent work, meet schedule and qualified coach judgment; SetCraft should present options and calculations, not determine readiness.";
 
   const text = await getGeminiResponse(systemPrompt, userPrompt, fallback);
   res.json({ text });
 });
 
+
+app.get("/api/health", (_req, res) => {
+  res.json({ ok: true, service: "setcraft", aiMode: ai ? "live" : "simulation", model: GEMINI_MODEL });
+});
+
+// Central JSON error response for malformed request bodies or unexpected route errors.
+app.use((error: any, _req: Request, res: Response, next: NextFunction) => {
+  if (!error) return next();
+  console.error("SetCraft server error", error);
+  res.status(error?.status || 500).json({ error: error?.message || "Unexpected server error." });
+});
 
 // ---------------------- VITE / STATIC ROUTING ----------------------
 

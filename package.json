@@ -1,7 +1,7 @@
 {
   "name": "setcraft-swim-studio",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
@@ -9,7 +9,8 @@
     "start": "node dist/server.cjs",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
     "lint": "tsc --noEmit",
-    "test:studio": "tsx scripts/studio-smoke-test.ts"
+    "test:studio": "tsx scripts/studio-smoke-test.ts",
+    "test:math": "tsx scripts/math-smoke-test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

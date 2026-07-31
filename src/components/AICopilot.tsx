@@ -13,7 +13,11 @@ const SUGGESTIONS: AISuggestion[] = [
   { title: "High-elbow catch drill", description: "Get technique drills to improve catch and pull mechanics.", prompt: "My coach says my arm drops on the pull. Give me 3 drills with snorkel to fix high-elbow catch." }
 ];
 
-export default function AICopilot() {
+interface AICopilotProps {
+  onOpenGeneratedSet?: (text: string, title: string, focus: string) => void;
+}
+
+export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
   const [activeTab, setActiveTab] = useState<"chat" | "generator" | "modifier">("chat");
 
   // Chat state
@@ -43,9 +47,10 @@ export default function AICopilot() {
 * 8 x 100m Free on a 1:40 cycle interval (RPE 8/10)
 * 4 x 50m Kick on 1:15 cycle interval (RPE 5/10)`
   );
-  const [modRequest, setModRequest] = useState("Adapt this set to be safe for someone recovering from a rotator cuff shoulder injury.");
+  const [modRequest, setModRequest] = useState("Remove paddles and butterfly for an athlete with a coach-entered shoulder restriction; preserve the aerobic purpose and flag assumptions.");
   const [modResult, setModResult] = useState<string>("");
   const [loadingMod, setLoadingMod] = useState(false);
+  const [requestError, setRequestError] = useState("");
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -66,6 +71,7 @@ export default function AICopilot() {
     setChatMessages(prev => [...prev, userMsg]);
     if (!textToSend) setChatInput("");
     setLoadingChat(true);
+    setRequestError("");
 
     try {
       const response = await fetch("/api/gemini/chat", {
@@ -73,6 +79,7 @@ export default function AICopilot() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: [...chatMessages, userMsg] })
       });
+      if (!response.ok) throw new Error(`AI request failed (${response.status})`);
       const data = await response.json();
 
       const copilotMsg: AIChatMessage = {
@@ -84,6 +91,7 @@ export default function AICopilot() {
       setChatMessages(prev => [...prev, copilotMsg]);
     } catch (err) {
       console.error(err);
+      setRequestError(err instanceof Error ? err.message : "Could not reach the AI service.");
     } finally {
       setLoadingChat(false);
     }
@@ -93,6 +101,7 @@ export default function AICopilot() {
   const handleGenerateSet = async () => {
     setLoadingGen(true);
     setGenResult("");
+    setRequestError("");
     try {
       const response = await fetch("/api/gemini/generate-set", {
         method: "POST",
@@ -104,10 +113,12 @@ export default function AICopilot() {
           equipment: genEquip
         })
       });
+      if (!response.ok) throw new Error(`AI request failed (${response.status})`);
       const data = await response.json();
-      setGenResult(data.text);
+      setGenResult(data.text || "");
     } catch (err) {
       console.error(err);
+      setRequestError(err instanceof Error ? err.message : "Could not generate the set.");
     } finally {
       setLoadingGen(false);
     }
@@ -117,6 +128,7 @@ export default function AICopilot() {
   const handleModifySet = async () => {
     setLoadingMod(true);
     setModResult("");
+    setRequestError("");
     try {
       const response = await fetch("/api/gemini/edit-set", {
         method: "POST",
@@ -126,10 +138,12 @@ export default function AICopilot() {
           modificationRequest: modRequest
         })
       });
+      if (!response.ok) throw new Error(`AI request failed (${response.status})`);
       const data = await response.json();
-      setModResult(data.text);
+      setModResult(data.text || "");
     } catch (err) {
       console.error(err);
+      setRequestError(err instanceof Error ? err.message : "Could not modify the set.");
     } finally {
       setLoadingMod(false);
     }
@@ -153,7 +167,7 @@ export default function AICopilot() {
             AI Coach Copilot
           </h2>
           <p className="text-slate-500 text-xs mt-1">
-            Personalized training progressions, structural modifications, and technique safety auditing.
+            Workout drafting, structured modifications, explanations and coach-reviewed constraint checks.
           </p>
         </div>
 
@@ -185,6 +199,8 @@ export default function AICopilot() {
           </button>
         </div>
       </div>
+
+      {requestError && <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-800">{requestError}</div>}
 
       {/* CHAT TAB */}
       {activeTab === "chat" && (
@@ -368,6 +384,7 @@ export default function AICopilot() {
                   if (line.startsWith("*")) return <div key={i} className="pl-3 py-0.5 text-slate-600 font-medium">── {line.replace("*", "")}</div>;
                   return <p key={i} className="mt-1 text-slate-500">{line}</p>;
                 })}
+                {onOpenGeneratedSet && <button type="button" onClick={() => onOpenGeneratedSet(genResult, `AI — ${genFocus}`, genFocus)} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-extrabold text-white hover:bg-indigo-700"><PlayCircle className="h-4 w-4" /> Convert to editable Studio blocks</button>}
               </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-slate-400">
@@ -403,7 +420,7 @@ export default function AICopilot() {
                 type="text"
                 value={modRequest}
                 onChange={(e) => setModRequest(e.target.value)}
-                placeholder="e.g. Adapt this for a beginner-safe set..."
+                placeholder="e.g. Reduce distance and preserve the threshold objective..."
                 className="bg-white border border-slate-200 text-slate-800 text-xs rounded-lg p-2.5 w-full focus:outline-none focus:ring-1 focus:ring-slate-300 shadow-xs"
               />
             </div>
@@ -438,6 +455,7 @@ export default function AICopilot() {
                   if (line.startsWith("*")) return <div key={i} className="pl-3 py-0.5 text-slate-600 font-medium">── {line.replace("*", "")}</div>;
                   return <p key={i} className="mt-1 text-slate-500">{line}</p>;
                 })}
+                {onOpenGeneratedSet && <button type="button" onClick={() => onOpenGeneratedSet(modResult, "AI-modified swim set", "AI set modification")} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-extrabold text-white hover:bg-indigo-700"><PlayCircle className="h-4 w-4" /> Open revised set as Studio blocks</button>}
               </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-slate-400">

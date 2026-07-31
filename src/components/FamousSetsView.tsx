@@ -77,7 +77,7 @@ export default function FamousSetsView({ onOpenWorkout }: FamousSetsViewProps) {
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     return allWorkouts.filter((workout) => {
-      const haystack = `${workout.title} ${workout.subtitle} ${workout.attribution} ${workout.focus} ${workout.phase} ${workout.tags.join(" ")}`.toLowerCase();
+      const haystack = `${workout.title} ${workout.subtitle} ${workout.attribution} ${workout.sourceName} ${workout.focus} ${workout.phase} ${workout.tags.join(" ")}`.toLowerCase();
       return (!query || haystack.includes(query))
         && (level === "All levels" || workout.level === level)
         && (tag === "All focuses" || workout.tags.includes(tag));

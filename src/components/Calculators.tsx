@@ -3,512 +3,434 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react";
-import { Calculator, ArrowRightLeft, Timer, ListPlus, Activity, Landmark } from "lucide-react";
-import { PaceInput, PaceResult, SplitInput, SplitResult, IntervalInput, IntervalResult } from "../types";
+import React, { useMemo, useState } from "react";
+import {
+  Activity,
+  ArrowRightLeft,
+  Calculator,
+  Clock3,
+  Gauge,
+  Layers3,
+  Ruler,
+  Sigma,
+  Waves,
+} from "lucide-react";
+import {
+  buildPaceTable,
+  calculateCriticalSwimSpeed,
+  calculateSendoff,
+  calculateSetMath,
+  calculateStrokeMetrics,
+  convertDistance,
+  formatSwimTime,
+  parseSwimTime,
+  planSplits,
+  sameVelocityConvertedTime,
+  SplitStrategy,
+} from "../swimMath";
+
+type CalculatorTab = "pace" | "splits" | "sendoff" | "css" | "efficiency" | "setmath" | "conversion";
+
+const TABS: Array<{ id: CalculatorTab; label: string; icon: React.ElementType }> = [
+  { id: "pace", label: "Pace table", icon: Gauge },
+  { id: "splits", label: "Race splits", icon: Layers3 },
+  { id: "sendoff", label: "Send-offs", icon: Clock3 },
+  { id: "css", label: "Critical speed", icon: Activity },
+  { id: "efficiency", label: "Stroke efficiency", icon: Waves },
+  { id: "setmath", label: "Set math", icon: Sigma },
+  { id: "conversion", label: "Course convert", icon: ArrowRightLeft },
+];
 
 export default function Calculators() {
-  const [activeTab, setActiveTab] = useState<"pace" | "split" | "sendoff" | "conversion">("pace");
-
-  // Pace Calculator state
-  const [paceDist, setPaceDist] = useState<number>(500);
-  const [paceTime, setPaceTime] = useState<string>("07:30");
-  const [paceResult, setPaceResult] = useState<PaceResult | null>({
-    pacePer100: "1:30.0",
-    metersPerSec: 1.11,
-    description: "Solid aerobic base endurance speed. Perfect for middle-distance pacing."
-  });
-
-  // Split Calculator state
-  const [splitDist, setSplitDist] = useState<number>(200);
-  const [splitTime, setSplitTime] = useState<string>("02:20");
-  const [splitStrategy, setSplitStrategy] = useState<"even" | "negative" | "descending">("negative");
-  const [splitResults, setSplitResults] = useState<SplitResult[]>([
-    { lapNumber: 1, lapDistance: 50, cumulativeTime: "00:36.0", splitTime: "00:36.0" },
-    { lapNumber: 2, lapDistance: 100, cumulativeTime: "01:11.5", splitTime: "00:35.5" },
-    { lapNumber: 3, lapDistance: 150, cumulativeTime: "01:46.5", splitTime: "00:35.0" },
-    { lapNumber: 4, lapDistance: 200, cumulativeTime: "02:20.0", splitTime: "00:33.5" }
-  ]);
-
-  // Send-off Cycle state
-  const [cyclePace, setCyclePace] = useState<string>("1:40"); // Pace per 100
-  const [cycleRest, setCycleRest] = useState<number>(15); // Target rest in secs
-  const [cycleDist, setCycleDist] = useState<number>(100); // Repeat distance
-  const [cycleResult, setCycleResult] = useState<IntervalResult | null>({
-    recommendedSendoff: "1:55",
-    exactInterval: "1:55",
-    expectedRest: "15 seconds"
-  });
-
-  // Unit Converter state
-  const [convVal, setConvVal] = useState<number>(100);
-  const [convDir, setConvDir] = useState<"m2y" | "y2m">("m2y");
-
-  // Helper: Time parser (MM:SS.hh to total seconds)
-  const parseTimeToSeconds = (str: string): number => {
-    const parts = str.split(":");
-    if (parts.length === 2) {
-      const mins = parseFloat(parts[0]) || 0;
-      const secs = parseFloat(parts[1]) || 0;
-      return mins * 60 + secs;
-    }
-    return parseFloat(str) || 0;
-  };
-
-  // Helper: Seconds to MM:SS.h
-  const formatSecondsToTime = (totalSecs: number): string => {
-    if (totalSecs < 0) return "0:00";
-    const mins = Math.floor(totalSecs / 60);
-    const secs = Math.floor(totalSecs % 60);
-    const ms = Math.round((totalSecs % 1) * 10);
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}.${ms}`;
-  };
-
-  // 1. Calculate Pace
-  const calculatePace = () => {
-    const secs = parseTimeToSeconds(paceTime);
-    if (secs <= 0 || paceDist <= 0) return;
-
-    const pacePer100Secs = (secs / paceDist) * 100;
-    const paceStr = formatSecondsToTime(pacePer100Secs);
-    const mps = Math.round((paceDist / secs) * 100) / 100;
-
-    let desc = "Pace determined.";
-    if (pacePer100Secs < 60) desc = "Elite sprint capability. Requires supreme lactate tolerance.";
-    else if (pacePer100Secs < 80) desc = "Highly competitive swimmer pace. Solid VO2 Max workload.";
-    else if (pacePer100Secs < 100) desc = "Advanced master pace. Excellent threshold endurance territory.";
-    else desc = "Healthy active recovery or beginner development speed.";
-
-    setPaceResult({
-      pacePer100: paceStr,
-      metersPerSec: mps,
-      description: desc
-    });
-  };
-
-  // 2. Calculate Splits
-  const calculateSplits = () => {
-    const totalSecs = parseTimeToSeconds(splitTime);
-    if (totalSecs <= 0 || splitDist <= 0) return;
-
-    const numLaps = splitDist / 50;
-    if (numLaps <= 0) return;
-
-    const baseLapSplit = totalSecs / numLaps;
-    const results: SplitResult[] = [];
-    let cumulative = 0;
-
-    if (splitStrategy === "even") {
-      for (let i = 1; i <= numLaps; i++) {
-        cumulative += baseLapSplit;
-        results.push({
-          lapNumber: i,
-          lapDistance: i * 50,
-          cumulativeTime: formatSecondsToTime(cumulative),
-          splitTime: formatSecondsToTime(baseLapSplit)
-        });
-      }
-    } else if (splitStrategy === "negative") {
-      // Descending split times
-      let currentSplit = baseLapSplit + (numLaps - 1) * 0.5; // Start slower
-      for (let i = 1; i <= numLaps; i++) {
-        cumulative += currentSplit;
-        results.push({
-          lapNumber: i,
-          lapDistance: i * 50,
-          cumulativeTime: formatSecondsToTime(cumulative),
-          splitTime: formatSecondsToTime(currentSplit)
-        });
-        currentSplit -= 1.0; // split gets faster each lap
-      }
-    } else {
-      // Descending: starts fast, holds, then finishes with strong effort
-      let currentSplit = baseLapSplit - 1.5; // fast start
-      for (let i = 1; i <= numLaps; i++) {
-        if (i > 1) {
-          currentSplit = baseLapSplit + 0.5; // settle in
-        }
-        if (i === numLaps) {
-          currentSplit = baseLapSplit - 1.0; // sprint finish
-        }
-        cumulative += currentSplit;
-        results.push({
-          lapNumber: i,
-          lapDistance: i * 50,
-          cumulativeTime: formatSecondsToTime(cumulative),
-          splitTime: formatSecondsToTime(currentSplit)
-        });
-      }
-    }
-
-    setSplitResults(results);
-  };
-
-  // 3. Calculate Send-off
-  const calculateSendoff = () => {
-    const paceSec = parseTimeToSeconds(cyclePace);
-    if (paceSec <= 0 || cycleDist <= 0) return;
-
-    const swimTimeForDist = (paceSec / 100) * cycleDist;
-    const totalCycleSec = swimTimeForDist + cycleRest;
-
-    // Standard interval rounding (e.g. to nearest 5 seconds)
-    const roundedIntervalSec = Math.ceil(totalCycleSec / 5) * 5;
-    const actRest = roundedIntervalSec - swimTimeForDist;
-
-    setCycleResult({
-      recommendedSendoff: formatSecondsToTime(roundedIntervalSec).split(".")[0], // drop milliseconds for cycle intervals
-      exactInterval: formatSecondsToTime(totalCycleSec).split(".")[0],
-      expectedRest: `${Math.round(actRest)} seconds`
-    });
-  };
-
-  // 4. Conversions
-  const handleConvert = (val: number, direction: "m2y" | "y2m") => {
-    setConvVal(val);
-    setConvDir(direction);
-  };
-
-  // Convert factor: 1 meter = 1.09361 yards (Often estimated as 1.1 in swim scheduling, or precisely 1.0936)
-  const convertedValue = convDir === "m2y" ? Math.round(convVal * 1.09361 * 10) / 10 : Math.round(convVal / 1.09361 * 10) / 10;
+  const [activeTab, setActiveTab] = useState<CalculatorTab>("pace");
 
   return (
-    <div className="bg-white border border-slate-200/80 rounded-2xl p-8 shadow-sm" id="calculators-hub">
-      <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-6 mb-8 gap-4">
-        <div>
-          <h2 className="text-xl font-display font-bold text-slate-900 flex items-center gap-2">
-            <Calculator className="w-5 h-5 text-indigo-600" />
-            Athlete Pacing & Cycle Calculators
-          </h2>
-          <p className="text-slate-500 text-xs mt-1">
-            Visual pacing algorithms tailored for swimmers, training cycles, and pool conversions.
-          </p>
-        </div>
-
-        <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200/60 self-start md:self-auto text-xs">
-          <button
-            onClick={() => setActiveTab("pace")}
-            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              activeTab === "pace" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            Pace
-          </button>
-          <button
-            onClick={() => setActiveTab("split")}
-            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              activeTab === "split" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            Splits Planner
-          </button>
-          <button
-            onClick={() => setActiveTab("sendoff")}
-            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              activeTab === "sendoff" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            Send-off Cycles
-          </button>
-          <button
-            onClick={() => setActiveTab("conversion")}
-            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              activeTab === "conversion" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            Pool Convert
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* INPUT PANEL (5 COLS) */}
-        <div className="lg:col-span-5 bg-slate-50/50 p-6 rounded-2xl border border-slate-200 space-y-4">
-          <h3 className="text-xs text-slate-500 font-mono font-bold uppercase tracking-wider">
-            Calculator Inputs
-          </h3>
-
-          {activeTab === "pace" && (
-            <div className="space-y-4" id="pace-inputs">
-              <div>
-                <label className="text-xs text-slate-500 block mb-1 font-medium">Workout Distance (meters/yards)</label>
-                <input
-                  type="number"
-                  value={paceDist}
-                  onChange={(e) => setPaceDist(Math.max(1, parseInt(e.target.value) || 0))}
-                  className="bg-white border border-slate-200 text-slate-800 rounded-xl p-3 w-full text-xs font-mono focus:outline-none focus:ring-1 focus:ring-slate-300"
-                />
+    <div className="mx-auto max-w-[1540px] space-y-6" id="calculators-hub">
+      <section className="overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-xl shadow-slate-900/5">
+        <div className="bg-gradient-to-r from-slate-950 via-indigo-950 to-blue-950 px-7 py-8 text-white md:px-10">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-cyan-300">
+                <Calculator className="h-5 w-5" />
+                <span className="text-xs font-extrabold uppercase tracking-[0.18em]">SetCraft math lab</span>
               </div>
-
-              <div>
-                <label className="text-xs text-slate-500 block mb-1 font-medium">Target Total Duration (MM:SS)</label>
-                <input
-                  type="text"
-                  value={paceTime}
-                  onChange={(e) => setPaceTime(e.target.value)}
-                  placeholder="e.g. 07:30"
-                  className="bg-white border border-slate-200 text-slate-800 rounded-xl p-3 w-full text-xs font-mono focus:outline-none focus:ring-1 focus:ring-slate-300"
-                />
-              </div>
-
-              <button
-                onClick={calculatePace}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-sm"
-              >
-                Determine Pace
-              </button>
+              <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight md:text-4xl">Professional swim calculators</h1>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300 md:text-base">
+                Transparent, deterministic tools for pace, splits, intervals, critical speed, stroke metrics, set duration and course conversion.
+              </p>
             </div>
-          )}
-
-          {activeTab === "split" && (
-            <div className="space-y-4" id="split-inputs">
-              <div>
-                <label className="text-xs text-slate-500 block mb-1 font-medium">Target Event Distance (meters/yards)</label>
-                <select
-                  value={splitDist}
-                  onChange={(e) => setSplitDist(Number(e.target.value))}
-                  className="bg-white border border-slate-200 text-slate-800 rounded-xl p-3 w-full text-xs focus:outline-none focus:ring-1 focus:ring-slate-300"
-                >
-                  <option value="100">100 (2 laps)</option>
-                  <option value="200">200 (4 laps)</option>
-                  <option value="400">400 (8 laps)</option>
-                  <option value="800">800 (16 laps)</option>
-                  <option value="1500">1500 (30 laps)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs text-slate-500 block mb-1 font-medium">Target Event Time (MM:SS)</label>
-                <input
-                  type="text"
-                  value={splitTime}
-                  onChange={(e) => setSplitTime(e.target.value)}
-                  placeholder="e.g. 02:20"
-                  className="bg-white border border-slate-200 text-slate-800 rounded-xl p-3 w-full text-xs font-mono focus:outline-none focus:ring-1 focus:ring-slate-300"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs text-slate-500 block mb-1 font-medium">Racing Strategy</label>
-                <select
-                  value={splitStrategy}
-                  onChange={(e) => setSplitStrategy(e.target.value as any)}
-                  className="bg-white border border-slate-200 text-slate-800 rounded-xl p-3 w-full text-xs focus:outline-none focus:ring-1 focus:ring-slate-300"
-                >
-                  <option value="even">Even Pacing (Smooth)</option>
-                  <option value="negative">Negative Split (Back-half fast)</option>
-                  <option value="descending">Descending Build (Fast start / sprint finish)</option>
-                </select>
-              </div>
-
-              <button
-                onClick={calculateSplits}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-sm"
-              >
-                Project Race Splits
-              </button>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-4 text-sm text-slate-300 backdrop-blur">
+              <p className="font-extrabold text-white">Coach-controlled outputs</p>
+              <p className="mt-1 max-w-sm text-xs leading-5">Calculators show the formula and assumptions. They do not replace coaching judgement or official meet-conversion tables.</p>
             </div>
-          )}
-
-          {activeTab === "sendoff" && (
-            <div className="space-y-4" id="sendoff-inputs">
-              <div>
-                <label className="text-xs text-slate-500 block mb-1 font-medium">Pace per 100 (MM:SS)</label>
-                <input
-                  type="text"
-                  value={cyclePace}
-                  onChange={(e) => setCyclePace(e.target.value)}
-                  placeholder="e.g. 1:40"
-                  className="bg-white border border-slate-200 text-slate-800 rounded-xl p-3 w-full text-xs font-mono focus:outline-none focus:ring-1 focus:ring-slate-300"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs text-slate-500 block mb-1 font-medium">Repeat Distance (meters/yards)</label>
-                <select
-                  value={cycleDist}
-                  onChange={(e) => setCycleDist(Number(e.target.value))}
-                  className="bg-white border border-slate-200 text-slate-800 rounded-xl p-3 w-full text-xs focus:outline-none"
-                >
-                  <option value="25">25</option>
-                  <option value="50">50</option>
-                  <option value="100">100</option>
-                  <option value="200">200</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs text-slate-500 block mb-1 font-medium">Required Rest Time (seconds)</label>
-                <input
-                  type="number"
-                  value={cycleRest}
-                  onChange={(e) => setCycleRest(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="bg-white border border-slate-200 text-slate-800 rounded-xl p-3 w-full text-xs font-mono focus:outline-none focus:ring-1 focus:ring-slate-300"
-                />
-              </div>
-
-              <button
-                onClick={calculateSendoff}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-sm"
-              >
-                Find Recommended Send-off
-              </button>
-            </div>
-          )}
-
-          {activeTab === "conversion" && (
-            <div className="space-y-4" id="conversion-inputs">
-              <div>
-                <label className="text-xs text-slate-500 block mb-1 font-medium">Conversion Direction</label>
-                <select
-                  value={convDir}
-                  onChange={(e) => setConvDir(e.target.value as any)}
-                  className="bg-white border border-slate-200 text-slate-800 rounded-xl p-3 w-full text-xs focus:outline-none focus:ring-1 focus:ring-slate-300"
-                >
-                  <option value="m2y">Meters to Yards (LCM/SCM ──&gt; SCY)</option>
-                  <option value="y2m">Yards to Meters (SCY ──&gt; SCM/LCM)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs text-slate-500 block mb-1 font-medium">Distance (meters or yards)</label>
-                <input
-                  type="number"
-                  value={convVal}
-                  onChange={(e) => setConvVal(Math.max(1, parseInt(e.target.value) || 0))}
-                  className="bg-white border border-slate-200 text-slate-800 rounded-xl p-3 w-full text-xs font-mono focus:outline-none focus:ring-1 focus:ring-slate-300"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* RESULTS PANEL (7 COLS) */}
-        <div className="lg:col-span-7 bg-slate-50/50 p-6 rounded-2xl border border-slate-200 flex flex-col justify-between">
-          <div>
-            <h3 className="text-xs text-slate-500 font-mono uppercase tracking-wider mb-4 font-bold">
-              Calculated Metrics Output
-            </h3>
-
-            {activeTab === "pace" && paceResult && (
-              <div className="space-y-6" id="pace-output">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white p-4.5 rounded-xl border border-slate-200 shadow-2xs">
-                    <span className="text-[9px] text-indigo-600 font-mono block font-bold">PACE PER 100M/YD</span>
-                    <span className="text-2xl font-display font-extrabold text-slate-900 mt-1 block">
-                      {paceResult.pacePer100}
-                    </span>
-                  </div>
-
-                  <div className="bg-white p-4.5 rounded-xl border border-slate-200 shadow-2xs">
-                    <span className="text-[9px] text-indigo-600 font-mono block font-bold">VELOCITY</span>
-                    <span className="text-2xl font-display font-extrabold text-slate-900 mt-1 block">
-                      {paceResult.metersPerSec} <span className="text-xs text-slate-500 font-medium">m/s</span>
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-white p-4.5 rounded-xl border border-slate-200 flex items-start gap-2.5 shadow-2xs">
-                  <Timer className="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
-                  <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                    <strong>Pacing Insight:</strong> {paceResult.description}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "split" && (
-              <div className="space-y-4" id="split-output">
-                <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 text-slate-500 font-mono text-[9px] border-b border-slate-200 font-bold">
-                      <tr>
-                        <th className="p-3 text-center">LAP</th>
-                        <th className="p-3">DISTANCE</th>
-                        <th className="p-3">SPLIT TIME</th>
-                        <th className="p-3">CUMULATIVE TIME</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 text-slate-700">
-                      {splitResults.map((lap) => (
-                        <tr key={lap.lapNumber} className="hover:bg-slate-50 transition-colors">
-                          <td className="p-3 text-center font-mono font-bold text-indigo-600">{lap.lapNumber}</td>
-                          <td className="p-3 font-mono">{lap.lapDistance}m</td>
-                          <td className="p-3 font-mono font-semibold text-slate-800">{lap.splitTime}</td>
-                          <td className="p-3 font-mono text-slate-450">{lap.cumulativeTime}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="text-slate-500 text-[11px] leading-relaxed italic bg-white p-4 rounded-xl border border-slate-200 shadow-2xs font-medium">
-                  *Pacing projection takes into account speed drop-off, dive starts (Lap 1 faster), and lactic threshold exhaustion curves typical of a swimming build strategy.
-                </div>
-              </div>
-            )}
-
-            {activeTab === "sendoff" && cycleResult && (
-              <div className="space-y-6" id="sendoff-output">
-                <div className="bg-white p-5 rounded-xl border border-slate-200 space-y-4 shadow-2xs">
-                  <div>
-                    <span className="text-[9px] text-indigo-600 font-mono block font-bold">RECOMMENDED INTERVAL CYCLE</span>
-                    <span className="text-3xl font-display font-extrabold text-indigo-600 mt-1 block">
-                      :{cycleResult.recommendedSendoff} <span className="text-xs text-slate-500 font-medium">send-off</span>
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 text-xs text-slate-600 font-medium">
-                    <div>
-                      <span className="text-slate-400 block text-[9px] font-mono font-bold">EXACT TIME NEEDED</span>
-                      <span className="font-mono text-slate-800 font-bold">{cycleResult.exactInterval}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block text-[9px] font-mono font-bold">EXPECTED REST TIME</span>
-                      <span className="font-mono text-emerald-600 font-bold">{cycleResult.expectedRest}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-slate-500 text-xs leading-relaxed font-medium">
-                  Recommended cycles are automatically adjusted upwards to standard swim intervals (rounded to the nearest 5-second block) to ensure easy team clock reading.
-                </p>
-              </div>
-            )}
-
-            {activeTab === "conversion" && (
-              <div className="space-y-6" id="conversion-output">
-                <div className="bg-white p-5 rounded-xl border border-slate-200 text-center space-y-2 shadow-2xs">
-                  <span className="text-[9px] text-slate-400 font-mono block font-bold">CONVERTED METRIC</span>
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="text-2xl font-display font-bold text-slate-400">{convVal} {convDir === "m2y" ? "LCM" : "SCY"}</span>
-                    <ArrowRightLeft className="w-5 h-5 text-indigo-600" />
-                    <span className="text-3xl font-display font-extrabold text-indigo-600">{convertedValue} {convDir === "m2y" ? "SCY" : "LCM"}</span>
-                  </div>
-                </div>
-
-                <div className="bg-white p-4.5 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1.5 leading-relaxed shadow-2xs font-medium">
-                  <div className="flex items-center gap-1.5 text-indigo-600 font-bold">
-                    <Landmark className="w-4 h-4" />
-                    Pool Scale Rationale:
-                  </div>
-                  <p>
-                    <strong>Long Course Meters (LCM):</strong> standard 50-meter Olympic pools.
-                  </p>
-                  <p>
-                    <strong>Short Course Yards (SCY):</strong> standard 25-yard collegiate pools. Meters are scaled at approximately 10% more resistance per lap due to the lack of extra wall push-offs.
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="border-t border-slate-200/60 pt-4 mt-6 flex justify-between items-center text-[9px] text-slate-400 font-mono font-bold">
-            <span>SWIMBLOCK MATH ENGINE V1.2</span>
-            <span>ATHLETE SPECIFIC</span>
           </div>
         </div>
-      </div>
+
+        <div className="border-b border-slate-200 bg-slate-50 px-4 py-3 md:px-7">
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {TABS.map((tab) => {
+              const Icon = tab.icon;
+              const active = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex shrink-0 items-center gap-2 rounded-xl border px-4 py-3 text-sm font-extrabold transition ${active ? "border-indigo-200 bg-white text-indigo-700 shadow-sm" : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-white hover:text-slate-900"}`}
+                >
+                  <Icon className="h-4 w-4" /> {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="p-5 md:p-8 lg:p-10">
+          {activeTab === "pace" && <PaceCalculator />}
+          {activeTab === "splits" && <SplitCalculator />}
+          {activeTab === "sendoff" && <SendoffCalculator />}
+          {activeTab === "css" && <CriticalSpeedCalculator />}
+          {activeTab === "efficiency" && <EfficiencyCalculator />}
+          {activeTab === "setmath" && <SetMathCalculator />}
+          {activeTab === "conversion" && <ConversionCalculator />}
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-3">
+        <ReferenceCard title="Send-off vs. rest" text="A send-off fixes the start-to-start cycle. A rest interval begins after the swimmer touches, so faster and slower swimmers receive the same rest." />
+        <ReferenceCard title="Exact totals first" text="Split plans are normalized so every displayed split adds back to the exact target time rather than drifting through rounding." />
+        <ReferenceCard title="Conversion caution" text="Distance conversion is exact. Time conversion shown here assumes equal velocity and does not model starts, turns, walls or official sanctioning formulas." />
+      </section>
     </div>
   );
+}
+
+function PaceCalculator() {
+  const [distance, setDistance] = useState(500);
+  const [time, setTime] = useState("7:30.0");
+  const [customDistance, setCustomDistance] = useState(75);
+  const seconds = parseSwimTime(time);
+  const rows = useMemo(() => buildPaceTable(distance, seconds, [25, 50, 75, 100, 200, 400]), [distance, seconds]);
+  const custom = buildPaceTable(distance, seconds, [customDistance])[0];
+  const velocity = seconds > 0 ? distance / seconds : 0;
+
+  return (
+    <CalculatorLayout
+      title="Pace table"
+      description="Convert one swim result into exact pace references for common training distances."
+      inputs={
+        <>
+          <Field label="Completed distance"><NumberInput value={distance} min={1} onChange={setDistance} suffix="m / yd" /></Field>
+          <Field label="Total time"><TextInput value={time} onChange={setTime} placeholder="7:30.0" mono /></Field>
+          <Field label="Custom split distance"><NumberInput value={customDistance} min={1} onChange={setCustomDistance} suffix="m / yd" /></Field>
+          <Formula>pace for X = total time ÷ total distance × X</Formula>
+        </>
+      }
+      output={
+        <>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Metric label="Pace per 100" value={rows.find((row) => row.distance === 100)?.formatted || "—"} />
+            <Metric label="Velocity" value={velocity > 0 ? `${velocity.toFixed(3)} /s` : "—"} />
+            <Metric label={`Pace per ${customDistance}`} value={custom?.formatted || "—"} />
+          </div>
+          <ResultTable headers={["Distance", "Target time", "Seconds"]} rows={rows.map((row) => [`${row.distance}`, row.formatted, row.seconds.toFixed(2)])} />
+        </>
+      }
+    />
+  );
+}
+
+function SplitCalculator() {
+  const [distance, setDistance] = useState(200);
+  const [time, setTime] = useState("2:00.0");
+  const [splitDistance, setSplitDistance] = useState(50);
+  const [strategy, setStrategy] = useState<SplitStrategy>("negative");
+  const seconds = parseSwimTime(time);
+  const splits = useMemo(() => planSplits(distance, seconds, splitDistance, strategy), [distance, seconds, splitDistance, strategy]);
+  const total = splits.reduce((sum, item) => sum + item.splitSeconds, 0);
+
+  return (
+    <CalculatorLayout
+      title="Race split planner"
+      description="Plan even, negative, positive or fast-finish splits while preserving the exact target total."
+      inputs={
+        <>
+          <Field label="Race distance"><NumberInput value={distance} min={1} onChange={setDistance} suffix="m / yd" /></Field>
+          <Field label="Goal time"><TextInput value={time} onChange={setTime} placeholder="2:00.0" mono /></Field>
+          <Field label="Split distance"><NumberInput value={splitDistance} min={1} onChange={setSplitDistance} suffix="m / yd" /></Field>
+          <Field label="Pacing pattern">
+            <select value={strategy} onChange={(event) => setStrategy(event.target.value as SplitStrategy)} className={inputClass}>
+              <option value="even">Even</option>
+              <option value="negative">Negative split</option>
+              <option value="positive">Positive split</option>
+              <option value="fast-finish">Controlled middle, fast finish</option>
+            </select>
+          </Field>
+          <Formula>each split uses a normalized pacing weight; all split seconds sum to the entered goal time</Formula>
+        </>
+      }
+      output={
+        <>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Metric label="Goal total" value={formatSwimTime(seconds)} />
+            <Metric label="Calculated total" value={formatSwimTime(total)} />
+            <Metric label="Split count" value={splits.length || "—"} />
+          </div>
+          <ResultTable headers={["#", "Distance", "Split", "Cumulative"]} rows={splits.map((item) => [item.index, item.distance, item.split, item.cumulative])} />
+          <Notice>These are planning targets, not a claim that one pacing pattern is best for every swimmer or event.</Notice>
+        </>
+      }
+    />
+  );
+}
+
+function SendoffCalculator() {
+  const [pace, setPace] = useState("1:20.0");
+  const [distance, setDistance] = useState(100);
+  const [rest, setRest] = useState(15);
+  const [rounding, setRounding] = useState(5);
+  const [laneCount, setLaneCount] = useState(4);
+  const [laneStep, setLaneStep] = useState(5);
+  const result = calculateSendoff(parseSwimTime(pace), distance, rest, rounding);
+  const lanes = Array.from({ length: Math.max(1, laneCount) }, (_, index) => {
+    const lanePace = parseSwimTime(pace) + index * laneStep;
+    const laneResult = calculateSendoff(lanePace, distance, rest, rounding);
+    return [`Lane ${index + 1}`, formatSwimTime(lanePace), formatSwimTime(laneResult.sendoffSeconds, 0), `${laneResult.expectedRestSeconds.toFixed(1)}s`];
+  });
+
+  return (
+    <CalculatorLayout
+      title="Send-off and lane cycle planner"
+      description="Build clock-friendly send-offs from a target pace and desired rest, then create lane variants."
+      inputs={
+        <>
+          <Field label="Base pace per 100"><TextInput value={pace} onChange={setPace} placeholder="1:20.0" mono /></Field>
+          <Field label="Repeat distance"><NumberInput value={distance} min={1} onChange={setDistance} suffix="m / yd" /></Field>
+          <Field label="Desired rest"><NumberInput value={rest} min={0} onChange={setRest} suffix="seconds" /></Field>
+          <Field label="Round up to"><NumberInput value={rounding} min={1} onChange={setRounding} suffix="seconds" /></Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Number of lanes"><NumberInput value={laneCount} min={1} max={12} onChange={setLaneCount} /></Field>
+            <Field label="Pace step / lane"><NumberInput value={laneStep} min={0} onChange={setLaneStep} suffix="sec/100" /></Field>
+          </div>
+          <Formula>send-off = round up(swim time + desired rest) to the selected clock increment</Formula>
+        </>
+      }
+      output={
+        <>
+          <div className="grid gap-3 sm:grid-cols-4">
+            <Metric label="Expected swim" value={formatSwimTime(result.swimSeconds)} />
+            <Metric label="Exact cycle" value={formatSwimTime(result.exactSeconds)} />
+            <Metric label="Recommended send-off" value={formatSwimTime(result.sendoffSeconds, 0)} accent />
+            <Metric label="Actual rest" value={`${result.expectedRestSeconds.toFixed(1)}s`} />
+          </div>
+          <ResultTable headers={["Lane", "Pace / 100", "Send-off", "Expected rest"]} rows={lanes} />
+        </>
+      }
+    />
+  );
+}
+
+function CriticalSpeedCalculator() {
+  const [shortDistance, setShortDistance] = useState(200);
+  const [shortTime, setShortTime] = useState("2:10.0");
+  const [longDistance, setLongDistance] = useState(400);
+  const [longTime, setLongTime] = useState("4:35.0");
+  const css = calculateCriticalSwimSpeed(shortDistance, parseSwimTime(shortTime), longDistance, parseSwimTime(longTime));
+  const references = css ? [0.9, 0.95, 1, 1.05].map((ratio) => [
+    `${Math.round(ratio * 100)}% CSS velocity`,
+    formatSwimTime(css.pacePer100Seconds / ratio),
+    (css.speed * ratio).toFixed(3),
+  ]) : [];
+
+  return (
+    <CalculatorLayout
+      title="Critical swim speed reference"
+      description="Estimate the slope of the distance-time relationship from two maximal swims, commonly 200 and 400."
+      inputs={
+        <>
+          <div className="grid grid-cols-2 gap-3"><Field label="Short distance"><NumberInput value={shortDistance} min={1} onChange={setShortDistance} /></Field><Field label="Short time"><TextInput value={shortTime} onChange={setShortTime} mono /></Field></div>
+          <div className="grid grid-cols-2 gap-3"><Field label="Long distance"><NumberInput value={longDistance} min={2} onChange={setLongDistance} /></Field><Field label="Long time"><TextInput value={longTime} onChange={setLongTime} mono /></Field></div>
+          <Formula>critical speed = (long distance − short distance) ÷ (long time − short time)</Formula>
+        </>
+      }
+      output={
+        css ? <>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Metric label="Critical speed" value={`${css.speed.toFixed(3)} m/s`} accent />
+            <Metric label="Reference pace / 100" value={formatSwimTime(css.pacePer100Seconds)} />
+            <Metric label="Reference pace / 50" value={formatSwimTime(css.pacePer100Seconds / 2)} />
+          </div>
+          <ResultTable headers={["Reference", "Pace / 100", "Velocity"]} rows={references} />
+          <Notice>Use this as a repeatable training reference. Testing conditions, stroke, pool course and fatigue must remain consistent.</Notice>
+        </> : <EmptyResult text="Enter a valid faster short swim and slower long swim." />
+      }
+    />
+  );
+}
+
+function EfficiencyCalculator() {
+  const [distance, setDistance] = useState(50);
+  const [time, setTime] = useState("30.0");
+  const [cycles, setCycles] = useState(20);
+  const result = calculateStrokeMetrics(distance, parseSwimTime(time), cycles);
+
+  return (
+    <CalculatorLayout
+      title="Stroke efficiency metrics"
+      description="Calculate velocity, stroke rate, distance per cycle and stroke index for one measured segment."
+      inputs={
+        <>
+          <Field label="Measured distance"><NumberInput value={distance} min={1} onChange={setDistance} suffix="metres" /></Field>
+          <Field label="Segment time"><TextInput value={time} onChange={setTime} placeholder="30.0" mono /></Field>
+          <Field label="Complete stroke cycles"><NumberInput value={cycles} min={1} onChange={setCycles} suffix="cycles" /></Field>
+          <Formula>stroke rate = cycles ÷ time × 60; distance/cycle = distance ÷ cycles; stroke index = velocity × distance/cycle</Formula>
+        </>
+      }
+      output={
+        result ? <>
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <Metric label="Velocity" value={`${result.velocity.toFixed(3)} m/s`} />
+            <Metric label="Stroke rate" value={`${result.strokeRate.toFixed(1)} cycles/min`} />
+            <Metric label="Distance / cycle" value={`${result.distancePerCycle.toFixed(2)} m`} accent />
+            <Metric label="Stroke index" value={result.strokeIndex.toFixed(3)} />
+          </div>
+          <Notice>Count complete arm cycles consistently. These metrics are most useful for comparing the same swimmer under similar conditions.</Notice>
+        </> : <EmptyResult text="Enter positive distance, time and cycle values." />
+      }
+    />
+  );
+}
+
+function SetMathCalculator() {
+  const [reps, setReps] = useState(8);
+  const [distance, setDistance] = useState(100);
+  const [rounds, setRounds] = useState(2);
+  const [timingMode, setTimingMode] = useState<"sendoff" | "rest">("sendoff");
+  const [sendoff, setSendoff] = useState("1:30");
+  const [pace, setPace] = useState("1:15");
+  const [rest, setRest] = useState(15);
+  const sendoffSeconds = parseSwimTime(sendoff);
+  const result = calculateSetMath({ reps, distance, rounds, timingMode, sendoffSeconds, pacePer100Seconds: parseSwimTime(pace), restSeconds: rest });
+  const impossibleSendoff = timingMode === "sendoff" && sendoffSeconds > 0 && sendoffSeconds < result.swimSecondsPerRep;
+
+  return (
+    <CalculatorLayout
+      title="Set distance and duration"
+      description="Check the full math for repeats, rounds, swim time, rest time and work-to-rest ratio."
+      inputs={
+        <>
+          <div className="grid grid-cols-3 gap-3"><Field label="Reps"><NumberInput value={reps} min={1} onChange={setReps} /></Field><Field label="Distance"><NumberInput value={distance} min={0} onChange={setDistance} /></Field><Field label="Rounds"><NumberInput value={rounds} min={1} onChange={setRounds} /></Field></div>
+          <Field label="Timing mode"><select value={timingMode} onChange={(event) => setTimingMode(event.target.value as "sendoff" | "rest")} className={inputClass}><option value="sendoff">Fixed send-off</option><option value="rest">Fixed rest after each rep</option></select></Field>
+          <Field label="Expected pace per 100"><TextInput value={pace} onChange={setPace} mono /></Field>
+          {timingMode === "sendoff" ? <Field label="Send-off"><TextInput value={sendoff} onChange={setSendoff} mono /></Field> : <Field label="Rest after each rep"><NumberInput value={rest} min={0} onChange={setRest} suffix="seconds" /></Field>}
+          <Formula>{timingMode === "sendoff" ? "duration = total repetitions × send-off" : "duration = total repetitions × (expected swim time + rest)"}</Formula>
+        </>
+      }
+      output={
+        <>
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <Metric label="Total distance" value={result.totalDistance.toLocaleString()} accent />
+            <Metric label="Total duration" value={formatSwimTime(result.totalSeconds, 0)} />
+            <Metric label="Total swim time" value={formatSwimTime(result.totalSwimSeconds, 0)} />
+            <Metric label="Total rest" value={formatSwimTime(result.totalRestSeconds, 0)} />
+          </div>
+          <ResultTable headers={["Metric", "Value"]} rows={[
+            ["Total repetitions", result.totalReps],
+            ["Expected swim / rep", formatSwimTime(result.swimSecondsPerRep)],
+            ["Cycle / rep", formatSwimTime(result.cycleSeconds)],
+            ["Work : rest", result.workRestRatio ? `${result.workRestRatio.toFixed(2)} : 1` : "No modeled rest"],
+          ]} />
+          {impossibleSendoff && <Notice tone="warning">The entered send-off is faster than the modeled completion time. SetCraft used the completion time for duration, but the coach must choose a feasible cycle or faster target pace.</Notice>}
+        </>
+      }
+    />
+  );
+}
+
+function ConversionCalculator() {
+  const [direction, setDirection] = useState<"m-to-yd" | "yd-to-m">("m-to-yd");
+  const [distance, setDistance] = useState(100);
+  const [time, setTime] = useState("1:00.0");
+  const convertedDistance = convertDistance(distance, direction);
+  const convertedTime = sameVelocityConvertedTime(parseSwimTime(time), direction);
+
+  return (
+    <CalculatorLayout
+      title="Distance and same-velocity conversion"
+      description="Convert metres and yards exactly, plus a transparent same-velocity time estimate."
+      inputs={
+        <>
+          <Field label="Direction"><select value={direction} onChange={(event) => setDirection(event.target.value as "m-to-yd" | "yd-to-m")} className={inputClass}><option value="m-to-yd">Metres → yards</option><option value="yd-to-m">Yards → metres</option></select></Field>
+          <Field label="Distance"><NumberInput value={distance} min={0} onChange={setDistance} /></Field>
+          <Field label="Time over that distance"><TextInput value={time} onChange={setTime} mono /></Field>
+          <Formula>1 yard = 0.9144 metre; same-velocity time scales only by distance</Formula>
+        </>
+      }
+      output={
+        <>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Metric label="Converted distance" value={`${convertedDistance.toFixed(2)} ${direction === "m-to-yd" ? "yd" : "m"}`} accent />
+            <Metric label="Same-velocity time" value={formatSwimTime(convertedTime)} />
+            <Metric label="Exact factor" value={direction === "m-to-yd" ? "÷ 0.9144" : "× 0.9144"} />
+          </div>
+          <Notice>This is not an official SCM/LCM/SCY performance conversion. Starts, turns, wall count and governing-body formulas can change competitive-equivalent times.</Notice>
+        </>
+      }
+    />
+  );
+}
+
+function CalculatorLayout({ title, description, inputs, output }: { title: string; description: string; inputs: React.ReactNode; output: React.ReactNode }) {
+  return (
+    <div className="grid gap-7 xl:grid-cols-[420px_minmax(0,1fr)]">
+      <section className="rounded-[26px] border border-slate-200 bg-slate-50 p-5 md:p-6">
+        <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-indigo-600">Inputs</p>
+        <h2 className="mt-2 font-display text-2xl font-extrabold text-slate-950">{title}</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-500">{description}</p>
+        <div className="mt-6 space-y-4">{inputs}</div>
+      </section>
+      <section className="min-h-[470px] rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm md:p-7">
+        <div className="mb-6 flex items-center gap-2 border-b border-slate-100 pb-4 text-slate-500"><Ruler className="h-4 w-4 text-indigo-600" /><span className="text-xs font-extrabold uppercase tracking-[0.15em]">Calculated output</span></div>
+        <div className="space-y-6">{output}</div>
+      </section>
+    </div>
+  );
+}
+
+const inputClass = "w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-sm font-bold text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return <label className="block"><span className="mb-1.5 block text-xs font-extrabold uppercase tracking-wider text-slate-500">{label}</span>{children}</label>;
+}
+
+function TextInput({ value, onChange, placeholder, mono = false }: { value: string; onChange: (value: string) => void; placeholder?: string; mono?: boolean }) {
+  return <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className={`${inputClass} ${mono ? "font-mono" : ""}`} />;
+}
+
+function NumberInput({ value, onChange, min, max, suffix }: { value: number; onChange: (value: number) => void; min?: number; max?: number; suffix?: string }) {
+  return <div className="relative"><input type="number" value={value} min={min} max={max} onChange={(event) => onChange(Number(event.target.value) || 0)} className={`${inputClass} ${suffix ? "pr-24" : ""}`} />{suffix && <span className="pointer-events-none absolute right-3 top-3.5 text-xs font-bold text-slate-400">{suffix}</span>}</div>;
+}
+
+function Formula({ children }: { children: React.ReactNode }) {
+  return <div className="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 font-mono text-xs leading-5 text-indigo-800"><strong>Formula:</strong> {children}</div>;
+}
+
+function Metric({ label, value, accent = false }: { label: string; value: React.ReactNode; accent?: boolean }) {
+  return <div className={`rounded-2xl border p-4 ${accent ? "border-cyan-200 bg-gradient-to-br from-cyan-50 to-indigo-50" : "border-slate-200 bg-slate-50"}`}><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-slate-500">{label}</p><p className={`mt-2 font-display text-xl font-extrabold ${accent ? "text-indigo-700" : "text-slate-950"}`}>{value}</p></div>;
+}
+
+function ResultTable({ headers, rows }: { headers: string[]; rows: Array<Array<React.ReactNode>> }) {
+  return <div className="overflow-x-auto rounded-2xl border border-slate-200"><table className="w-full min-w-[520px] text-left text-sm"><thead className="bg-slate-950 text-white"><tr>{headers.map((header) => <th key={header} className="px-4 py-3 text-[10px] font-extrabold uppercase tracking-[0.13em]">{header}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{rows.map((row, rowIndex) => <tr key={rowIndex} className="transition hover:bg-indigo-50/50">{row.map((cell, cellIndex) => <td key={cellIndex} className={`px-4 py-3 ${cellIndex === 0 ? "font-extrabold text-slate-900" : "font-mono text-slate-600"}`}>{cell}</td>)}</tr>)}</tbody></table></div>;
+}
+
+function Notice({ children, tone = "info" }: { children: React.ReactNode; tone?: "info" | "warning" }) {
+  return <div className={`rounded-2xl border px-4 py-3 text-xs font-medium leading-5 ${tone === "warning" ? "border-rose-200 bg-rose-50 text-rose-900" : "border-amber-200 bg-amber-50 text-amber-900"}`}>{children}</div>;
+}
+
+function EmptyResult({ text }: { text: string }) {
+  return <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 text-center"><Activity className="h-9 w-9 text-slate-300" /><p className="mt-3 text-sm font-bold text-slate-500">{text}</p></div>;
+}
+
+function ReferenceCard({ title, text }: { title: string; text: string }) {
+  return <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="font-display text-base font-extrabold text-slate-950">{title}</p><p className="mt-2 text-sm leading-6 text-slate-500">{text}</p></div>;
 }
