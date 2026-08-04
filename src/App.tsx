@@ -14,7 +14,6 @@ import {
   Settings,
   ShieldCheck,
   BookOpenCheck,
-  FolderOpen,
   ChevronRight,
   ChevronDown,
   Waves,
@@ -23,6 +22,7 @@ import {
   FileDown,
   ListChecks,
   FolderKanban,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import { UserRole } from "./types";
 import DashboardView from "./components/DashboardView";
@@ -34,6 +34,7 @@ import CommunityView from "./components/CommunityView";
 import SettingsView from "./components/SettingsView";
 import FamousSetsView from "./components/FamousSetsView";
 import ProjectsView from "./components/ProjectsView";
+import RaceLab from "./components/RaceLab";
 import { FamousWorkout } from "./famousWorkouts";
 import { StudioProject } from "./studioProjectTypes";
 import { parseQuickWrite } from "./swimStudioEngine";
@@ -67,6 +68,7 @@ function aiTextToQuickWrite(text: string): string {
 const PRIMARY_NAV_ITEMS = [
   { id: "dashboard", label: "Home Dashboard", helper: "Overview and recent work", icon: LayoutDashboard },
   { id: "famous", label: "Famous Sets", helper: "Curated and coach libraries", icon: BookOpenCheck },
+  { id: "race-lab", label: "Race Intelligence", helper: "Cuts, age factors and split models", icon: ChartNoAxesCombined },
   { id: "calculators", label: "Swim Calculators", helper: "Pace, splits and send-offs", icon: Calculator },
   { id: "copilot", label: "AI Coach", helper: "Generate and revise blocks", icon: Sparkles },
   { id: "calendar", label: "Season Calendar", helper: "Plan training phases", icon: Calendar },
@@ -89,7 +91,13 @@ export default function App() {
     const saved = typeof window !== "undefined" ? localStorage.getItem("setcraft_active_role") : null;
     return saved === "Athlete" || saved === "ClubAdmin" || saved === "Coach" ? saved : "Coach";
   });
-  const [savedCount, setSavedCount] = useState<number>(0);
+  const [savedCount, setSavedCount] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    try {
+      const cached = localStorage.getItem("setcraft_studio_projects") || localStorage.getItem("swimblock_templates");
+      return cached ? JSON.parse(cached).length || 0 : 0;
+    } catch { return 0; }
+  });
   const [studioImport, setStudioImport] = useState<FamousWorkout | null>(null);
   const [projectImport, setProjectImport] = useState<StudioProject | null>(null);
   const [studioPage, setStudioPage] = useState<StudioWorkspacePage>("project");
@@ -117,7 +125,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    updateSavedCount();
     const interval = window.setInterval(updateSavedCount, 2000);
     return () => window.clearInterval(interval);
   }, []);
@@ -251,7 +258,7 @@ export default function App() {
         <div className="hidden border-t border-white/10 p-5 md:block">
           <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
             <span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-sky-400" /> Local workspace</span>
-            <span>v8 Final</span>
+            <span>v10 All Events</span>
           </div>
         </div>
       </aside>
@@ -270,6 +277,7 @@ export default function App() {
           {activeTab === "studio" && <SwimStudio currentRole={currentRole} initialWorkout={studioImport} initialProject={projectImport} requestedPage={studioPage} onPageChange={setStudioPage} onInitialWorkoutLoaded={() => setStudioImport(null)} onInitialProjectLoaded={() => setProjectImport(null)} />}
           {activeTab === "projects" && <ProjectsView onOpenProject={(project) => { setProjectImport(project); setStudioPage("build"); setActiveTab("studio"); }} onCreateProject={(project) => { setProjectImport(project); setStudioPage("project"); setActiveTab("studio"); }} />}
           {activeTab === "famous" && <FamousSetsView onOpenWorkout={(workout) => { setStudioImport(workout); setStudioPage("build"); setActiveTab("studio"); }} />}
+          {activeTab === "race-lab" && <RaceLab />}
           {activeTab === "calculators" && <Calculators />}
           {activeTab === "copilot" && <AICopilot onOpenGeneratedSet={openGeneratedSetInStudio} />}
           {activeTab === "calendar" && <CalendarView />}
