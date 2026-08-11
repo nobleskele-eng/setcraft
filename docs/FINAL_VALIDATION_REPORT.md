@@ -38,3 +38,18 @@ Every selected result has a final total, monotonic original checkpoints, source 
 - Profile coverage: pass for disabled factors, 1–10 ratings, inverse measured protocols and neutral measured lactate.
 
 The bundler reports a large client chunk because the user-requested offline race library is shipped in the application. This affects initial download size but keeps all 4,854 comparison races available without a remote database.
+
+## Gemini and coaching-knowledge completion pass
+
+Date: 11 August 2026
+
+- Confirmed `.env`/`.env.local` remain ignored and are consumed only by server-side Gemini routes and local setup scripts.
+- Upgraded the five generative workflows to Gemini 3.6 Flash through the Interactions API.
+- Added optional Gemini File Search grounding without allowing retrieved text to change locked SetCraft calculations.
+- Added an idempotent reviewed-knowledge uploader with safe draft skipping, content-hash replacement, pruning and deliberate reset support.
+- Added starter knowledge for shared safety, terminology, coaching chat, set generation, set modification, race analysis and race strategy.
+- Added a live UI status that distinguishes offline mode, live Gemini and File Search grounding.
+- Added an eight-case live evaluation runner covering all five workflows.
+- Added a complete Windows setup and evaluation guide.
+
+Validation: production build and artifact validation passed; lint passed with no warnings; all 11 race-intelligence tests and the rendered-page test passed; browser QA confirmed the AI status badges and offline fallback interaction. A live Gemini/File Search request requires the owner’s private API key and is intentionally not executed or packaged here.

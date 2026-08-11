@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "SetCraft_Swim_Studio_Final_v11_Performance_Intelligence/**",
+    "server.ts",
   ]),
   {
     // These React 19 advisory rules flag established hydration and local-storage

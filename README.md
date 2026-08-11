@@ -34,7 +34,18 @@ npm run install:ci
 npm run dev
 ```
 
-Open the local address printed by the development server. For live Gemini responses, copy `.env.example` to `.env.local`, set `GEMINI_API_KEY`, and restart. The application remains functional without credentials.
+Open the local address printed by the development server. For live Gemini responses, copy `.env.example` to `.env` or `.env.local`, set `GEMINI_API_KEY`, and restart. The application remains functional without credentials.
+
+SetCraft uses Gemini 3.6 Flash server-side. To add the reviewed coaching-knowledge layer and verify all five AI workflows:
+
+```bash
+npm run ai:setup-rag -- --write-env
+npm run dev
+# In a second terminal:
+npm run ai:eval
+```
+
+See `docs/AI_MODEL_IMPLEMENTATION_GUIDE.md` for the complete Windows walkthrough, privacy rules and evaluation process.
 
 ## Verify
 

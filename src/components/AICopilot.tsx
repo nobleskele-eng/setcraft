@@ -17,6 +17,14 @@ interface AICopilotProps {
   onOpenGeneratedSet?: (text: string, title: string, focus: string) => void;
 }
 
+type AiHealth = {
+  aiMode: "live" | "simulation";
+  knowledgeMode: "file-search" | "base-prompts";
+  model: string;
+};
+
+type AiResponseMode = "rag" | "live" | "offline";
+
 export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
   const [activeTab, setActiveTab] = useState<"chat" | "generator" | "modifier">("chat");
 
@@ -51,10 +59,27 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
   const [modResult, setModResult] = useState<string>("");
   const [loadingMod, setLoadingMod] = useState(false);
   const [requestError, setRequestError] = useState("");
+  const [aiHealth, setAiHealth] = useState<AiHealth | null>(null);
+  const [lastAiMode, setLastAiMode] = useState<AiResponseMode | null>(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/health")
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("AI status unavailable")))
+      .then((health: AiHealth) => {
+        if (!cancelled) setAiHealth(health);
+      })
+      .catch(() => {
+        if (!cancelled) setAiHealth(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // 1. Submit Chat
   const handleChatSubmit = async (textToSend?: string) => {
@@ -81,6 +106,7 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
       });
       if (!response.ok) throw new Error(`AI request failed (${response.status})`);
       const data = await response.json();
+      if (data.meta?.mode) setLastAiMode(data.meta.mode as AiResponseMode);
 
       const copilotMsg: AIChatMessage = {
         id: `c-${Date.now()}`,
@@ -115,6 +141,7 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
       });
       if (!response.ok) throw new Error(`AI request failed (${response.status})`);
       const data = await response.json();
+      if (data.meta?.mode) setLastAiMode(data.meta.mode as AiResponseMode);
       setGenResult(data.text || "");
     } catch (err) {
       console.error(err);
@@ -140,6 +167,7 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
       });
       if (!response.ok) throw new Error(`AI request failed (${response.status})`);
       const data = await response.json();
+      if (data.meta?.mode) setLastAiMode(data.meta.mode as AiResponseMode);
       setModResult(data.text || "");
     } catch (err) {
       console.error(err);
@@ -171,7 +199,23 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
           <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300 md:text-base">
             Evidence-aware coaching chat, structured set generation and constraint-preserving workout edits—ready for your Gemini knowledge system.
           </p>
-          <div className="mt-5 flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-wide"><span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-emerald-300">Offline-safe fallbacks</span><span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-cyan-300">Coach review required</span><span className="rounded-full border border-violet-400/20 bg-violet-400/10 px-3 py-1.5 text-violet-300">Gemini model configurable</span></div>
+          <div className="mt-5 flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-wide">
+            <span className={`rounded-full border px-3 py-1.5 ${lastAiMode === "live" || lastAiMode === "rag" ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300" : "border-amber-400/20 bg-amber-400/10 text-amber-300"}`}>
+              {lastAiMode === "rag"
+                ? `Gemini verified · ${aiHealth?.model || "configured model"} · knowledge`
+                : lastAiMode === "live"
+                  ? `Gemini verified · ${aiHealth?.model || "configured model"}`
+                  : lastAiMode === "offline"
+                    ? "Gemini unavailable · safe fallback used"
+                    : aiHealth?.aiMode === "live"
+                      ? `Gemini configured · ${aiHealth.model}`
+                      : "Offline-safe mode"}
+            </span>
+            <span className={`rounded-full border px-3 py-1.5 ${aiHealth?.knowledgeMode === "file-search" ? "border-cyan-400/20 bg-cyan-400/10 text-cyan-300" : "border-white/10 bg-white/[.06] text-slate-300"}`}>
+              {lastAiMode === "rag" ? "Coaching knowledge verified" : aiHealth?.knowledgeMode === "file-search" ? "Coaching knowledge configured" : "Base prompts only"}
+            </span>
+            <span className="rounded-full border border-violet-400/20 bg-violet-400/10 px-3 py-1.5 text-violet-300">Coach review required</span>
+          </div>
         </div>
 
         {/* TABS */}

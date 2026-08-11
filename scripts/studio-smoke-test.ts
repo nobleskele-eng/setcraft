@@ -42,7 +42,9 @@ async function main() {
 
   // Moving a node through remove/insert must preserve the same node ID.
   let moveGraph = starterWorkout();
-  const movingId = (moveGraph[0] as any).children[0].id as string;
+  const movingContainer = moveGraph[0];
+  assert.ok("children" in movingContainer && Array.isArray(movingContainer.children) && movingContainer.children[0]);
+  const movingId = movingContainer.children[0].id;
   const removed = removeNode(moveGraph, movingId);
   assert.ok(removed.removed, "Move operation did not remove the source node");
   moveGraph = insertNode(removed.nodes, null, 0, removed.removed!);
