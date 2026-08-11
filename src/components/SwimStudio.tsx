@@ -15,13 +15,10 @@ import {
   ChevronUp,
   CircleDot,
   ClipboardList,
-  Clock3,
   Copy,
-  Download,
   Droplets,
   FileDown,
   FileJson,
-  Folder,
   FolderPlus,
   Flag,
   Gauge,
@@ -42,7 +39,6 @@ import {
   Plus,
   Redo2,
   RefreshCw,
-  RotateCcw,
   Save,
   Search,
   ShieldCheck,
@@ -52,7 +48,6 @@ import {
   TimerReset,
   Trash2,
   Undo2,
-  Unlock,
   Users,
   Waves,
   X,
@@ -530,6 +525,7 @@ function NodeCard({ node, selectedId, draggingId, dragActive, dragLabel, collaps
 }
 
 export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initialWorkout, initialProject, onInitialWorkoutLoaded, onInitialProjectLoaded, requestedPage, onPageChange }: SwimStudioProps) {
+  void currentRole;
   const [sessionName, setSessionName] = useState("100 Free Speed Endurance");
   const [focus, setFocus] = useState("Race pace & speed endurance");
   const [phase, setPhase] = useState("Race preparation");
@@ -594,8 +590,8 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
           tags: item.tags || [],
           laneAssignments: migrateLaneAssignments(item.laneAssignments),
           deckSheetMeta: migrateDeckMeta(item.deckSheetMeta),
-          createdAt: item.createdAt || (item as any).savedAt || new Date().toISOString(),
-          updatedAt: item.updatedAt || (item as any).savedAt || new Date().toISOString(),
+          createdAt: item.createdAt || (item as Partial<StudioProject> & { savedAt?: string }).savedAt || new Date().toISOString(),
+          updatedAt: item.updatedAt || (item as Partial<StudioProject> & { savedAt?: string }).savedAt || new Date().toISOString(),
         })) as StudioProject[]);
       }
       if (myBlocks) setCustomBlocks(JSON.parse(myBlocks));
@@ -649,7 +645,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
 
   useEffect(() => {
     if (requestedPage && requestedPage !== studioPage) setStudioPage(requestedPage);
-  }, [requestedPage]);
+  }, [requestedPage, studioPage]);
 
   useEffect(() => {
     onPageChange?.(studioPage);
@@ -1114,7 +1110,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
     const handleKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement;
       if (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") { event.preventDefault(); event.shiftKey ? redo() : undo(); }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") { event.preventDefault(); if (event.shiftKey) redo(); else undo(); }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "y") { event.preventDefault(); redo(); }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "d" && selectedId) { event.preventDefault(); duplicateNode(selectedId); }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") { event.preventDefault(); saveTemplate(); }
@@ -1192,7 +1188,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
               { id: "lanes", label: "Lane Plan", helper: `${laneAssignments.lanes.length} lanes configured`, icon: Users },
               { id: "deck", label: "Deck Sheet", helper: "Header, notes and goals", icon: FileDown },
               { id: "review", label: "Review & Export", helper: warningCount ? `${warningCount} items to check` : "Ready to export", icon: ListChecks },
-            ] as Array<{ id: StudioPage; label: string; helper: string; icon: React.ElementType }>).map((item, index) => {
+            ] as Array<{ id: StudioPage; label: string; helper: string; icon: React.ElementType }>).map((item) => {
               const Icon = item.icon;
               const active = studioPage === item.id;
               return (
@@ -1689,8 +1685,8 @@ function LaneAssignmentPanel({ config, onChange, deckMeta, onDeckMetaChange, ope
               <label><FieldLabel>Day label</FieldLabel><input value={deckMeta.dayLabel} onChange={(event) => onDeckMetaChange((current) => ({ ...current, dayLabel: event.target.value }))} className={metaInput} /></label>
               <label className="md:col-span-2"><FieldLabel>Coaches</FieldLabel><input value={deckMeta.coaches} onChange={(event) => onDeckMetaChange((current) => ({ ...current, coaches: event.target.value }))} className={metaInput} /></label>
               <label className="md:col-span-2"><FieldLabel>Quote / theme</FieldLabel><input value={deckMeta.quote} onChange={(event) => onDeckMetaChange((current) => ({ ...current, quote: event.target.value }))} className={metaInput} placeholder="Swimming rewards the tough" /></label>
-              <label className="md:col-span-2 xl:col-span-3"><FieldLabel>Week's focus</FieldLabel><input value={deckMeta.weekFocus} onChange={(event) => onDeckMetaChange((current) => ({ ...current, weekFocus: event.target.value }))} className={metaInput} /></label>
-              <label className="md:col-span-2 xl:col-span-3"><FieldLabel>Today's focus</FieldLabel><input value={deckMeta.todayFocus} onChange={(event) => onDeckMetaChange((current) => ({ ...current, todayFocus: event.target.value }))} className={metaInput} /></label>
+              <label className="md:col-span-2 xl:col-span-3"><FieldLabel>Week’s focus</FieldLabel><input value={deckMeta.weekFocus} onChange={(event) => onDeckMetaChange((current) => ({ ...current, weekFocus: event.target.value }))} className={metaInput} /></label>
+              <label className="md:col-span-2 xl:col-span-3"><FieldLabel>Today’s focus</FieldLabel><input value={deckMeta.todayFocus} onChange={(event) => onDeckMetaChange((current) => ({ ...current, todayFocus: event.target.value }))} className={metaInput} /></label>
               <label className="md:col-span-2"><FieldLabel>Short footer line</FieldLabel><input value={deckMeta.footerNote} onChange={(event) => onDeckMetaChange((current) => ({ ...current, footerNote: event.target.value }))} className={metaInput} /></label>
               <label className="md:col-span-4 xl:col-span-8"><FieldLabel>Notes shown at bottom of PDF</FieldLabel><textarea rows={3} value={deckMeta.bottomNotes} onChange={(event) => onDeckMetaChange((current) => ({ ...current, bottomNotes: event.target.value }))} className={metaInput} placeholder="Meet reminders, equipment notes, coaching instructions, substitutions..." /></label>
             </div>

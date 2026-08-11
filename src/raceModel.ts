@@ -1,9 +1,18 @@
 import { SINGLE_AGE_LCM_STANDARDS } from "./generated/singleAgeLcmStandards";
 import { WORLDS_2025_FINAL_MEAN_LCM } from "./generated/worlds2025References";
 import { AQUA_2026_LCM_BASES, WORLD_RECORD_SEEDS_LCM } from "./generated/worldRecordsLcm";
+import {
+  AQUA_2026_SCM_BASES,
+  NCAA_2027_DI_SCY,
+  NCAA_SCM_TO_SCY_FACTORS,
+  SECTIONALS_2026_SCY,
+  US_OPEN_RECORD_SEEDS_SCY,
+  WINTER_JUNIORS_2026_SCY,
+  WORLD_RECORD_SEEDS_SCM,
+} from "./generated/courseBenchmarks";
 
 export type SexCategory = "Men" | "Women";
-export type Course = "LCM" | "SCY";
+export type Course = "LCM" | "SCM" | "SCY";
 export type ReferenceLevel = "Sectionals" | "Nationals" | "Trials" | "World Class";
 
 export type RaceReference = {
@@ -27,12 +36,21 @@ export type RaceReference = {
   sourceUrl: string;
   verification: "official" | "secondary" | "manual";
   dataClass?: "observed" | "derived" | "coach" | "world-record";
+  benchmarkKind?: "world-record" | "us-open-record" | "course-equivalent";
   checkpointProvenance?: Array<"official" | "secondary" | "estimated" | "coach">;
   recordStatus?: "ratified" | "pending";
   strategyDescription?: string;
   bestFor?: string;
   risk?: string;
   notes?: string;
+  ageBand?: string;
+  privacy?: "public-senior" | "anonymized-minor" | "coach-private";
+  round?: string;
+  heat?: number;
+  place?: number;
+  aquaPoints?: number;
+  sourceMeetId?: string;
+  shapeMetric?: number;
 };
 
 export type StrategyDefinition = {
@@ -49,6 +67,37 @@ export const EVENTS = [
   "50 Back", "100 Back", "200 Back", "50 Breast", "100 Breast", "200 Breast",
   "50 Fly", "100 Fly", "200 Fly", "200 IM", "400 IM",
 ] as const;
+
+export const SCM_EVENTS = [...EVENTS.slice(0, 15), "100 IM", "200 IM", "400 IM"] as readonly string[];
+export const SCY_EVENTS = [
+  "50 Free", "100 Free", "200 Free", "500 Free", "1000 Free", "1650 Free",
+  "50 Back", "100 Back", "200 Back", "50 Breast", "100 Breast", "200 Breast",
+  "50 Fly", "100 Fly", "200 Fly", "200 IM", "400 IM",
+] as readonly string[];
+
+export function eventsForCourse(course: Course): readonly string[] {
+  if (course === "SCM") return SCM_EVENTS;
+  if (course === "SCY") return SCY_EVENTS;
+  return EVENTS;
+}
+
+const METRIC_TO_SCY_EVENT: Record<string, string> = {
+  "400 Free": "500 Free", "800 Free": "1000 Free", "1500 Free": "1650 Free",
+};
+
+export function equivalentEvent(event: string, from: Course, to: Course) {
+  if (from === to) return event;
+  if (to === "SCY") return METRIC_TO_SCY_EVENT[event] || event;
+  if (from === "SCY") {
+    const entry = Object.entries(METRIC_TO_SCY_EVENT).find(([, scy]) => scy === event);
+    return entry?.[0] || event;
+  }
+  return event;
+}
+
+export function courseUnit(course: Course) {
+  return course === "SCY" ? "yd" : "m";
+}
 
 type StandardsByEvent = Record<string, { Men: number; Women: number }>;
 
@@ -122,7 +171,7 @@ export const OFFICIAL_SOURCES = [
   { name: "2025 Central Zone North Speedo Sectionals Friday finals", url: "https://recwell.umn.edu/sites/recwell.umn.edu/files/2025-07/friday_finals_results_1.pdf", detail: "Official HY-TEK results with ages and cumulative 50 m checkpoints for the men's 200 free A-final." },
   { name: "Omega 2025 World Championships results book", url: "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFF22.pdf", detail: "Official Singapore 2025 final rankings, reaction times and split lines." },
   { name: "Omega 2025 World Championships Lenex results", url: "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef", detail: "Machine-readable official results used for 99 recent medal-race profiles across every individual event category." },
-  { name: "World Aquatics current LCM records", url: "https://www.worldaquatics.com/swimming/records?pool=LCM&recordCode=WR", detail: "Governing-body record catalogue checked 4 August 2026; pending ratification is preserved where shown." },
+  { name: "World Aquatics current LCM records", url: "https://www.worldaquatics.com/swimming/records?pool=LCM&recordCode=WR", detail: "Governing-body record catalogue reviewed 11 August 2026; pending ratification is preserved where shown." },
   { name: "World Aquatics 2026 LCM points — men", url: "https://resources.fina.org/fina/document/2026/03/02/2ff83c61-de9d-4b14-8e66-dafd60974e07/World-Aquatics-Points-LCM_2026_Male-1-.pdf", detail: "Official 2026 male base times and point table, valid 1 January–31 December 2026." },
   { name: "World Aquatics 2026 LCM points — women", url: "https://resources.fina.org/fina/document/2026/03/02/ae522afa-e03f-417e-9169-c39e868af9a6/World-Aquatics-Points-LCM_2026_Female-1-.pdf", detail: "Official 2026 female base times and point table, valid 1 January–31 December 2026." },
   { name: "World Aquatics points formula", url: "https://www.worldaquatics.com/swimming/points", detail: "Official P = 1000 × (B/T)³ formula; calculated values are truncated to an integer." },
@@ -131,6 +180,11 @@ export const OFFICIAL_SOURCES = [
   { name: "Swimming race-analysis review", url: "https://www.mdpi.com/1660-4601/18/1/69", detail: "Peer-reviewed review of start, clean-swimming, turning and finishing race phases." },
   { name: "Dry-land strength and turn performance review", url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC8431432/", detail: "Systematic review informing the cautious, optional interpretation of strength and turn-related inputs." },
   { name: "Start, turn and finish performance study", url: "https://www.jssm.org/researchjssm-19-397.xml.xml", detail: "Race-phase evidence supporting measured 15 m and turn analysis instead of assumptions from self-ratings." },
+  { name: "World Aquatics current SCM records", url: "https://www.worldaquatics.com/swimming/records?pool=SCM&recordCode=WR", detail: "Governing-body short-course record catalogue reviewed 11 August 2026." },
+  { name: "World Aquatics 2026 SCM and LCM points bases", url: "https://resources.fina.org/fina/document/2026/01/27/3886f5b2-5bcf-464e-a626-059be2ed4567/Points-Base-times-SCM-and-LCM-2026_01.2026.pdf", detail: "Official annual short- and long-course base times and validity periods." },
+  { name: "USA Swimming 2026 Winter Junior standards", url: "https://www.usaswimming.org/docs/default-source/timesdocuments/time-standards/2026/11320828118_events_timestandards_2026_speedowinterjrs.pdf", detail: "Official 2026 SCY individual qualifying standards." },
+  { name: "2027 NCAA Division I qualifying standards", url: "https://ncaaorg.s3.amazonaws.com/championships/sports/swimdive/d1/2026-27D1XSW_QUALSTANDARDS.pdf", detail: "Official SCY standards and published NCAA SCM-to-SCY conversion factors." },
+  { name: "USA Swimming time standards hub", url: "https://www.usaswimming.org/times/time-standards", detail: "Current national, junior, Futures and Sectionals time-standard index." },
 ];
 
 export const SWIMCLOUD_REQUEST = {
@@ -233,35 +287,49 @@ export function segmentsFromCumulative(values: number[]): number[] {
   return values.map((value, index) => index ? value - values[index - 1] : value);
 }
 
-export function getStandard(level: ReferenceLevel, event: string, sex: SexCategory, age: number): number | null {
+export function getStandard(level: ReferenceLevel, event: string, sex: SexCategory, age: number, course: Course = "LCM"): number | null {
+  if (course === "SCY") {
+    if (level === "Sectionals") return SECTIONALS_2026_SCY[event]?.[sex] ?? null;
+    if (level === "Nationals") return WINTER_JUNIORS_2026_SCY[event]?.[sex] ?? null;
+    if (level === "Trials") return NCAA_2027_DI_SCY[event]?.[sex] ?? null;
+    const record = getRecordBenchmark(event, sex, course);
+    return record ? Math.round(record.total * 1.055 * 100) / 100 : null;
+  }
+  if (course === "SCM") {
+    const lcmEvent = equivalentEvent(event, "SCM", "LCM");
+    const lcmCut = getStandard(level, lcmEvent, sex, age, "LCM");
+    return lcmCut == null ? null : convertCourseTime(lcmCut, lcmEvent, sex, "LCM", "SCM").time;
+  }
   if (level === "Sectionals") return SECTIONALS_2026_LCM[event]?.[sex] ?? null;
   if (level === "Nationals") return (age <= 18 ? NATIONALS_2026_18U_LCM : NATIONALS_2026_OPEN_LCM)[event]?.[sex] ?? null;
   if (level === "Trials") return TRIALS_2024_LCM[event]?.[sex] ?? null;
   return WORLDS_2025_FINAL_MEAN_LCM[event]?.[sex] ?? PARIS_2024_FINAL_MEAN_LCM[event]?.[sex] ?? null;
 }
 
-export function classifyAbsolute(time: number, event: string, sex: SexCategory, age: number) {
+export function classifyAbsolute(time: number, event: string, sex: SexCategory, age: number, course: Course = "LCM") {
   const descending: ReferenceLevel[] = ["World Class", "Trials", "Nationals", "Sectionals"];
   const achieved = descending.find((level) => {
-    const cut = getStandard(level, event, sex, age);
+    const cut = getStandard(level, event, sex, age, course);
     return cut != null && time <= cut;
   });
   const ascending: ReferenceLevel[] = ["Sectionals", "Nationals", "Trials", "World Class"];
   const achievedIndex = achieved ? ascending.indexOf(achieved) : -1;
   const next = ascending.slice(achievedIndex + 1).find((level) => {
-    const cut = getStandard(level, event, sex, age);
+    const cut = getStandard(level, event, sex, age, course);
     return cut != null && time > cut;
   }) ?? null;
-  return { achieved: achieved ?? "Pre-Sectionals", next, nextCut: next ? getStandard(next, event, sex, age) : null };
+  return { achieved: achieved ?? "Pre-Sectionals", next, nextCut: next ? getStandard(next, event, sex, age, course) : null };
 }
 
-export function getAgeBand(time: number, age: number, sex: SexCategory, event: string) {
+export function getAgeBand(time: number, age: number, sex: SexCategory, event: string, course: Course = "LCM") {
   const normalizedAge = Math.max(10, Math.min(18, Math.round(age)));
-  const standards = SINGLE_AGE_LCM_STANDARDS[normalizedAge]?.[sex]?.[event];
-  if (!standards) return { label: age < 10 || age > 18 ? "Open" : "Not offered", index: -1, source: age < 10 || age > 18 ? "Exact-age standards apply to ages 10–18." : `USA Swimming does not publish this LCM event for age ${normalizedAge}.` };
+  const lcmEvent = equivalentEvent(event, course, "LCM");
+  const lcmTime = course === "LCM" ? time : convertCourseTime(time, event, sex, course, "LCM").time;
+  const standards = SINGLE_AGE_LCM_STANDARDS[normalizedAge]?.[sex]?.[lcmEvent];
+  if (!standards) return { label: age < 10 || age > 18 ? "Open" : "Not offered", index: -1, source: age < 10 || age > 18 ? "Exact-age standards apply to ages 10–18." : `USA Swimming does not publish an equivalent exact-age event for age ${normalizedAge}.` };
   const labels = ["AAAA", "AAA", "AA", "A", "BB", "B"];
-  const index = standards.findIndex((cut) => time <= cut);
-  return { label: index >= 0 ? labels[index] : "Below B", index, source: `USA Swimming 2024–2028 single-age ${normalizedAge} LCM standard` };
+  const index = standards.findIndex((cut) => lcmTime <= cut);
+  return { label: index >= 0 ? labels[index] : "Below B", index, source: course === "LCM" ? `USA Swimming 2024–2028 single-age ${normalizedAge} LCM standard` : `Course-normalized to USA Swimming single-age ${normalizedAge} LCM standard` };
 }
 
 export function scaledModel(reference: RaceReference, targetTotal: number): number[] {
@@ -288,7 +356,8 @@ export function parseCumulativeSplits(value: string, total: number): number[] {
   return parsed;
 }
 
-export function defaultCheckpoints(event: string): number[] {
+export function defaultCheckpoints(event: string, course: Course = "LCM"): number[] {
+  void course;
   const distance = Number(event.match(/^\d+/)?.[0] || 200);
   if (distance === 50) return [15, 25, 35, 50];
   if (distance === 100) return [25, 50, 75, 100];
@@ -361,36 +430,36 @@ export function strategyDefinitions(event: string): StrategyDefinition[] {
   ];
 }
 
-export function modelStandard(level: ReferenceLevel, event: string, sex: SexCategory, age: number) {
-  const official = getStandard(level, event, sex, age);
-  if (official != null) return { time: official, official: true };
+export function modelStandard(level: ReferenceLevel, event: string, sex: SexCategory, age: number, course: Course = "LCM") {
+  const official = getStandard(level, event, sex, age, course);
+  if (official != null) return { time: official, official: course === "LCM" || (course === "SCY" && level !== "World Class") };
   if (level === "Trials") {
-    const national = getStandard("Nationals", event, sex, age);
-    const world = getStandard("World Class", event, sex, age);
+    const national = getStandard("Nationals", event, sex, age, course);
+    const world = getStandard("World Class", event, sex, age, course);
     if (national && world) return { time: Math.round((world + (national - world) * 0.52) * 100) / 100, official: false };
   }
   return { time: null, official: false };
 }
 
-export function getDerivedReferences(event: string, sex: SexCategory, age: number): RaceReference[] {
+export function getDerivedReferences(event: string, sex: SexCategory, age: number, course: Course = "LCM"): RaceReference[] {
   const levels: ReferenceLevel[] = ["Sectionals", "Nationals", "Trials", "World Class"];
   const checkpoints = defaultCheckpoints(event);
   return levels.flatMap((level) => {
-    const standard = modelStandard(level, event, sex, age);
+    const standard = modelStandard(level, event, sex, age, course);
     if (!standard.time) return [];
     return strategyDefinitions(event).map((strategy) => ({
-      id: `model-${level.toLowerCase().replace(" ", "-")}-${sex.toLowerCase()}-${event.toLowerCase().replace(" ", "-")}-${strategy.id}`,
-      swimmer: `${level} strategy model`, event, sex, course: "LCM" as Course,
+      id: `model-${course.toLowerCase()}-${level.toLowerCase().replace(" ", "-")}-${sex.toLowerCase()}-${event.toLowerCase().replace(" ", "-")}-${strategy.id}`,
+      swimmer: `${course} ${level} strategy model`, event, sex, course,
       meet: standard.official ? "Official standard · modeled race shape" : "SetCraft equivalent · modeled race shape",
       date: level === "Trials" ? "2024 cycle" : level === "World Class" ? "2025 Worlds" : "2026 standards",
       level, total: standard.time,
       cumulative: normalizeFactors(checkpoints, strategy.paceFactors, standard.time),
       checkpoints, archetype: strategy.name,
-      sourceName: level === "Sectionals" ? OFFICIAL_SOURCES[0].name : level === "Nationals" ? OFFICIAL_SOURCES[1].name : level === "Trials" ? (standard.official ? OFFICIAL_SOURCES[2].name : OFFICIAL_SOURCES[10].name) : OFFICIAL_SOURCES[10].name,
-      sourceUrl: level === "Sectionals" ? OFFICIAL_SOURCES[0].url : level === "Nationals" ? OFFICIAL_SOURCES[1].url : level === "Trials" ? (standard.official ? OFFICIAL_SOURCES[2].url : OFFICIAL_SOURCES[10].url) : OFFICIAL_SOURCES[10].url,
+      sourceName: course === "SCY" ? (level === "Sectionals" ? "2026 Speedo Sectionals SCY standards" : level === "Nationals" ? "2026 Winter Junior Championships SCY standards" : level === "Trials" ? "2027 NCAA Division I SCY standards" : "Current U.S. Open benchmark") : course === "SCM" ? "SetCraft record-ratio course equivalent" : level === "Sectionals" ? OFFICIAL_SOURCES[0].name : level === "Nationals" ? OFFICIAL_SOURCES[1].name : level === "Trials" ? (standard.official ? OFFICIAL_SOURCES[2].name : OFFICIAL_SOURCES[10].name) : OFFICIAL_SOURCES[10].name,
+      sourceUrl: course === "SCY" ? (level === "Sectionals" ? "https://www.usaswimming.org/docs/default-source/timesdocuments/time-standards/2026/2026_speedosectionals_timestandards_max.pdf" : level === "Nationals" ? "https://www.usaswimming.org/docs/default-source/timesdocuments/time-standards/2026/11320828118_events_timestandards_2026_speedowinterjrs.pdf" : level === "Trials" ? "https://ncaaorg.s3.amazonaws.com/championships/sports/swimdive/d1/2026-27D1XSW_QUALSTANDARDS.pdf" : "https://www.usaswimming.org/times/otherorganizations/ncaa-division-i") : course === "SCM" ? "https://www.worldaquatics.com/swimming/records?pool=SCM&recordCode=WR" : level === "Sectionals" ? OFFICIAL_SOURCES[0].url : level === "Nationals" ? OFFICIAL_SOURCES[1].url : level === "Trials" ? (standard.official ? OFFICIAL_SOURCES[2].url : OFFICIAL_SOURCES[10].url) : OFFICIAL_SOURCES[10].url,
       verification: "secondary" as const, dataClass: "derived" as const,
       strategyDescription: strategy.description, bestFor: strategy.bestFor, risk: strategy.risk,
-      notes: standard.official ? "Final-time anchor is official; intermediate checkpoints are a normalized SetCraft strategy model, not an observed athlete split." : "There is no U.S. Olympic Trials event for this 50 stroke. This clearly labeled equivalent is interpolated between the 2026 National standard and the 2025 Worlds final mean.",
+      notes: standard.official ? "Final-time anchor is official; intermediate checkpoints are a normalized SetCraft strategy model, not an observed athlete split." : course === "SCM" ? "Final-time anchor is a transparent record-ratio conversion from the matching LCM comparison. It is not an official qualifying time." : "This clearly labeled comparison is modeled; it is not an observed athlete split or official qualifying time.",
     }));
   });
 }
@@ -437,7 +506,7 @@ function fillCheckpointAnchors(event: string, total: number, anchors: Record<num
   return { values, provenance };
 }
 
-export const WORLD_RECORD_REFERENCES: RaceReference[] = WORLD_RECORD_SEEDS_LCM.map((seed) => {
+const LCM_WORLD_RECORD_REFERENCES: RaceReference[] = WORLD_RECORD_SEEDS_LCM.map((seed) => {
   const checkpoints = defaultCheckpoints(seed.event);
   const completed = fillCheckpointAnchors(seed.event, seed.total, { ...(seed.knownSplits || {}), [checkpoints.at(-1) || 0]: seed.total });
   const checkpointProvenance = checkpoints.map((distance, index) => {
@@ -454,49 +523,156 @@ export const WORLD_RECORD_REFERENCES: RaceReference[] = WORLD_RECORD_SEEDS_LCM.m
     cumulative: completed.values, checkpoints, archetype: "Current world record",
     sourceName: "World Aquatics current LCM records", sourceUrl: OFFICIAL_SOURCES[11].url,
     verification: "official", dataClass: "world-record", checkpointProvenance,
+    benchmarkKind: "world-record",
     recordStatus: seed.pendingRatification ? "pending" : "ratified",
-    notes: [seed.notes, "Record total checked 4 August 2026.", estimateNote].filter(Boolean).join(" "),
+    notes: [seed.notes, "Record total checked 11 August 2026.", estimateNote].filter(Boolean).join(" "),
   } satisfies RaceReference;
 });
 
-export function getWorldRecord(event: string, sex: SexCategory) {
-  return WORLD_RECORD_REFERENCES.find((record) => record.event === event && record.sex === sex) || null;
+function buildCourseBenchmarks(course: "SCM" | "SCY", seeds: typeof WORLD_RECORD_SEEDS_SCM, benchmarkKind: "world-record" | "us-open-record") {
+  return seeds.map((seed) => {
+    const checkpoints = defaultCheckpoints(seed.event, course);
+    const completed = fillCheckpointAnchors(seed.event, seed.total, { [checkpoints.at(-1) || 0]: seed.total });
+    return {
+      id: `${course.toLowerCase()}-${benchmarkKind}-${seed.sex.toLowerCase()}-${seed.event.toLowerCase().replaceAll(" ", "-")}`,
+      swimmer: seed.swimmer, nation: seed.nation, event: seed.event, sex: seed.sex, course,
+      meet: seed.meet, date: seed.date, level: "World Class" as const, total: seed.total,
+      cumulative: completed.values, checkpoints,
+      archetype: benchmarkKind === "world-record" ? "Current SCM world record" : "Current SCY U.S. Open benchmark",
+      sourceName: benchmarkKind === "world-record" ? "World Aquatics current SCM records" : "U.S. Open / NCAA SCY record tracker",
+      sourceUrl: benchmarkKind === "world-record" ? "https://www.worldaquatics.com/swimming/records?pool=SCM&recordCode=WR" : "https://www.usaswimming.org/times/otherorganizations/ncaa-division-i",
+      verification: "official" as const, dataClass: "world-record" as const, benchmarkKind,
+      checkpointProvenance: checkpoints.map((_, index) => index === checkpoints.length - 1 ? "official" as const : "estimated" as const),
+      recordStatus: "ratified" as const,
+      notes: [seed.notes, benchmarkKind === "world-record" ? "SCM record total checked 11 August 2026." : "SCY has no World Aquatics world-record category; this is a U.S. Open benchmark in a 25-yard pool.", "Intermediate checkpoints are visibly modeled unless an official split is supplied."].filter(Boolean).join(" "),
+    } satisfies RaceReference;
+  });
 }
 
-export function aquaPoints2026(time: number, event: string, sex: SexCategory) {
-  const base = AQUA_2026_LCM_BASES[event]?.[sex];
+export const SCM_WORLD_RECORD_REFERENCES = buildCourseBenchmarks("SCM", WORLD_RECORD_SEEDS_SCM, "world-record");
+export const SCY_RECORD_REFERENCES = buildCourseBenchmarks("SCY", US_OPEN_RECORD_SEEDS_SCY, "us-open-record");
+export const WORLD_RECORD_REFERENCES: RaceReference[] = [...LCM_WORLD_RECORD_REFERENCES, ...SCM_WORLD_RECORD_REFERENCES, ...SCY_RECORD_REFERENCES];
+
+export function getRecordBenchmark(event: string, sex: SexCategory, course: Course = "LCM") {
+  return WORLD_RECORD_REFERENCES.find((record) => record.event === event && record.sex === sex && record.course === course) || null;
+}
+
+export function getWorldRecord(event: string, sex: SexCategory, course: Course = "LCM") {
+  return getRecordBenchmark(event, sex, course);
+}
+
+export type CourseConversion = {
+  time: number;
+  event: string;
+  from: Course;
+  to: Course;
+  method: "same-course" | "record-ratio" | "ncaa-factor" | "two-step-estimate";
+  factor: number;
+  officialEntryTime: false;
+  note: string;
+};
+
+export function convertCourseTime(time: number, event: string, sex: SexCategory, from: Course, to: Course): CourseConversion {
+  const targetEvent = equivalentEvent(event, from, to);
+  if (!time || from === to) return { time, event: targetEvent, from, to, method: "same-course", factor: 1, officialEntryTime: false, note: "No course conversion applied." };
+
+  if ((from === "SCM" && to === "SCY") || (from === "SCY" && to === "SCM")) {
+    const metricEvent = from === "SCM" ? event : equivalentEvent(event, "SCY", "SCM");
+    const scmToScy = NCAA_SCM_TO_SCY_FACTORS[metricEvent] || 0.906;
+    const factor = from === "SCM" ? scmToScy : 1 / scmToScy;
+    return {
+      time: Math.trunc(time * factor * 100) / 100, event: targetEvent, from, to,
+      method: "ncaa-factor", factor, officialEntryTime: false,
+      note: "Uses the published NCAA SCM↔SCY conversion factor and truncates beyond hundredths. Meet-entry acceptance still depends on the governing meet.",
+    };
+  }
+
+  if ((from === "LCM" && to === "SCY") || (from === "SCY" && to === "LCM")) {
+    const first = convertCourseTime(time, event, sex, from, "SCM");
+    const second = convertCourseTime(first.time, first.event, sex, "SCM", to);
+    return {
+      ...second, from, method: "two-step-estimate", factor: time ? second.time / time : 0,
+      note: "Two-step planning estimate: current LCM↔SCM record ratio, then the published NCAA SCM↔SCY factor. It is not an official meet-entry conversion.",
+    };
+  }
+
+  const source = getRecordBenchmark(event, sex, from);
+  const target = getRecordBenchmark(targetEvent, sex, to);
+  if (source && target) {
+    const factor = target.total / source.total;
+    return {
+      time: Math.round(time * factor * 100) / 100, event: targetEvent, from, to,
+      method: "record-ratio", factor, officialEntryTime: false,
+      note: "Performance estimate scaled by the current same-sex course-record ratio. It is not an official meet-entry conversion.",
+    };
+  }
+
+  return { time, event: targetEvent, from, to, method: "two-step-estimate", factor: 1, officialEntryTime: false, note: "No exact course benchmark was available. The source time is retained and must not be used for meet entry." };
+}
+
+export type AthleteStrategyProfile = {
+  age?: number; weightKg?: number; heightCm?: number;
+  speed?: number; aerobic?: number; lactateTolerance?: number;
+  power?: number; strength?: number; turns?: number; underwater?: number; technique?: number; mobility?: number;
+};
+
+export function rankStrategies(event: string, profile: AthleteStrategyProfile = {}) {
+  const distance = Number(event.match(/^\d+/)?.[0] || 200);
+  const p = (key: keyof AthleteStrategyProfile, fallback = 5.5) => Math.max(1, Math.min(10, Number(profile[key]) || fallback));
+  return strategyDefinitions(event).map((strategy) => {
+    let fit = 64;
+    const id = strategy.id;
+    if (/underwater|front|early|fly-led|controlled-aggression/.test(id)) fit += (p("power") + p("strength") + p("speed") + p("underwater") - 22) * 2.25;
+    if (/balanced|even/.test(id)) fit += (p("technique") + p("turns") + p("aerobic") + p("mobility") - 22) * 1.9;
+    if (/back|negative|free-close/.test(id)) fit += (p("aerobic") + p("lactateTolerance") + p("technique") - 16.5) * 3;
+    if (/surge|breast-built/.test(id)) fit += (p("lactateTolerance") + p("turns") - 11) * 2.5;
+    if (distance >= 400) fit += (p("aerobic") - 5.5) * 2;
+    if (distance <= 100) fit += (p("speed") - 5.5) * 2;
+    return { ...strategy, fit: Math.max(30, Math.min(98, Math.round(fit))) };
+  }).sort((a, b) => b.fit - a.fit);
+}
+
+export function coursePoints2026(time: number, event: string, sex: SexCategory, course: Course = "LCM") {
+  const base = course === "LCM" ? AQUA_2026_LCM_BASES[event]?.[sex] : course === "SCM" ? AQUA_2026_SCM_BASES[event]?.[sex] : getRecordBenchmark(event, sex, "SCY")?.total;
   if (!base || !time) return { points: 0, base: null };
-  return { points: Math.trunc(1000 * Math.pow(base / time, 3)), base };
+  return { points: Math.trunc(1000 * Math.pow(base / time, 3)), base, official: course !== "SCY" };
 }
 
-export function agePerformanceScore(time: number, age: number, sex: SexCategory, event: string) {
+export function aquaPoints2026(time: number, event: string, sex: SexCategory, course: Course = "LCM") {
+  const result = coursePoints2026(time, event, sex, course);
+  return { points: result.points, base: result.base };
+}
+
+export function agePerformanceScore(time: number, age: number, sex: SexCategory, event: string, course: Course = "LCM") {
   const normalizedAge = Math.max(10, Math.min(18, Math.round(age)));
-  const cuts = SINGLE_AGE_LCM_STANDARDS[normalizedAge]?.[sex]?.[event];
+  const lcmEvent = equivalentEvent(event, course, "LCM");
+  const lcmTime = course === "LCM" ? time : convertCourseTime(time, event, sex, course, "LCM").time;
+  const cuts = SINGLE_AGE_LCM_STANDARDS[normalizedAge]?.[sex]?.[lcmEvent];
   if (!cuts?.length || age < 10 || age > 18 || !time) return null;
   const scores = [90, 80, 70, 60, 45, 30];
-  const record = getWorldRecord(event, sex)?.total || cuts[0] * 0.75;
-  if (time <= cuts[0]) {
+  const record = getWorldRecord(lcmEvent, sex, "LCM")?.total || cuts[0] * 0.75;
+  if (lcmTime <= cuts[0]) {
     const span = Math.max(0.01, cuts[0] - record);
-    return Math.round(Math.max(90, Math.min(100, 100 - ((time - record) / span) * 10)));
+    return Math.round(Math.max(90, Math.min(100, 100 - ((lcmTime - record) / span) * 10)));
   }
   for (let index = 1; index < cuts.length; index += 1) {
-    if (time <= cuts[index]) {
-      const share = (time - cuts[index - 1]) / Math.max(0.01, cuts[index] - cuts[index - 1]);
+    if (lcmTime <= cuts[index]) {
+      const share = (lcmTime - cuts[index - 1]) / Math.max(0.01, cuts[index] - cuts[index - 1]);
       return Math.round(scores[index - 1] + share * (scores[index] - scores[index - 1]));
     }
   }
-  return Math.round(Math.max(0, 30 * (1 - (time - cuts.at(-1)!) / (cuts.at(-1)! * 0.5))));
+  return Math.round(Math.max(0, 30 * (1 - (lcmTime - cuts.at(-1)!) / (cuts.at(-1)! * 0.5))));
 }
 
-export function performanceScores(time: number, age: number, sex: SexCategory, event: string, goalTime: number) {
-  const aqua = aquaPoints2026(time, event, sex);
-  const ageScore = agePerformanceScore(time, age, sex, event);
+export function performanceScores(time: number, age: number, sex: SexCategory, event: string, goalTime: number, course: Course = "LCM") {
+  const aqua = aquaPoints2026(time, event, sex, course);
+  const ageScore = agePerformanceScore(time, age, sex, event, course);
   const goalReadiness = goalTime > 0 && time > 0 ? Math.round(Math.min(100, 100 * Math.pow(goalTime / time, 3))) : 0;
   const aquaAsHundred = Math.min(100, aqua.points / 10);
   const setcraft = ageScore == null
     ? Math.round(aquaAsHundred * 0.8 + goalReadiness * 0.2)
     : Math.round(aquaAsHundred * 0.6 + ageScore * 0.25 + goalReadiness * 0.15);
-  const record = getWorldRecord(event, sex);
+  const record = getWorldRecord(event, sex, course);
   return { aquaPoints: aqua.points, aquaBase: aqua.base, ageScore, goalReadiness, setcraftScore: Math.max(0, Math.min(100, setcraft)), liveWorldRecord: record?.total || null, worldRecordGapPct: record && time ? ((time - record.total) / record.total) * 100 : null };
 }
 
@@ -507,8 +683,8 @@ export type CompletedSplitInput = {
   issues: string[];
 };
 
-export function completeCumulativeSplits(value: string, total: number, event: string, preferredModel?: number[]): CompletedSplitInput {
-  const checkpoints = defaultCheckpoints(event);
+export function completeCumulativeSplits(value: string, total: number, event: string, preferredModel?: number[], course: Course = "LCM"): CompletedSplitInput {
+  const checkpoints = defaultCheckpoints(event, course);
   const base = preferredModel?.length === checkpoints.length ? preferredModel.map((item) => item / preferredModel.at(-1)! * total) : genericCumulativeModel(event, total);
   const rawTokens = value.trim() ? value.split(/[;,\n]/).map((item) => item.trim()) : [];
   const enteredMask = checkpoints.map((_, index) => Boolean(rawTokens[index] && timeToSeconds(rawTokens[index]) > 0));
@@ -520,7 +696,7 @@ export function completeCumulativeSplits(value: string, total: number, event: st
     if (!parsed) return;
     if (parsed <= lastValue || (index < checkpoints.length - 1 && parsed >= total)) {
       enteredMask[index] = false;
-      issues.push(`Checkpoint ${checkpoints[index]} m was not monotonic and was estimated instead.`);
+      issues.push(`Checkpoint ${checkpoints[index]} ${courseUnit(course)} was not monotonic and was estimated instead.`);
       return;
     }
     anchors.push({ index, value: parsed });
@@ -552,29 +728,27 @@ export function completeCumulativeSplits(value: string, total: number, event: st
 
 export type TimingStatus = "official" | "self-reported" | "training";
 
+export function splitTokens(value: string, count: number) {
+  const tokens = value ? value.split(/[;,\n]/).map((item) => item.trim()) : [];
+  return Array.from({ length: count }, (_, index) => tokens[index] || "");
+}
+
 export function inputQualityScore(input: {
   event: string; course: Course; total: number; cumulative: number[]; enteredMask: boolean[];
   age: number; goalTime: number; timingStatus: TimingStatus; physiologyEnabled: boolean;
   activePhysiologyValues: number[];
 }) {
-  const checkpoints = defaultCheckpoints(input.event);
+  const checkpoints = defaultCheckpoints(input.event, input.course);
   const monotonic = input.cumulative.every((item, index) => item > 0 && (!index || item > input.cumulative[index - 1]));
-  const raceTime = input.total > 0 ? 20 : 0;
+  const raceTime = input.total > 0 ? 25 : 0;
   const integrity = monotonic && Math.abs((input.cumulative.at(-1) || 0) - input.total) < 0.11 ? 10 : 0;
-  const splitCertainty = checkpoints.reduce((sum, _, index) => sum + (input.enteredMask[index] ? 1 : 0.45), 0) / checkpoints.length * 35;
-  const context = (input.course === "LCM" ? 5 : 3) + (input.age >= 5 && input.age <= 100 ? 5 : 0) + (input.goalTime > 0 ? 5 : 0);
-  const provenance = input.timingStatus === "official" ? 10 : input.timingStatus === "self-reported" ? 6 : 3;
-  let earned = raceTime + integrity + splitCertainty + context + provenance;
-  let possible = 90;
-  const profilePossible = input.physiologyEnabled ? 10 : 0;
-  const profileEarned = input.physiologyEnabled && input.activePhysiologyValues.length
-    ? input.activePhysiologyValues.filter((value) => Number.isFinite(value) && value > 0).length / input.activePhysiologyValues.length * 10
-    : 0;
-  earned += profileEarned;
-  possible += profilePossible;
+  const splitCertainty = checkpoints.reduce((sum, _, index) => sum + (input.enteredMask[index] ? 1 : 0.25), 0) / checkpoints.length * 35;
+  const context = (input.age >= 5 && input.age <= 100 ? 2.5 : 0) + (input.goalTime > 0 ? 2.5 : 0);
+  const provenance = input.timingStatus === "official" ? 25 : input.timingStatus === "self-reported" ? 16 : 10;
+  const earned = raceTime + integrity + splitCertainty + context + provenance;
   return {
-    score: Math.round(earned / possible * 100),
-    breakdown: { raceTime, integrity, splitCertainty: Math.round(splitCertainty), context, provenance, profile: Math.round(profileEarned) },
+    score: Math.round(earned),
+    breakdown: { raceTime, integrity, splitCertainty: Math.round(splitCertainty), context, provenance, profile: 0 },
     enteredSplits: input.enteredMask.filter(Boolean).length,
     estimatedSplits: input.enteredMask.filter((entered) => !entered).length,
   };

@@ -68,9 +68,9 @@ function aiTextToQuickWrite(text: string): string {
 const PRIMARY_NAV_ITEMS = [
   { id: "dashboard", label: "Home Dashboard", helper: "Overview and recent work", icon: LayoutDashboard },
   { id: "famous", label: "Famous Sets", helper: "Curated and coach libraries", icon: BookOpenCheck },
-  { id: "race-lab", label: "Race Intelligence", helper: "Cuts, age factors and split models", icon: ChartNoAxesCombined },
-  { id: "calculators", label: "Swim Calculators", helper: "Pace, splits and send-offs", icon: Calculator },
-  { id: "copilot", label: "AI Coach", helper: "Generate and revise blocks", icon: Sparkles },
+  { id: "race-lab", label: "Race Analysis Lab", helper: "LCM, SCM, SCY records and race analysis", icon: ChartNoAxesCombined },
+  { id: "calculators", label: "Race Strategy Studio", helper: "Athlete plans, conversion and swim math", icon: Calculator },
+  { id: "copilot", label: "Coach Block AI", helper: "Coach chat, set generation and revision", icon: Sparkles },
   { id: "calendar", label: "Season Calendar", helper: "Plan training phases", icon: Calendar },
   { id: "community", label: "Swimmer Guild", helper: "Shared learning space", icon: Users },
   { id: "settings", label: "Settings & Roles", helper: "Workspace preferences", icon: Settings },
@@ -258,7 +258,7 @@ export default function App() {
         <div className="hidden border-t border-white/10 p-5 md:block">
           <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
             <span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-sky-400" /> Local workspace</span>
-            <span>v11 Performance Intelligence</span>
+            <span>v13 Professional Race Intelligence</span>
           </div>
         </div>
       </aside>

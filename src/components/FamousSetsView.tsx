@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   BookOpen,
-  Clock3,
   ExternalLink,
   Filter,
   Gauge,

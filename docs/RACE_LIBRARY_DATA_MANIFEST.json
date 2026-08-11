@@ -1,0 +1,65 @@
+{
+  "generatedAt": "2026-08-11T15:01:08.902Z",
+  "selectionRule": "Up to 18 evenly distributed official swims per course × event × category × performance band. World-record profiles are stored separately.",
+  "rawEligibleSwims": 13558,
+  "includedSwims": 4854,
+  "includedOfficialCheckpoints": 31842,
+  "byCourse": {
+    "LCM": 2345,
+    "SCM": 2001,
+    "SCY": 508
+  },
+  "byLevel": {
+    "Nationals": 1466,
+    "Sectionals": 1071,
+    "Trials": 1079,
+    "World Class": 1238
+  },
+  "byMeet": {
+    "ncaa-men-2026": 258,
+    "ncaa-women-2026": 250,
+    "usa-junior-nationals-2026": 818,
+    "usa-nationals-2026": 505,
+    "world-scm-2024": 2001,
+    "worlds-2025": 1022
+  },
+  "anonymizedMinorSwims": 900,
+  "sourceFiles": [
+    {
+      "id": "usa-nationals-2026",
+      "name": "2026 Toyota National Championships",
+      "sourceName": "Official Omega 2026 Toyota Nationals Lenex",
+      "sourceUrl": "https://www.omegatiming.com/File/00011A0002FFFFFFFFFFFFFFFFFFFFC0.lef"
+    },
+    {
+      "id": "usa-junior-nationals-2026",
+      "name": "2026 Speedo Junior National Championships",
+      "sourceName": "Official Omega 2026 Junior Nationals Lenex",
+      "sourceUrl": "https://www.omegatiming.com/File/00011A0004FFFFFFFFFFFFFFFFFFFFC0.lef"
+    },
+    {
+      "id": "worlds-2025",
+      "name": "2025 World Aquatics Championships",
+      "sourceName": "Official Omega 2025 World Championships Lenex",
+      "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef"
+    },
+    {
+      "id": "world-scm-2024",
+      "name": "2024 World Aquatics Swimming Championships (25m)",
+      "sourceName": "Official Omega 2024 World 25m Championships Lenex",
+      "sourceUrl": "https://www.omegatiming.com/File/0001180008FFFFFFFFFFFFFFFFFFFFC0.lef"
+    },
+    {
+      "id": "ncaa-men-2026",
+      "name": "2026 NCAA Division I Men's Championships",
+      "sourceName": "Official 2026 NCAA Division I men's final results",
+      "sourceUrl": "https://ramblinwreck.com/wp-content/uploads/2026/03/2026-NCAA-Division-I-Mens-Championships-Final-Results.pdf"
+    },
+    {
+      "id": "ncaa-women-2026",
+      "name": "2026 NCAA Division I Women's Championships",
+      "sourceName": "Official 2026 NCAA Division I women's final results",
+      "sourceUrl": "https://ramblinwreck.com/wp-content/uploads/2026/03/2026-NCAA-Division-I-Women-Final-Results.pdf"
+    }
+  ]
+}

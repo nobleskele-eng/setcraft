@@ -1,104 +1,79 @@
-# SetCraft Race Model v3
+# SetCraft Race Model v4
 
 ## Purpose and coverage
 
-Race Intelligence answers separate questions: absolute American level, distance to the next target, exact-age strength, race-shape fit, split-level time loss and input reliability. Results are event-specific; the system does not assign one permanent level to an athlete.
+SetCraft separates official facts, deterministic planning math and AI explanation. Every result is event-, category- and course-specific.
 
-| Dimension | Coverage |
+| Dimension | v13 coverage |
 |---|---|
-| Events | 17 standard individual LCM events |
-| Categories | Men and women, matching the source tables |
-| Competitive levels | Sectionals, Nationals, Trials and World Class |
-| Strategies | Three event-specific models per event/category/level |
-| Current records | 34 LCM records, checked 4 August 2026 |
-| Recent observed data | 99 medal performances across all 2025 Worlds individual finals |
-| Age factor | USA Swimming exact-age standards, ages 10–18 where published |
+| Courses | LCM, SCM and SCY |
+| LCM | 17 individual events; 34 men/women world records |
+| SCM | 18 individual events including 100 IM; 36 men/women world records |
+| SCY | Standard U.S. collegiate program; 28 men/women U.S. Open benchmarks |
+| Review date | 11 August 2026 |
+| Points | Official 2026 World Aquatics LCM and SCM bases |
+| SCY comparisons | 2026 Sectionals, 2026 Winter Juniors and 2027 NCAA Division I |
+| Age context | USA Swimming exact-age LCM standards, ages 10–18 where published; visibly normalized for other courses |
 
-## Absolute anchors
-
-Sectionals use the 2026 USA Swimming maximum standard. Nationals use the 2026 18U table through age 18 and open table from 19. Trials use the latest published U.S. Trials standard (2024); non-Olympic 50 stroke events are visibly modeled equivalents. World Class is the mean of valid 2025 Worlds finalists.
+World Aquatics has no SCY world-record category. The UI, AI prompts and tests therefore use “U.S. Open benchmark” for yards.
 
 ## Checkpoints and provenance
 
-| Distance | SetCraft checkpoints |
+| Race distance | Checkpoints |
 |---:|---|
-| 50 m | 15, 25, 35, 50 m |
-| 100 m | 25, 50, 75, 100 m |
-| 200 m and longer | Every 50 m |
+| 50 | 15, 25, 35, 50 |
+| 100 | 25, 50, 75, 100 |
+| 200 and longer | Every 50 |
 
-The current record total, athlete, date, meet and ratification state are stored for all 34 event/category combinations. Every checkpoint uses one visible class:
-
-- **Official:** present in an official timing or governing-body result.
-- **Secondary:** present in a named race-analysis source.
-- **Estimated:** interpolated from known anchors using an event-normal model.
-- **Coach:** supplied by a coach and not independently verified.
-
-The World Aquatics catalogue is the source of truth for record totals. A complete checkpoint line never implies that every intermediate value was officially measured.
+Units follow the course. Checkpoints are labeled official, secondary, estimated or coach-supplied. A complete line never implies that every intermediate point was measured. Missing values preserve their position—`27.20,,1:26.20,1:56.00` keeps the second checkpoint unknown—and are interpolated between valid anchors.
 
 ## Strategy construction
 
-For checkpoint distances \(d_i\), event/strategy pace factors \(p_i\), and target time \(T\):
+For checkpoint segment distances \(d_i\), pace factors \(p_i\) and target time \(T\):
 
 \[
 w_i=d_ip_i,\qquad S_i=T\frac{w_i}{\sum_jw_j},\qquad C_i=\sum_{j\le i}S_j
 \]
 
-The final cumulative checkpoint is forced to exactly \(T\). Strategy families include sprint start/underwater, balanced speed, back-half speed, controlled aggression, even pressure, negative build, distance economy, surges and IM stroke-specific emphasis.
+The final cumulative checkpoint is forced to exactly \(T\). Three event-specific shapes are ranked against optional athlete context. Each factor may be off, rated 1–10, or entered as a protocol-specific measured value. Context can change strategy fit only; it never alters a record, standard or official point score.
 
-## Official World Aquatics points
+## Official field library
 
-For official 2026 base time \(B\) and swimmer time \(T\):
+The generated non-record library contains 4,854 selected swims and 31,842 measured checkpoints from six official result sources. Selection is capped within course × event × category × performance-band cells so one large meet cannot dominate the interface. Every reference retains its total, original measured checkpoints, meet, round, source URL and checkpoint provenance.
+
+Performance bands provide navigation rather than a new governing-body classification: 900+ AQUA points is World Class, 850–899 Trials, 750–849 Nationals and below 750 Sectionals for metric results. SCY bands use final/heat placement because official AQUA points are not defined for yards. World records are not part of this layer. Public under-18 names are replaced by anonymous athlete labels by default.
+
+## Course points
+
+For official base time \(B\) and swim time \(T\):
 
 \[
 P=\operatorname{trunc}\left(1000\left(\frac{B}{T}\right)^3\right)
 \]
 
-The 2026 base table is frozen for the calendar year. A new record set during 2026 may therefore score above 1000; SetCraft reports the percentage gap to the live record separately.
+This is official World Aquatics points methodology for LCM and SCM. SCY uses the same cubic shape against the U.S. Open benchmark but is labeled **SetCraft course index**, not AQUA points.
 
-## Age, goal and SetCraft scores
+## Course conversion
 
-The age score interpolates between exact-age USA Swimming B through AAAA standards. Goal readiness is \(100(G/T)^3\), capped at 100, where \(G\) is the selected target.
+- LCM↔SCM: current same-sex record ratio for the matching event.
+- SCM↔SCY: published NCAA factor, with 0.906 for standard events and the NCAA distance-event exceptions. Values are truncated beyond hundredths.
+- LCM↔SCY: transparent two-step conversion through SCM.
+- Physical metres/yards conversion remains available separately using 1 yd = 0.9144 m.
 
-When an exact-age table is available, the SetCraft score is:
+Every competitive conversion is a planning estimate. Meet-entry acceptance depends on the meet’s own proof-of-time and conversion rules.
 
-\[
-0.60(\min(100,P/10))+0.25(A)+0.15(G_r)
-\]
+## Scores and input quality
 
-Without an age table it becomes 80% points performance and 20% goal readiness. Athlete-profile ratings never change these performance scores.
+Goal readiness is \(100(G/T)^3\), capped at 100. The SetCraft performance score combines course points/index, exact or normalized age context, and goal readiness. Input quality separately evaluates total validity, monotonic splits, entered-versus-estimated coverage, age/goal context and timing provenance. Course choice and optional profile completeness do not inflate input quality.
 
-## Missing and invalid splits
+## Athlete and lactate boundaries
 
-The parser preserves empty positions. Thus `27.20,,1:26.20,1:56.00` means the 100 m checkpoint is unknown; later values do not shift left. Missing values are interpolated between the nearest valid anchors using the selected strategy profile, or a balanced event-normal model when no strategy exists. Invalid/non-monotonic entries are replaced and flagged. Every replacement remains labeled **Estimated**.
+The profile distinguishes a 1–10 “lactate tolerance” rating from a measured peak blood-lactate result. A measured result is stored as neutral, event- and sampling-time-dependent context; higher is never scored as automatically better. No athlete input is used to diagnose physiology, readiness, injury, body composition or talent. Coaches should validate strategy through measured timing, video and appropriately supervised testing.
 
-## Input quality
+## Gemini boundary
 
-Input quality combines valid total time, monotonic/finish consistency, entered-versus-estimated checkpoint coverage, age/course/goal context, timing provenance and—only if turned on—athlete-profile completion. Estimates receive partial credit because an analysis can still be useful, but never the same certainty as entered splits.
+Gemini receives deterministic calculations and provenance labels as locked facts. It may explain and organize them but must not silently recalculate records, standards, points, conversions or splits. Without a key, the same routes return deterministic offline briefs. Model/RAG preparation is documented in `docs/AI_MODEL_IMPLEMENTATION_GUIDE.md`.
 
-## Athlete-profile factors
+## Sources
 
-Height, body mass and ratings for strength, explosiveness, lactate production/tolerance, aerobic capacity, shoulder/ankle mobility and underwater skill are optional context. They are not laboratory measurements, diagnoses or automatic prescriptions. The app uses cautious conditional language and asks coaches to verify claims using measured 15 m, turn, video or testing data.
-
-## Coach contributions
-
-Coaches can add one race or import CSV:
-
-```text
-swimmer,event,sex,course,age,level,total,checkpoints,splits,meet,archetype,source_url
-```
-
-Checkpoint/split values use `|` inside CSV fields. Empty split positions are completed and marked estimated. Coach data remains manual/pending, is stored on the current device and can be exported or removed.
-
-## Gemini and exports
-
-The Gemini route receives deterministic scores and entered/estimated splits as locked facts. It explains rather than recalculates them. If Gemini is unavailable, the app uses a deterministic offline analysis. The standalone HTML export is readable without SetCraft; the JSON export retains masks, provenance, score components and optional profile context for future model work.
-
-## Sources and boundaries
-
-Exact URLs are stored in `src/raceModel.ts` and displayed inside Race Intelligence. Primary sources include USA Swimming standards, Omega official results, the World Aquatics current-record catalogue and official 2026 points tables. Peer-reviewed sources cover age trajectories, race phases and strength/turn associations.
-
-- Modeled checkpoints do not replace video, instrumented timing or verified splits.
-- Athlete ratings are coaching context, not medical or physiological diagnosis.
-- Current official anchors are LCM; SCY/SCM require their own tables.
-- Coaches must have authority to share contributed results, especially for minors.
-- Public pages are not bulk-scraped without permission.
+Exact primary and supporting URLs are stored in `src/raceModel.ts` and rendered in Data & Method. They include World Aquatics record/points sources, USA Swimming standards, NCAA standards/conversion factors, official Omega results and peer-reviewed race-phase research.

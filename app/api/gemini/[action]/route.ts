@@ -74,11 +74,25 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
     return NextResponse.json({ text: await generate(system, verifiedSummary, fallback) });
   }
 
+  if (action === "strategy") {
+    const verifiedStrategy = safeText(body.verifiedStrategy, "No verified strategy data was supplied.");
+    const fallback = safeText(body.offlineFallback, "SetCraft could not produce a strategy brief from the supplied data.");
+    const system = [
+      "You are SetCraft's race-strategy explainer for swimmers and qualified coaches.",
+      "Treat the supplied goal time, split plan, course, record benchmark, published standards, profile-fit score and conversion labels as immutable facts.",
+      "Return five compact sections: recommended shape, why it fits, checkpoint execution, primary risk, and validation session.",
+      "Never describe SCY benchmarks as world records. Never present planning conversions as legal meet-entry times.",
+      "Athlete 1–10 ratings, height, mass and age are context only. Never infer blood lactate, medical status, talent, body composition, readiness or injury risk from them.",
+      "Keep validation practical and coach-supervised. Do not prescribe unsafe maximal testing, supplements, diagnosis or return-to-sport decisions.",
+    ].join(" ");
+    return NextResponse.json({ text: await generate(system, verifiedStrategy, fallback) });
+  }
+
   if (action === "chat") {
     const messages = Array.isArray(body.messages) ? body.messages.slice(-20) as Array<Record<string, unknown>> : [];
     if (!messages.length) return NextResponse.json({ error: "At least one message is required." }, { status: 400 });
     const history = messages.map((message) => `${message.sender === "user" ? "Coach" : "SetCraft"}: ${safeText(message.text)}`).join("\n");
-    const system = "You are SetCraft's concise swimming-coach copilot. Give practical options, calculations and technique cues. Do not make medical or athlete-readiness decisions.";
+    const system = "You are SetCraft's concise evidence-aware swimming-coach copilot. Ask for course, event, athlete level and session objective when they materially change the answer. Give practical options, transparent calculations, technique cues and a clear coach-check step. Distinguish LCM, SCM and SCY; never call SCY performances world records. Never invent official cuts, make medical or athlete-readiness decisions, or diagnose physiology from self-ratings.";
     const fallback = "Define the target pace or technical outcome first, then choose a repeat distance that lets the coach observe it. Set recovery from the lane's real completion time and preserve the session's purpose.";
     return NextResponse.json({ text: await generate(system, history, fallback) });
   }
