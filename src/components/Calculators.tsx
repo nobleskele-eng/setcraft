@@ -7,6 +7,7 @@ import React, { useMemo, useState } from "react";
 import {
   Activity,
   ArrowRightLeft,
+  BrainCircuit,
   Calculator,
   Clock3,
   Gauge,
@@ -14,6 +15,7 @@ import {
   Ruler,
   Sigma,
   Waves,
+  Zap,
 } from "lucide-react";
 import {
   buildPaceTable,
@@ -28,10 +30,16 @@ import {
   sameVelocityConvertedTime,
   SplitStrategy,
 } from "../swimMath";
+import {
+  Course, convertCourseTime, courseUnit, defaultCheckpoints, eventsForCourse, formatTime,
+  getRecordBenchmark, getStandard, rankStrategies, SexCategory, strategyDefinitions, timeToSeconds,
+} from "../raceModel";
+import RaceStrategyStudio from "./RaceStrategyStudio";
 
-type CalculatorTab = "pace" | "splits" | "sendoff" | "css" | "efficiency" | "setmath" | "conversion";
+type CalculatorTab = "strategy" | "pace" | "splits" | "sendoff" | "css" | "efficiency" | "setmath" | "conversion";
 
 const TABS: Array<{ id: CalculatorTab; label: string; icon: React.ElementType }> = [
+  { id: "strategy", label: "Race strategy AI", icon: BrainCircuit },
   { id: "pace", label: "Pace table", icon: Gauge },
   { id: "splits", label: "Race splits", icon: Layers3 },
   { id: "sendoff", label: "Send-offs", icon: Clock3 },
@@ -42,7 +50,7 @@ const TABS: Array<{ id: CalculatorTab; label: string; icon: React.ElementType }>
 ];
 
 export default function Calculators() {
-  const [activeTab, setActiveTab] = useState<CalculatorTab>("pace");
+  const [activeTab, setActiveTab] = useState<CalculatorTab>("strategy");
 
   return (
     <div className="mx-auto max-w-[1540px] space-y-6" id="calculators-hub">
@@ -52,11 +60,11 @@ export default function Calculators() {
             <div>
               <div className="flex items-center gap-2 text-cyan-300">
                 <Calculator className="h-5 w-5" />
-                <span className="text-xs font-extrabold uppercase tracking-[0.18em]">SetCraft math lab</span>
+                <span className="text-xs font-extrabold uppercase tracking-[0.18em]">SetCraft Strategy Intelligence v13</span>
               </div>
-              <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight md:text-4xl">Professional swim calculators</h1>
+              <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight md:text-4xl">Race Strategy Studio</h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300 md:text-base">
-                Transparent, deterministic tools for pace, splits, intervals, critical speed, stroke metrics, set duration and course conversion.
+                A professional planning workspace with independently controlled athlete factors, measured-value protocols, official reference swims, exact split plans and exportable reports.
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-4 text-sm text-slate-300 backdrop-blur">
@@ -86,6 +94,7 @@ export default function Calculators() {
         </div>
 
         <div className="p-5 md:p-8 lg:p-10">
+          {activeTab === "strategy" && <RaceStrategyStudio />}
           {activeTab === "pace" && <PaceCalculator />}
           {activeTab === "splits" && <SplitCalculator />}
           {activeTab === "sendoff" && <SendoffCalculator />}
@@ -99,11 +108,113 @@ export default function Calculators() {
       <section className="grid gap-4 md:grid-cols-3">
         <ReferenceCard title="Send-off vs. rest" text="A send-off fixes the start-to-start cycle. A rest interval begins after the swimmer touches, so faster and slower swimmers receive the same rest." />
         <ReferenceCard title="Exact totals first" text="Split plans are normalized so every displayed split adds back to the exact target time rather than drifting through rounding." />
-        <ReferenceCard title="Conversion caution" text="Distance conversion is exact. Time conversion shown here assumes equal velocity and does not model starts, turns, walls or official sanctioning formulas." />
+        <ReferenceCard title="Conversion caution" text="NCAA factors and record-ratio estimates are shown with their method. Planning conversions are never silently presented as legal meet-entry times." />
       </section>
     </div>
   );
 }
+
+function normalizedStrategyPlan(event: string, course: Course, total: number, factors: number[]) {
+  const checkpoints = defaultCheckpoints(event, course);
+  const distances = checkpoints.map((point, index) => point - (checkpoints[index - 1] || 0));
+  const weighted = distances.map((distance, index) => distance * (factors[index] || 1));
+  const scale = total / Math.max(0.001, weighted.reduce((sum, value) => sum + value, 0));
+  let running = 0;
+  return checkpoints.map((point, index) => {
+    const split = weighted[index] * scale;
+    running += split;
+    return { point, split, cumulative: index === checkpoints.length - 1 ? total : running };
+  });
+}
+
+export function LegacyRaceStrategyCalculator() {
+  const [course, setCourse] = useState<Course>("LCM");
+  const [event, setEvent] = useState("200 Free");
+  const [sex, setSex] = useState<SexCategory>("Men");
+  const [age, setAge] = useState(16);
+  const [goal, setGoal] = useState("1:50.00");
+  const [pb, setPb] = useState("1:53.20");
+  const [height, setHeight] = useState(178);
+  const [weight, setWeight] = useState(70);
+  const [speed, setSpeed] = useState(7);
+  const [aerobic, setAerobic] = useState(8);
+  const [lactate, setLactate] = useState(6);
+  const [power, setPower] = useState(7);
+  const [turns, setTurns] = useState(6);
+  const [underwater, setUnderwater] = useState(6);
+  const [technique, setTechnique] = useState(8);
+  const [selectedId, setSelectedId] = useState("");
+  const [aiResult, setAiResult] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+
+  const goalSeconds = timeToSeconds(goal);
+  const pbSeconds = timeToSeconds(pb);
+  const profile = { age, heightCm: height, weightKg: weight, speed, aerobic, lactateTolerance: lactate, power, turns, underwater, technique };
+  const ranked = rankStrategies(event, profile);
+  const selected = ranked.find((item) => item.id === selectedId) || ranked[0];
+  const plan = normalizedStrategyPlan(event, course, goalSeconds, selected?.paceFactors || strategyDefinitions(event)[0].paceFactors);
+  const benchmark = getRecordBenchmark(event, sex, course);
+  const cuts = (["Sectionals", "Nationals", "Trials", "World Class"] as const).map((level) => ({ level, time: getStandard(level, event, sex, age, course) })).filter((item) => item.time);
+  const improvement = pbSeconds && goalSeconds ? pbSeconds - goalSeconds : 0;
+  const improvementPct = pbSeconds ? improvement / pbSeconds * 100 : 0;
+  const strategyPayload = {
+    course, event, sex, athlete: { age, heightCm: height, weightKg: weight, profile },
+    personalBest: pbSeconds, goal: goalSeconds, requiredImprovementSeconds: improvement,
+    recommended: selected, alternatives: ranked, splitPlan: plan,
+    benchmark: benchmark ? { label: course === "SCY" ? "U.S. Open benchmark" : "world record", athlete: benchmark.swimmer, time: benchmark.total } : null,
+    comparisons: cuts,
+  };
+  const offline = `RECOMMENDED SHAPE\n${selected?.name} is the strongest deterministic match (${selected?.fit}% fit). ${selected?.description}\n\nWHY IT FITS\n${selected?.bestFor}. The ranking uses the optional profile as context, not as a physiological test.\n\nRACE EXECUTION\nHold the displayed segment targets within ±0.2 s for sprint segments or ±0.5% for longer repeats. Validate the first half and closing segment separately before combining them.\n\nRISK CONTROL\n${selected?.risk} The ${Math.max(0, improvement).toFixed(2)} s goal improvement (${Math.max(0, improvementPct).toFixed(1)}%) should be staged through repeatable race-pace rehearsals, not assumed from one calculation.\n\nCOACH CHECK\nUse official timing/video to verify starts, walls, underwaters and stroke integrity. Do not infer blood lactate or readiness from the self-rating.`;
+
+  const askAi = async () => {
+    setAiLoading(true); setAiError("");
+    try {
+      const response = await fetch("/api/gemini/strategy", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ verifiedStrategy: JSON.stringify(strategyPayload), offlineFallback: offline }) });
+      if (!response.ok) throw new Error(`AI service returned ${response.status}`);
+      const data = await response.json(); setAiResult(data.text || offline);
+    } catch (error) { setAiError(error instanceof Error ? error.message : "AI unavailable"); setAiResult(offline); }
+    finally { setAiLoading(false); }
+  };
+
+  const switchCourse = (next: Course) => {
+    const options = eventsForCourse(next);
+    setCourse(next); setEvent(options.includes(event) ? event : "200 Free"); setSelectedId(""); setAiResult("");
+  };
+
+  return <div className="space-y-7">
+    <div className="grid gap-7 xl:grid-cols-[430px_minmax(0,1fr)]">
+      <section className="rounded-[26px] border border-slate-200 bg-slate-50 p-5 md:p-6">
+        <div className="flex items-center gap-2 text-indigo-600"><BrainCircuit className="h-5 w-5" /><p className="text-xs font-extrabold uppercase tracking-[.16em]">Athlete + race inputs</p></div>
+        <h2 className="mt-2 font-display text-2xl font-extrabold text-slate-950">Advanced race strategy</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-500">Choose the course and goal, then add only the athlete context you trust. All official benchmarks remain independent of profile inputs.</p>
+        <div className="mt-6 space-y-4">
+          <div className="grid grid-cols-3 gap-2">{(["LCM", "SCM", "SCY"] as Course[]).map((item) => <button type="button" key={item} onClick={() => switchCourse(item)} className={`rounded-xl border px-3 py-3 text-sm font-extrabold ${course === item ? "border-indigo-500 bg-indigo-600 text-white" : "border-slate-200 bg-white text-slate-600"}`}>{item}</button>)}</div>
+          <div className="grid grid-cols-2 gap-3"><Field label="Event"><select value={event} onChange={(e) => { setEvent(e.target.value); setSelectedId(""); }} className={inputClass}>{eventsForCourse(course).map((item) => <option key={item}>{item}</option>)}</select></Field><Field label="Category"><select value={sex} onChange={(e) => setSex(e.target.value as SexCategory)} className={inputClass}><option>Men</option><option>Women</option></select></Field></div>
+          <div className="grid grid-cols-3 gap-3"><Field label="Age"><NumberInput value={age} min={5} max={100} onChange={setAge} /></Field><Field label="Height"><NumberInput value={height} min={80} max={250} onChange={setHeight} suffix="cm" /></Field><Field label="Mass"><NumberInput value={weight} min={20} max={250} onChange={setWeight} suffix="kg" /></Field></div>
+          <div className="grid grid-cols-2 gap-3"><Field label="Current PB"><TextInput value={pb} onChange={setPb} mono /></Field><Field label="Goal time"><TextInput value={goal} onChange={setGoal} mono /></Field></div>
+          <div className="rounded-2xl border border-violet-100 bg-violet-50/60 p-4"><p className="text-[10px] font-extrabold uppercase tracking-wider text-violet-700">Optional 1–10 context</p><div className="mt-3 space-y-3">{[
+            ["Speed", speed, setSpeed], ["Aerobic", aerobic, setAerobic], ["Lactate tolerance", lactate, setLactate], ["Power", power, setPower], ["Turns", turns, setTurns], ["Underwater", underwater, setUnderwater], ["Technique", technique, setTechnique],
+          ].map(([label, value, setter]) => <label key={label as string} className="grid grid-cols-[92px_1fr_28px] items-center gap-2 text-[11px] font-bold text-slate-600"><span>{label as string}</span><input type="range" min={1} max={10} value={value as number} onChange={(e) => (setter as React.Dispatch<React.SetStateAction<number>>)(Number(e.target.value))} className="accent-violet-600" /><span className="font-mono font-black text-violet-700">{value as number}</span></label>)}</div></div>
+          <Notice>“Lactate tolerance” is a coach/athlete context rating—not a blood-lactate measurement. It ranks plan fit but never changes records, points or standards.</Notice>
+        </div>
+      </section>
+      <section className="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm md:p-7">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5"><div><p className="text-[10px] font-extrabold uppercase tracking-[.15em] text-emerald-600">Recommended plan</p><h3 className="mt-1 text-2xl font-extrabold text-slate-950">{selected?.name}</h3></div><span className="rounded-full bg-slate-950 px-4 py-2 text-sm font-extrabold text-white">{selected?.fit}% profile fit</span></div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3"><Metric label="Goal" value={formatTime(goalSeconds)} accent /><Metric label="PB improvement" value={improvement > 0 ? `${improvement.toFixed(2)}s` : "Goal ≥ PB"} /><Metric label={course === "SCY" ? "U.S. Open benchmark" : "World record"} value={benchmark ? formatTime(benchmark.total) : "N/A"} /></div>
+        <div className="mt-5 grid gap-3 lg:grid-cols-3">{ranked.map((item) => <button type="button" key={item.id} onClick={() => setSelectedId(item.id)} className={`rounded-2xl border p-4 text-left ${item.id === selected?.id ? "border-indigo-400 bg-indigo-50 ring-2 ring-indigo-100" : "border-slate-200 hover:border-indigo-200"}`}><div className="flex items-center justify-between"><span className="text-sm font-extrabold text-slate-900">{item.name}</span><span className="font-mono text-xs font-black text-indigo-700">{item.fit}%</span></div><p className="mt-2 text-xs leading-5 text-slate-500">{item.description}</p></button>)}</div>
+        <ResultTable headers={["Checkpoint", "Segment target", "Cumulative", "Execution cue"]} rows={plan.map((item, index) => [`${item.point} ${courseUnit(course)}`, formatTime(item.split), formatTime(item.cumulative), index === 0 ? "Commit cleanly, no rush" : index === plan.length - 1 ? "Hold line and finish through wall" : selected?.name])} />
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{cuts.map((item) => <Metric key={item.level} label={course === "SCY" && item.level === "Nationals" ? "Winter Juniors" : course === "SCY" && item.level === "Trials" ? "NCAA DI" : item.level} value={formatTime(item.time!)} />)}</div>
+      </section>
+    </div>
+    <section className="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
+      <div className="rounded-[26px] border border-slate-200 bg-white p-6 shadow-sm"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[10px] font-extrabold uppercase tracking-[.15em] text-violet-600">Coach Block strategy AI</p><h3 className="mt-1 text-2xl font-extrabold text-slate-950">Turn the plan into execution language</h3></div><button type="button" onClick={askAi} disabled={aiLoading} className="flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-sm font-extrabold text-white disabled:opacity-60">{aiLoading ? <RefreshIcon /> : <Zap className="h-4 w-4" />}{aiLoading ? "Drafting…" : "Generate coach brief"}</button></div>{aiError && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-bold text-amber-900">{aiError}. Verified offline brief is shown.</p>}<div className="mt-5 whitespace-pre-wrap rounded-2xl bg-slate-950 p-5 text-sm leading-7 text-slate-200">{aiResult || offline}</div></div>
+      <div className="space-y-4"><div className="rounded-[26px] border border-emerald-200 bg-emerald-50 p-6"><p className="text-[10px] font-extrabold uppercase tracking-wide text-emerald-700">Best fit</p><p className="mt-2 font-extrabold text-emerald-950">{selected?.bestFor}</p></div><div className="rounded-[26px] border border-rose-200 bg-rose-50 p-6"><p className="text-[10px] font-extrabold uppercase tracking-wide text-rose-700">Primary risk</p><p className="mt-2 text-sm font-bold leading-6 text-rose-950">{selected?.risk}</p></div></div>
+    </section>
+  </div>;
+}
+
+function RefreshIcon() { return <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-r-transparent" />; }
 
 function PaceCalculator() {
   const [distance, setDistance] = useState(500);
@@ -348,32 +459,38 @@ function SetMathCalculator() {
 }
 
 function ConversionCalculator() {
-  const [direction, setDirection] = useState<"m-to-yd" | "yd-to-m">("m-to-yd");
-  const [distance, setDistance] = useState(100);
-  const [time, setTime] = useState("1:00.0");
-  const convertedDistance = convertDistance(distance, direction);
-  const convertedTime = sameVelocityConvertedTime(parseSwimTime(time), direction);
+  const [from, setFrom] = useState<Course>("LCM");
+  const [event, setEvent] = useState("200 Free");
+  const [sex, setSex] = useState<SexCategory>("Men");
+  const [time, setTime] = useState("2:00.0");
+  const seconds = parseSwimTime(time);
+  const results = (["LCM", "SCM", "SCY"] as Course[]).map((to) => convertCourseTime(seconds, event, sex, from, to));
+  const metresToYards = convertDistance(Number(event.match(/^\d+/)?.[0] || 0), "m-to-yd");
+
+  const switchFrom = (next: Course) => {
+    const options = eventsForCourse(next);
+    setFrom(next); setEvent(options.includes(event) ? event : "200 Free");
+  };
 
   return (
     <CalculatorLayout
-      title="Distance and same-velocity conversion"
-      description="Convert metres and yards exactly, plus a transparent same-velocity time estimate."
+      title="LCM · SCM · SCY performance conversion"
+      description="Compare a competitive result across all three courses using current record ratios and the published NCAA SCM-to-SCY factors."
       inputs={
         <>
-          <Field label="Direction"><select value={direction} onChange={(event) => setDirection(event.target.value as "m-to-yd" | "yd-to-m")} className={inputClass}><option value="m-to-yd">Metres → yards</option><option value="yd-to-m">Yards → metres</option></select></Field>
-          <Field label="Distance"><NumberInput value={distance} min={0} onChange={setDistance} /></Field>
-          <Field label="Time over that distance"><TextInput value={time} onChange={setTime} mono /></Field>
-          <Formula>1 yard = 0.9144 metre; same-velocity time scales only by distance</Formula>
+          <Field label="Source course"><select value={from} onChange={(e) => switchFrom(e.target.value as Course)} className={inputClass}><option>LCM</option><option>SCM</option><option>SCY</option></select></Field>
+          <Field label="Event"><select value={event} onChange={(e) => setEvent(e.target.value)} className={inputClass}>{eventsForCourse(from).map((item) => <option key={item}>{item}</option>)}</select></Field>
+          <Field label="Category"><select value={sex} onChange={(e) => setSex(e.target.value as SexCategory)} className={inputClass}><option>Men</option><option>Women</option></select></Field>
+          <Field label="Source time"><TextInput value={time} onChange={setTime} mono /></Field>
+          <Formula>LCM↔SCM uses current same-sex record ratios; SCM↔SCY uses NCAA factors (0.906, with published distance-event exceptions)</Formula>
         </>
       }
       output={
         <>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <Metric label="Converted distance" value={`${convertedDistance.toFixed(2)} ${direction === "m-to-yd" ? "yd" : "m"}`} accent />
-            <Metric label="Same-velocity time" value={formatSwimTime(convertedTime)} />
-            <Metric label="Exact factor" value={direction === "m-to-yd" ? "÷ 0.9144" : "× 0.9144"} />
-          </div>
-          <Notice>This is not an official SCM/LCM/SCY performance conversion. Starts, turns, wall count and governing-body formulas can change competitive-equivalent times.</Notice>
+          <div className="grid gap-3 sm:grid-cols-3">{results.map((result) => <Metric key={result.to} label={`${result.event} ${result.to}`} value={formatTime(result.time)} accent={result.to === from} />)}</div>
+          <ResultTable headers={["Target", "Estimate", "Factor", "Method", "Use"]} rows={results.map((result) => [`${result.event} ${result.to}`, formatTime(result.time), result.factor.toFixed(4), result.method.replaceAll("-", " "), result.to === from ? "Source result" : "Planning estimate only"])} />
+          <div className="grid gap-3 sm:grid-cols-2"><Metric label="Exact physical conversion" value={`${Number(event.match(/^\d+/)?.[0] || 0)} m = ${metresToYards.toFixed(2)} yd`} /><Metric label="Raw same-speed illustration" value={formatSwimTime(sameVelocityConvertedTime(seconds, from === "SCY" ? "yd-to-m" : "m-to-yd"))} /></div>
+          <Notice tone="warning">These are transparent planning comparisons, not guaranteed legal meet-entry conversions. Use the target meet’s published rules and accepted proof-of-time procedure.</Notice>
         </>
       }
     />
@@ -408,7 +525,7 @@ function TextInput({ value, onChange, placeholder, mono = false }: { value: stri
 }
 
 function NumberInput({ value, onChange, min, max, suffix }: { value: number; onChange: (value: number) => void; min?: number; max?: number; suffix?: string }) {
-  return <div className="relative"><input type="number" value={value} min={min} max={max} onChange={(event) => onChange(Number(event.target.value) || 0)} className={`${inputClass} ${suffix ? "pr-24" : ""}`} />{suffix && <span className="pointer-events-none absolute right-3 top-3.5 text-xs font-bold text-slate-400">{suffix}</span>}</div>;
+  return <div className="relative"><input type="number" value={value} min={min} max={max} onChange={(event) => onChange(Number(event.target.value) || 0)} className={`${inputClass} ${suffix ? "pr-12" : ""}`} />{suffix && <span className="pointer-events-none absolute right-3 top-3.5 text-xs font-bold text-slate-400">{suffix}</span>}</div>;
 }
 
 function Formula({ children }: { children: React.ReactNode }) {

@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from "react";
-import { Users, Award, Trophy, MapPin, Heart, MessageSquare, Plus, Check, Star, Shield, ArrowRight } from "lucide-react";
+import { Users, Award, Trophy, Heart, MessageSquare, Shield } from "lucide-react";
 import { SwimmerProfile, LeaderboardEntry, ClubChallenge, FeedItem } from "../types";
 
 const INITIAL_PROFILE: SwimmerProfile = {
@@ -257,7 +257,7 @@ export default function CommunityView() {
                 </div>
               ) : (
                 <div className="text-center py-4 space-y-3">
-                  <p className="text-xs text-slate-500 italic">You aren't in a club yet.</p>
+                  <p className="text-xs text-slate-500 italic">You aren’t in a club yet.</p>
                   <button
                     onClick={() => setJoinedClub(true)}
                     className="w-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 p-2.5 rounded-xl text-xs font-bold transition shadow-2xs"

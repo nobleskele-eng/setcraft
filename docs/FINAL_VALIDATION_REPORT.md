@@ -1,38 +1,55 @@
-# SetCraft final validation report
+# SetCraft v13 final validation report
 
-Date: 2026-08-04  
-Build: 3.0.0 / v11 Performance Intelligence
+Date: 11 August 2026  
+Build: 4.0.0 / v13 Professional Race Intelligence
 
-## Coverage delivered
+## Delivered
 
-- 34 current individual LCM world-record profiles: 17 events for men and women.
-- Complete checkpoint lines for every record, with official/secondary/estimated provenance.
-- Existing 408 tier/strategy models, 99 observed 2025 Worlds medal performances and detailed domestic 200 free library retained.
-- Official 2026 World Aquatics points, exact-age scoring, goal readiness and bounded SetCraft score.
-- Partial/blank split completion, including positional `,,` input.
-- Optional athlete-profile context and Gemini/offline analysis-page export.
-- Coach single-entry and CSV workflows support incomplete split lines.
+- Rebuilt Race Analysis as five focused tabs: Race Input, Athlete Profile, Split Breakdown, Comparisons and Report.
+- Rebuilt Race Strategy as four focused tabs: Race Plan, Athlete Profile, Reference Races and Coach Brief.
+- Added per-factor off/rating/measured controls for speed, aerobic speed, lactate response, explosiveness, strength, turns, start/underwater, technique and mobility.
+- Added PDF and JSON export to both race workspaces.
+- Added a separate non-record field library with 4,854 official races and 31,842 official checkpoints.
+- Kept world records and SCY U.S. Open benchmarks in a distinct layer, with checkpoint-level measured/estimated provenance.
+- Added local, authorization-gated coach reference creation and export.
+- Replaced one comma field with event-aware split slots plus a quick-paste parser that preserves empty positions.
 
-## Automated model checks
+## Data validation
 
-The focused suite verifies all 34 record cells, checkpoint policy, monotonic cumulative values, exact finishes, provenance coverage, official point bases, blank/double-comma completion, input-quality ordering, score monotonicity and 0–100 bounds.
+| Check | Result |
+|---|---:|
+| Eligible official source results | 13,558 |
+| Selected field-library races | 4,854 |
+| Official checkpoints | 31,842 |
+| LCM / SCM / SCY | 2,345 / 2,001 / 508 |
+| Sectionals / Nationals / Trials / World Class | 1,071 / 1,466 / 1,079 / 1,238 |
+| Anonymized minor swims | 900 |
+| Sources | 4 official Omega Lenex files + 2 official NCAA final-result PDFs |
 
-Commands:
+Every selected result has a final total, monotonic original checkpoints, source URL and a matching checkpoint-provenance array. World-record references are excluded from these counts.
 
-```bash
-npm run test:race
-npx eslint src/components/RaceLab.tsx src/raceModel.ts src/generated/worldRecordsLcm.ts 'app/api/gemini/[action]/route.ts'
-npm run build
-npm run validate:artifact
-```
+## Verification
 
-The repository-wide lint command still reports legacy React-rule violations in older screens outside Race Intelligence. The changed Race Intelligence files pass scoped lint, and the production build passes.
+- `npm test`: pass — production build, 11 race-intelligence tests and rendered preview metadata.
+- `npm run lint`: pass with no warnings.
+- `npm run validate:artifact`: pass — ESM Worker entry and hosting manifest present.
+- PDF inspection: pass — one-page A4 sample rendered through Poppler; no clipping, overflow or missing sections.
+- Split parser coverage: pass for blank input, double commas, partial anchors, invalid monotonic values, long events and SCY-specific checkpoints.
+- Profile coverage: pass for disabled factors, 1–10 ratings, inverse measured protocols and neutral measured lactate.
 
-## Accuracy boundaries
+The bundler reports a large client chunk because the user-requested offline race library is shipped in the application. This affects initial download size but keeps all 4,854 comparison races available without a remote database.
 
-- Record totals come from the current World Aquatics catalogue; records displayed as pending retain that status.
-- A complete split line does not imply every checkpoint was officially measured; provenance is visible beside every value.
-- Official points use fixed 2026 bases; live-record distance is separate.
-- Self-rated physiology/mobility fields never change official points.
-- AI explains deterministic results but is not allowed to rewrite them.
-- The system is coaching decision support, not medical or physiological diagnosis.
+## Gemini and coaching-knowledge completion pass
+
+Date: 11 August 2026
+
+- Confirmed `.env`/`.env.local` remain ignored and are consumed only by server-side Gemini routes and local setup scripts.
+- Upgraded the five generative workflows to Gemini 3.6 Flash through the Interactions API.
+- Added optional Gemini File Search grounding without allowing retrieved text to change locked SetCraft calculations.
+- Added an idempotent reviewed-knowledge uploader with safe draft skipping, content-hash replacement, pruning and deliberate reset support.
+- Added starter knowledge for shared safety, terminology, coaching chat, set generation, set modification, race analysis and race strategy.
+- Added a live UI status that distinguishes offline mode, live Gemini and File Search grounding.
+- Added an eight-case live evaluation runner covering all five workflows.
+- Added a complete Windows setup and evaluation guide.
+
+Validation: production build and artifact validation passed; lint passed with no warnings; all 11 race-intelligence tests and the rendered-page test passed; browser QA confirmed the AI status badges and offline fallback interaction. A live Gemini/File Search request requires the owner’s private API key and is intentionally not executed or packaged here.

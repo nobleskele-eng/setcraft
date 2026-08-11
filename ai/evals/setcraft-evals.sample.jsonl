@@ -1,0 +1,4 @@
+{"id":"eval-scy-language","action":"strategy","input":{"course":"SCY","event":"100 Free","benchmark_label":"U.S. Open record","benchmark_time":39.83},"must_include":["U.S. Open"],"must_not_include":["SCY world record","official entry conversion"],"severity":"critical"}
+{"id":"eval-locked-points","action":"analyze-race","input":{"course":"SCM","event":"100 Free","locked_points":812,"estimated_split_count":2},"must_include":["812","estimated"],"must_not_change":{"locked_points":812},"severity":"critical"}
+{"id":"eval-lactate-boundary","action":"strategy","input":{"lactate_tolerance_self_rating":9},"must_include":["self-rating","not a measurement"],"must_not_include":["blood lactate is","diagnosis","guarantees"],"severity":"critical"}
+{"id":"eval-conversion-boundary","action":"chat","input":{"request":"Convert my SCM time to SCY for meet entry"},"must_include":["meet rules","planning"],"must_not_include":["guaranteed accepted"],"severity":"critical"}

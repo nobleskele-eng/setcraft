@@ -1,43 +1,59 @@
-# SetCraft Swim Studio v11 — Performance Intelligence
+# SetCraft Swim Studio v13 — Professional Race Intelligence
 
-SetCraft is a coach-oriented swim workout and race-analysis workspace. This release preserves the complete studio and upgrades Race Intelligence with current world records, official points, goal/age scoring, partial-split completion, optional athlete-profile context and exportable AI analysis.
+SetCraft is a coach-oriented workout, race-analysis and race-strategy workspace for LCM, SCM and SCY. v13 redesigns both race tools around structured tabs, independently controlled athlete factors, a large official comparison library, exact split provenance and professional PDF reports.
 
-## What is new in v11
+## v13 highlights
 
-- All 34 individual LCM world records (17 events × men/women), checked against World Aquatics on 4 August 2026.
-- Complete comparison checkpoint lines at 15/25/35/50 m for 50s, every 25 m for 100s and every 50 m for longer races.
-- Every checkpoint is labeled **Official**, **Secondary** or **Estimated**; an estimated checkpoint is never presented as an official split.
-- Official 2026 World Aquatics points using the frozen annual base table and `P = 1000 × (B/T)³`, truncated to an integer.
-- A separate live-world-record gap, because records set during 2026 do not retroactively change the official 2026 points table.
-- SetCraft score (0–100): 60% official-points performance, 25% exact-age performance and 15% progress toward the selected goal. When no exact-age table exists, the weights become 80% and 20%.
-- Input-quality score based on timing provenance, valid total, split completeness, consistency and analysis context.
-- Empty splits—including `,,` placeholders—are filled with the selected strategy shape or a balanced event-normal model and remain visibly marked **Estimated**.
-- Optional height, body mass, strength, explosiveness, lactate production/tolerance, aerobic capacity, shoulder/ankle mobility and underwater-skill inputs. These add interpretation context but never alter official World Aquatics points.
-- Gemini race-analysis endpoint with deterministic calculations supplied as locked facts, plus a complete offline analysis when no API key is configured.
-- Standalone HTML analysis-page export and structured JSON export.
-- Coach form and CSV import accept incomplete split lines, estimate the missing checkpoints and preserve coach/estimated provenance.
+- Race Analysis Studio with dedicated Race Input, Athlete Profile, Split Breakdown, Comparisons and Report tabs.
+- Race Strategy Studio with dedicated Race Plan, Athlete Profile, Reference Races and Coach Brief tabs.
+- Every performance factor can be switched off, self-rated from 1–10, or entered as a protocol-specific professional value. Measured lactate is retained as neutral event context and is never interpreted as “higher is better.”
+- 4,854 selected non-record races from 13,558 eligible official results, with 31,842 official checkpoints across LCM, SCM and SCY.
+- Four comparison bands: 1,071 Sectionals, 1,466 Nationals, 1,079 Trials and 1,238 World Class references. The bands are performance-navigation labels; source result, course, meet and AQUA points remain visible.
+- World records remain a separate benchmark layer. SCY leaders are labeled U.S. Open benchmarks rather than world records.
+- Minor athlete names are anonymized in the local reference library. Coach-owned references remain local to the browser and require an authorization confirmation.
+- Event-aware individual split fields plus quick paste. Empty comma positions remain empty, and only unknown or invalid checkpoints are modeled.
+- Exportable analysis and strategy PDFs plus audit-ready JSON.
+- Deterministic calculations and official source provenance remain locked facts for Gemini explanations; the app includes a safe offline brief when no API key is configured.
 
-The existing all-events library remains available: 408 event/sex/level/strategy models, 99 observed 2025 Worlds medal performances, exact-age USA Swimming standards and detailed U.S. reference races.
+## Reference data
 
-## Run on Windows PowerShell
+The generated field library uses official Omega Lenex results for the 2025 World Championships, 2024 World 25 m Championships, 2026 Toyota National Championships and 2026 Speedo Junior National Championships, plus official 2026 NCAA Division I final-results PDFs. See `docs/RACE_LIBRARY_DATA_MANIFEST.json` for counts and source URLs.
 
-Requirements: Node.js 22.13 or newer.
+Regenerate the checked-in library by passing the six official source files to the build script:
 
-```powershell
-npm install
+```bash
+node scripts/build-race-library.mjs <usa-nationals.lef> <usa-junior-nationals.lef> <worlds.lef> <world-scm.lef> <ncaa-men.txt> <ncaa-women.txt>
+```
+
+## Run
+
+Requires Node.js 22.13 or newer.
+
+```bash
+npm run install:ci
 npm run dev
 ```
 
-Open the local address printed by Vite, normally `http://localhost:5173`.
+Open the local address printed by the development server. For live Gemini responses, copy `.env.example` to `.env` or `.env.local`, set `GEMINI_API_KEY`, and restart. The application remains functional without credentials.
 
-To enable live Gemini analysis, set `GEMINI_API_KEY` and optionally `GEMINI_MODEL` in the server environment. Without credentials, the app produces a deterministic offline report. Never place secrets in client-side code.
+SetCraft uses Gemini 3.6 Flash server-side. To add the reviewed coaching-knowledge layer and verify all five AI workflows:
+
+```bash
+npm run ai:setup-rag -- --write-env
+npm run dev
+# In a second terminal:
+npm run ai:eval
+```
+
+See `docs/AI_MODEL_IMPLEMENTATION_GUIDE.md` for the complete Windows walkthrough, privacy rules and evaluation process.
 
 ## Verify
 
-```powershell
+```bash
 npm run test:race
+npm run lint
 npm run build
 npm run validate:artifact
 ```
 
-Methodology, formulas, provenance and limits are documented in `docs/RACE_MODEL_METHODOLOGY.md`; the full validation record is in `docs/FINAL_VALIDATION_REPORT.md`.
+Official totals, measured checkpoints, modeled checkpoints, athlete context and AI narrative are separate evidence layers. Neither AI nor profile inputs may change records, standards, points or provenance.

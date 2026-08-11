@@ -8,14 +8,22 @@ import { Sparkles, Send, Bot, RefreshCw, User, HelpCircle, Dumbbell, AlertTriang
 import { AIChatMessage, AISuggestion } from "../types";
 
 const SUGGESTIONS: AISuggestion[] = [
-  { title: "USRPT Race pace set", description: "Create an ultra-short race pace training set for 100m pacing.", prompt: "Generate a USRPT set focusing on 100m Freestyle pacing for an advanced swimmer." },
-  { title: "Taper weekly schedule", description: "Plan a volume reduction taper block for a meet in 2 weeks.", prompt: "What is a good tapering schedule for an athlete 2 weeks out from a major target swim meet?" },
-  { title: "High-elbow catch drill", description: "Get technique drills to improve catch and pull mechanics.", prompt: "My coach says my arm drops on the pull. Give me 3 drills with snorkel to fix high-elbow catch." }
+  { title: "Race-pace validation", description: "Build a coach-controlled validation set for a specific course and goal split.", prompt: "Build a 100 Freestyle SCM race-pace validation set for an advanced swimmer. Ask me for the goal time and lane constraints before finalizing it." },
+  { title: "Taper decision framework", description: "Compare taper options without pretending to assess readiness remotely.", prompt: "Give me a two-week taper decision framework for a qualified coach, including what athlete feedback and training evidence to review." },
+  { title: "Technique progression", description: "Turn one observed technical problem into cues, drills and validation checks.", prompt: "My coach observed a dropped elbow in freestyle. Give me three drill progressions with snorkel and a measurable check for each." }
 ];
 
 interface AICopilotProps {
   onOpenGeneratedSet?: (text: string, title: string, focus: string) => void;
 }
+
+type AiHealth = {
+  aiMode: "live" | "simulation";
+  knowledgeMode: "file-search" | "base-prompts";
+  model: string;
+};
+
+type AiResponseMode = "rag" | "live" | "offline";
 
 export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
   const [activeTab, setActiveTab] = useState<"chat" | "generator" | "modifier">("chat");
@@ -26,7 +34,7 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
     {
       id: "m1",
       sender: "copilot",
-      text: "Hello! I'm **Coach Block**, your personal AI swim strategist. Ask me about custom set pacing, tapering progressions, or stroke technique drills!",
+      text: "I'm **Coach Block**, SetCraft's evidence-aware coaching copilot. I can draft sets, explain race strategy, compare course demands and revise workouts. Give me the course, event, athlete level and objective for the strongest answer.",
       timestamp: "05:47 AM"
     }
   ]);
@@ -51,10 +59,27 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
   const [modResult, setModResult] = useState<string>("");
   const [loadingMod, setLoadingMod] = useState(false);
   const [requestError, setRequestError] = useState("");
+  const [aiHealth, setAiHealth] = useState<AiHealth | null>(null);
+  const [lastAiMode, setLastAiMode] = useState<AiResponseMode | null>(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/health")
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("AI status unavailable")))
+      .then((health: AiHealth) => {
+        if (!cancelled) setAiHealth(health);
+      })
+      .catch(() => {
+        if (!cancelled) setAiHealth(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // 1. Submit Chat
   const handleChatSubmit = async (textToSend?: string) => {
@@ -81,6 +106,7 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
       });
       if (!response.ok) throw new Error(`AI request failed (${response.status})`);
       const data = await response.json();
+      if (data.meta?.mode) setLastAiMode(data.meta.mode as AiResponseMode);
 
       const copilotMsg: AIChatMessage = {
         id: `c-${Date.now()}`,
@@ -115,6 +141,7 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
       });
       if (!response.ok) throw new Error(`AI request failed (${response.status})`);
       const data = await response.json();
+      if (data.meta?.mode) setLastAiMode(data.meta.mode as AiResponseMode);
       setGenResult(data.text || "");
     } catch (err) {
       console.error(err);
@@ -140,6 +167,7 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
       });
       if (!response.ok) throw new Error(`AI request failed (${response.status})`);
       const data = await response.json();
+      if (data.meta?.mode) setLastAiMode(data.meta.mode as AiResponseMode);
       setModResult(data.text || "");
     } catch (err) {
       console.error(err);
@@ -158,25 +186,44 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
   };
 
   return (
-    <div className="bg-white border border-slate-200/80 rounded-2xl p-8 shadow-sm" id="ai-copilot-workspace">
+    <div className="mx-auto max-w-[1540px] space-y-6" id="ai-copilot-workspace">
       {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-6 mb-8 gap-4">
+      <div className="relative overflow-hidden rounded-[30px] border border-slate-800 bg-slate-950 px-7 py-8 text-white shadow-2xl shadow-violet-950/15 md:px-10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(168,85,247,.28),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(34,211,238,.18),transparent_35%)]" />
+        <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <h2 className="text-xl font-display font-bold text-slate-900 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-indigo-600" />
-            AI Coach Copilot
+          <div className="flex items-center gap-2 text-violet-300"><Sparkles className="h-5 w-5" /><span className="text-xs font-black uppercase tracking-[.2em]">SetCraft AI workspace v13</span></div>
+          <h2 className="mt-3 text-4xl font-display font-black tracking-tight md:text-5xl">
+            Coach Block AI
           </h2>
-          <p className="text-slate-500 text-xs mt-1">
-            Workout drafting, structured modifications, explanations and coach-reviewed constraint checks.
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300 md:text-base">
+            Evidence-aware coaching chat, structured set generation and constraint-preserving workout edits—ready for your Gemini knowledge system.
           </p>
+          <div className="mt-5 flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-wide">
+            <span className={`rounded-full border px-3 py-1.5 ${lastAiMode === "live" || lastAiMode === "rag" ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300" : "border-amber-400/20 bg-amber-400/10 text-amber-300"}`}>
+              {lastAiMode === "rag"
+                ? `Gemini verified · ${aiHealth?.model || "configured model"} · knowledge`
+                : lastAiMode === "live"
+                  ? `Gemini verified · ${aiHealth?.model || "configured model"}`
+                  : lastAiMode === "offline"
+                    ? "Gemini unavailable · safe fallback used"
+                    : aiHealth?.aiMode === "live"
+                      ? `Gemini configured · ${aiHealth.model}`
+                      : "Offline-safe mode"}
+            </span>
+            <span className={`rounded-full border px-3 py-1.5 ${aiHealth?.knowledgeMode === "file-search" ? "border-cyan-400/20 bg-cyan-400/10 text-cyan-300" : "border-white/10 bg-white/[.06] text-slate-300"}`}>
+              {lastAiMode === "rag" ? "Coaching knowledge verified" : aiHealth?.knowledgeMode === "file-search" ? "Coaching knowledge configured" : "Base prompts only"}
+            </span>
+            <span className="rounded-full border border-violet-400/20 bg-violet-400/10 px-3 py-1.5 text-violet-300">Coach review required</span>
+          </div>
         </div>
 
         {/* TABS */}
-        <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200/60 text-xs self-start sm:self-auto">
+        <div className="flex max-w-full overflow-x-auto rounded-2xl border border-white/10 bg-white/[.07] p-1.5 text-xs backdrop-blur">
           <button
             onClick={() => setActiveTab("chat")}
             className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              activeTab === "chat" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900"
+              activeTab === "chat" ? "bg-white text-slate-950 shadow" : "text-slate-300 hover:bg-white/10 hover:text-white"
             }`}
           >
             Coach Chat
@@ -184,7 +231,7 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
           <button
             onClick={() => setActiveTab("generator")}
             className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              activeTab === "generator" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900"
+              activeTab === "generator" ? "bg-white text-slate-950 shadow" : "text-slate-300 hover:bg-white/10 hover:text-white"
             }`}
           >
             AI Set Generator
@@ -192,19 +239,20 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
           <button
             onClick={() => setActiveTab("modifier")}
             className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
-              activeTab === "modifier" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900"
+              activeTab === "modifier" ? "bg-white text-slate-950 shadow" : "text-slate-300 hover:bg-white/10 hover:text-white"
             }`}
           >
             AI Set Modifier
           </button>
         </div>
+        </div>
       </div>
 
-      {requestError && <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-800">{requestError}</div>}
+      {requestError && <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-800">{requestError}</div>}
 
       {/* CHAT TAB */}
       {activeTab === "chat" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="copilot-chat-grid">
+        <div className="grid grid-cols-1 gap-6 rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm lg:grid-cols-12 md:p-7" id="copilot-chat-grid">
           {/* Messages block (8 cols) */}
           <div className="lg:col-span-8 flex flex-col h-[520px] bg-slate-50/50 rounded-2xl border border-slate-200 overflow-hidden">
             {/* Messages box */}
@@ -250,7 +298,7 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleChatSubmit()}
                 placeholder="Ask about swim mechanics, energy systems, tapered cycles..."
-                className="flex-1 bg-slate-50 border border-slate-200 text-slate-955 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-slate-300 font-sans"
+                className="flex-1 bg-slate-50 border border-slate-200 text-slate-950 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-200 font-sans"
               />
               <button
                 onClick={() => handleChatSubmit()}

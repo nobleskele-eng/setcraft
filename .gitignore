@@ -27,8 +27,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (the safe template is intentionally committed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -36,7 +37,11 @@ yarn-error.log*
 # typescript
 next-env.d.ts
 /dist/
+/.vinext/
+/*.tsbuildinfo
+/output/
 /.wrangler/
 /.sites-runtime/
 /outputs/
 /work/
+/ai/eval-results/
