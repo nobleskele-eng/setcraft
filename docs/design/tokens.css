@@ -1,0 +1,137 @@
+/*
+ * SetCraft — Design Token Proposal
+ * Status: PROPOSAL ONLY. Not imported by any component or build config.
+ * See tokens-rationale.md in this folder for the reasoning behind each value.
+ *
+ * Direction: dark pool-tile blue CHROME (sidebar, toolbar) around a LIGHT
+ * content canvas (cards, forms) + one bright cyan accent + one warm
+ * lane-rope signal colour reserved for validation states.
+ * accent + one warm lane-rope signal colour reserved for validation states.
+ * No indigo/purple, no blue→cyan gradients, no glassmorphism.
+ */
+
+@theme {
+  /* ---------------------------------------------------------------------
+   * COLOR
+   * ------------------------------------------------------------------- */
+
+  /* surface: base app background — deep pool-tile blue, not near-black */
+  --color-surface: #0B2A3F;
+
+  /* surface-raised: cards, panels, toolbars sitting above the base surface */
+  --color-surface-raised: #123A54;
+
+  /* ink: primary text/icon colour on surface/surface-raised */
+  --color-ink: #EAF3F7;
+
+  /* ink-muted: secondary text — labels, timestamps, helper copy */
+  --color-ink-muted: #85A3B4;
+
+  /* accent: the one bright interactive colour — primary actions, active state, links */
+  --color-accent: #1AD1E0;
+
+  /* accent-hover: hover state — brightens on dark surfaces so the control reads as live */
+  --color-accent-hover: #4FDDE9;
+  /* accent-active: pressed state — deepens on click */
+  --color-accent-active: #0FAEBB;
+
+  /* signal-warn: reserved EXCLUSIVELY for validation states (errors, invalid sets, over-distance warnings). Never used decoratively. */
+  --color-signal-warn: #FF5A36;
+
+  /* hairline: borders, dividers, table rules on dark surfaces */
+  --color-hairline: #234B63;
+
+/* --- interactive state ------------------------------------------- */
+  /* on-accent: text/icon colour on a filled accent button. Dark by
+   * necessity — light ink on #1AD1E0 fails WCAG AA badly. */
+  --color-on-accent: #0B2A3F;
+  /* on-signal-warn: text/icon colour on a filled warning surface */
+  --color-on-signal-warn: #FFF1ED;
+  /* surface-hover: nav items, rows, ghost buttons on hover/active */
+  --color-surface-hover: #1A4A68;
+  /* focus-ring: keyboard focus outline. Never removed, never restyled per-component. */
+  --color-focus-ring: #4FDDE9;
+  /* disabled: inert controls and their labels */
+  --color-disabled: #4A6B80;
+
+  /* --- light canvas family ------------------------------------------
+   * The app is a LIGHT content area with DARK chrome. Tokens above are
+   * the chrome family (sidebar, toolbar). Tokens below are the content
+   * family (page background, cards, forms). Derived from the same
+   * pool-tile-blue hue as --color-surface (~204°) instead of a neutral
+   * grey, so the light and dark halves read as one palette:
+   * canvas/canvas-raised are that hue at low saturation and very high
+   * lightness; ink-on-canvas reuses --color-surface itself (identical
+   * hue/sat/lightness) as the text colour; ink-muted-on-canvas and
+   * hairline-on-canvas hold the hue at a lightness/saturation matched
+   * to their role. ink-on-canvas and ink-muted-on-canvas verified at
+   * 14.2:1 and 5.71:1 against --color-canvas-raised (WCAG AA requires
+   * 4.5:1). */
+  --color-canvas: #EEF3F7;
+  --color-canvas-raised: #F9FAFB;
+  --color-ink-on-canvas: #0B2A3F;
+  --color-ink-muted-on-canvas: #3F6883;
+  --color-hairline-on-canvas: #D7E2EA;
+
+  /* ---------------------------------------------------------------------
+   * TYPE
+   * ------------------------------------------------------------------- */
+
+  /* Display face — set headers, page titles, big interval numbers on cards.
+   * Condensed athletic grotesk, evokes scoreboard/pool-deck signage rather
+   * than SaaS branding. Google Fonts: "Big Shoulders Display". */
+--font-display: "Big Shoulders Display", "Oswald", "Archivo Narrow", sans-serif;
+
+  /* Body face — UI labels, table cells, form fields, running text.
+   * Neutral engineered humanist sans built for dense data legibility.
+   * Google Fonts: "IBM Plex Sans". */
+  --font-body: "IBM Plex Sans", sans-serif;
+
+  /* Tabular mono — ALL numeric values: split times, rest intervals, pace,
+   * distances, rep counts. True tabular lining figures so columns of times
+   * align. Google Fonts: "IBM Plex Mono". */
+  --font-mono: "IBM Plex Mono", monospace;
+
+  /* Type scale */
+  --text-display-xl: 2.5rem;   /* 40px — page/workout title */
+  --text-display-xl--line-height: 1.1;
+  --text-display-xl--letter-spacing: -0.01em;
+
+  --text-display: 1.75rem;     /* 28px — section headers, set headers */
+  --text-display--line-height: 1.15;
+  --text-display--letter-spacing: -0.005em;
+
+  --text-body: 1rem;           /* 16px — default UI text */
+  --text-body--line-height: 1.5;
+
+  --text-body-sm: 0.875rem;    /* 14px — secondary labels, captions */
+  --text-body-sm--line-height: 1.45;
+
+  --text-mono-lg: 1.25rem;     /* 20px — headline interval time (e.g. clock display) */
+  --text-mono-lg--line-height: 1.2;
+  --text-mono-lg--letter-spacing: 0.01em;
+
+  --text-mono: 0.9375rem;      /* 15px — in-table splits, pace, rest */
+  --text-mono--line-height: 1.4;
+  --text-mono--letter-spacing: 0.01em;
+/* Tabular figures are NOT set here — Tailwind v4's --text-* namespace
+   * doesn't support font-feature-settings as a modifier. Apply
+   * `font-variant-numeric: tabular-nums` in the <Value> component (Prompt 8). */
+
+  /* ---------------------------------------------------------------------
+   * SPACING — 4px base
+   * ------------------------------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* ---------------------------------------------------------------------
+   * RADIUS — single token, deliberately tight (tile edge, not app-store icon)
+   * ------------------------------------------------------------------- */
+--radius: 6px;
+}
