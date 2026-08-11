@@ -1144,10 +1144,10 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
   return (
     <div className="w-full" id="setcraft-swim-studio">
       <section className="overflow-hidden bg-white">
-        <div className="flex flex-wrap items-center gap-2 bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-950 px-4 py-2 text-white">
+        <div className="flex flex-wrap items-center gap-2 bg-surface px-4 py-2 text-white">
           <div className="flex items-center gap-2 pr-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 font-display text-sm font-extrabold text-white shadow-lg shadow-blue-950/40">SC</div>
-            <div>
+            <div className="bg-surface-raised text-ink rounded-[var(--radius)] px-[var(--space-2)] py-[var(--space-1)]">
               <p className="text-sm font-extrabold">Swim Studio</p>
               <p className="text-[10px] font-medium text-slate-300">Scratch-style set programming</p>
             </div>
@@ -1164,6 +1164,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
             <span className="hidden rounded-full border border-white/10 bg-white/[0.06] px-3 py-2 text-[10px] font-bold text-slate-300 2xl:inline-flex">{autoSaveState === "saving" ? "Saving…" : "Auto-saved"}</span>
             <button type="button" onClick={() => setShortcutsOpen(true)} className="rounded-xl p-2.5 text-slate-300 hover:bg-white/10 hover:text-white" title="Keyboard shortcuts"><Keyboard className="h-4 w-4" /></button>
             <button type="button" onClick={exportJson} className="rounded-xl p-2.5 text-slate-300 hover:bg-white/10 hover:text-white" title="Export structured JSON"><FileJson className="h-4 w-4" /></button>
+            <div className="rounded-[var(--radius)] bg-surface-raised px-[var(--space-3)] py-[var(--space-2)] text-body-sm font-bold text-ink-muted">{currentRole} perspective</div>
           </div>
         </div>
 

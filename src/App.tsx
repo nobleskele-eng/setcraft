@@ -172,7 +172,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 antialiased md:flex" id="swimblock-root">
-      <aside className="relative z-30 flex w-full shrink-0 flex-col border-b border-slate-800 bg-slate-950 text-white md:sticky md:top-0 md:h-screen md:w-[318px] md:border-b-0 md:border-r" id="swimblock-sidebar">
+      <aside className={`relative z-30 flex w-full shrink-0 flex-col border-b border-slate-800 bg-surface text-ink md:sticky md:top-0 md:h-screen md:w-[318px] md:border-b-0 ${activeTab === "studio" ? "" : "md:border-r md:border-slate-800"}`} id="swimblock-sidebar">
         <div className="border-b border-white/10 px-6 py-6">
           <div className="flex items-center gap-3">
             <div className="brand-orb flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-700 shadow-lg shadow-blue-950/40">
@@ -264,13 +264,15 @@ export default function App() {
       </aside>
 
       <main ref={mainRef} className="min-w-0 flex-1 overflow-y-auto" id="swimblock-main-viewport">
-        <div className="sticky top-0 z-20 hidden border-b border-slate-200/90 bg-white/90 px-8 py-4 backdrop-blur-xl md:flex md:items-center md:justify-between">
-          <div>
-            <p className="text-[11px] font-extrabold uppercase tracking-[0.17em] text-indigo-500">SetCraft workspace</p>
-            <h1 className="mt-1 font-display text-xl font-extrabold tracking-tight text-slate-950">{currentTitle}</h1>
+        {activeTab !== "studio" && (
+          <div className="sticky top-0 z-20 hidden border-b border-slate-200/90 bg-white/90 px-8 py-4 backdrop-blur-xl md:flex md:items-center md:justify-between">
+            <div>
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.17em] text-indigo-500">SetCraft workspace</p>
+              <h1 className="mt-1 font-display text-xl font-extrabold tracking-tight text-slate-950">{currentTitle}</h1>
+            </div>
+            <div className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-600">{currentRole} perspective</div>
           </div>
-          <div className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-600">{currentRole} perspective</div>
-        </div>
+        )}
 
         <div className={`page-enter ${activeTab === "studio" ? "" : "p-4 md:p-7 xl:p-10"}`}>
           {activeTab === "dashboard" && <DashboardView currentRole={currentRole} onNavigateTo={setActiveTab} savedWorkoutsCount={savedCount} />}
