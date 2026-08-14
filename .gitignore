@@ -45,3 +45,6 @@ next-env.d.ts
 /outputs/
 /work/
 /ai/eval-results/
+
+# Archived source snapshot kept locally; the active application is the project root.
+/SetCraft_Swim_Studio_Final_v11_Performance_Intelligence/

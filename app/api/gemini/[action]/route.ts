@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { applyPolicyGuardrails, type AiWorkflow } from "../../../../src/aiPolicyGuardrails";
+import { getChatGPTUser } from "../../../chatgpt-auth";
 
 const MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 
@@ -109,6 +110,14 @@ async function generate(workflow: AiWorkflow, system: string, prompt: string, fa
 }
 
 export async function POST(request: NextRequest, context: { params: Promise<{ action: string }> }) {
+  const user = await getChatGPTUser();
+  if (!user) {
+    return NextResponse.json(
+      { error: "Authentication required. Sign in to use SetCraft AI." },
+      { status: 401 },
+    );
+  }
+
   const { action } = await context.params;
   const body = await request.json().catch(() => ({})) as Record<string, unknown>;
 
