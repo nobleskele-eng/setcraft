@@ -12,11 +12,10 @@ import {
   Calendar,
   Users,
   Settings,
-  ShieldCheck,
   BookOpenCheck,
   ChevronRight,
   ChevronDown,
-  Waves,
+  Menu,
   SlidersHorizontal,
   Blocks,
   FileDown,
@@ -102,6 +101,7 @@ export default function App() {
   const [projectImport, setProjectImport] = useState<StudioProject | null>(null);
   const [studioPage, setStudioPage] = useState<StudioWorkspacePage>("project");
   const [studioNavOpen, setStudioNavOpen] = useState(true);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const mainRef = useRef<HTMLElement | null>(null);
 
   const updateSavedCount = () => {
@@ -131,6 +131,7 @@ export default function App() {
 
   useEffect(() => {
     mainRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    setMobileNavOpen(false);
   }, [activeTab, studioPage]);
 
   const openStudioPage = (page: StudioWorkspacePage) => {
@@ -170,123 +171,110 @@ export default function App() {
       ? "Project Hub"
       : PRIMARY_NAV_ITEMS.find((item) => item.id === activeTab)?.label || "SetCraft";
 
+  const studioActive = activeTab === "studio" || activeTab === "projects";
+
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 antialiased md:flex" id="swimblock-root">
-      <aside className={`relative z-30 flex w-full shrink-0 flex-col border-b border-slate-800 bg-surface text-ink md:sticky md:top-0 md:h-screen md:w-[318px] md:border-b-0 ${activeTab === "studio" ? "" : "md:border-r md:border-slate-800"}`} id="swimblock-sidebar">
-        <div className="border-b border-white/10 px-6 py-6">
-          <div className="flex items-center gap-3">
-            <div className="brand-orb flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-700 shadow-lg shadow-blue-950/40">
-              <Waves className="h-7 w-7 text-white" />
-            </div>
-            <div>
-              <span className="font-display text-2xl font-extrabold tracking-tight text-white">SetCraft</span>
-              <span className="mt-0.5 block text-[11px] font-bold uppercase tracking-[0.19em] text-sky-300">Visual Training Studio</span>
-            </div>
-          </div>
-          <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.055] p-4">
-            <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">
-              <span>Workspace</span>
-              <span className="flex items-center gap-1.5 rounded-full bg-sky-400/10 px-2.5 py-1 text-sky-300 ring-1 ring-sky-400/20"><span className="h-1.5 w-1.5 rounded-full bg-sky-400" />Live</span>
-            </div>
-            <p className="mt-2 text-base font-bold text-white">{currentRole} Mode</p>
-            <p className="mt-1 text-sm leading-relaxed text-slate-400">{savedCount} saved project{savedCount === 1 ? "" : "s"} on this device</p>
-          </div>
+    <div className="sc-shell" id="swimblock-root">
+      <div className="sc-mobile-topbar">
+        <button type="button" className="sc-mobile-topbar-btn" onClick={() => setMobileNavOpen((open) => !open)} aria-label="Toggle menu">
+          <Menu className="h-5 w-5" />
+        </button>
+        <span className="sc-sidebar-brand-name" style={{ fontSize: 16 }}>SetCraft</span>
+      </div>
+      <div className="sc-sidebar-overlay" data-open={mobileNavOpen ? "true" : "false"} onClick={() => setMobileNavOpen(false)} />
+
+      <aside className="sc-sidebar" data-open={mobileNavOpen ? "true" : "false"} id="swimblock-sidebar">
+        <div className="sc-sidebar-brand">
+          <div className="sc-sidebar-brand-name">SetCraft</div>
+          <div className="sc-sidebar-brand-tag">Visual Training Studio</div>
         </div>
 
-        <nav className="flex gap-2 overflow-x-auto px-3 py-3 md:block md:flex-1 md:overflow-y-auto md:px-4 md:py-5" aria-label="Primary navigation">
-          <button
-            type="button"
+        <nav className="sc-sidebar-nav" aria-label="Primary navigation">
+          <div
+            className="sc-sidebar-item"
+            data-active={studioActive ? "true" : "false"}
             onClick={() => { if (activeTab !== "studio" && activeTab !== "projects") { openStudioPage(studioPage); setStudioNavOpen(true); } else { setStudioNavOpen((open) => !open); } }}
-            className={`nav-rail-item group relative flex min-w-[210px] items-center gap-3 rounded-2xl border px-4 py-3.5 text-left transition-all duration-200 md:min-w-0 md:w-full ${(activeTab === "studio" || activeTab === "projects") ? "border-blue-400/25 bg-gradient-to-r from-blue-500/15 to-indigo-500/12 text-white shadow-lg shadow-black/20" : "border-transparent text-slate-400 hover:border-white/10 hover:bg-white/[0.065] hover:text-white"}`}
           >
-            <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all ${(activeTab === "studio" || activeTab === "projects") ? "bg-blue-500 text-white shadow-md shadow-blue-950/40" : "bg-white/[0.07] text-slate-400 group-hover:bg-white/10 group-hover:text-sky-300"}`}>
-              <Dumbbell className="h-5 w-5" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-extrabold">Swim Studio</span>
-              <span className="mt-0.5 hidden truncate text-[11px] text-slate-400 md:block">Projects, block builder and deck tools</span>
-            </span>
-            <ChevronDown className={`hidden h-4 w-4 text-sky-300 transition-transform md:block ${studioNavOpen ? "rotate-180" : ""}`} />
-          </button>
+            <Dumbbell className="sc-sidebar-item-icon" />
+            <div className="sc-sidebar-item-text">
+              <span className="sc-sidebar-item-label">Swim Studio</span>
+              <span className="sc-sidebar-item-desc">Projects, block builder and deck tools</span>
+            </div>
+            <ChevronDown className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--color-ink-muted)", marginTop: 2, transform: studioNavOpen ? "rotate(180deg)" : undefined, transition: "transform 0.15s ease" }} />
+          </div>
 
           {studioNavOpen && (
-            <div className="ml-4 mt-2 hidden space-y-1 border-l border-white/10 pl-3 md:block">
+            <div className="sc-sidebar-sub">
               {STUDIO_SUBNAV.map((item) => {
-                const Icon = item.icon;
                 const active = item.id === "projects" ? activeTab === "projects" : activeTab === "studio" && studioPage === item.page;
                 return (
-                  <button
+                  <div
                     key={item.id}
-                    type="button"
+                    className="sc-sidebar-sub-item"
+                    data-active={active ? "true" : "false"}
                     onClick={() => item.id === "projects" ? setActiveTab("projects") : openStudioPage(item.page!)}
-                    className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition ${active ? "bg-white/10 text-white ring-1 ring-blue-400/25" : "text-slate-500 hover:bg-white/[0.055] hover:text-slate-200"}`}
                   >
-                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${active ? "bg-indigo-500 text-white" : "bg-white/[0.045] text-slate-500 group-hover:text-sky-300"}`}><Icon className="h-4 w-4" /></span>
-                    <span className="min-w-0 flex-1"><span className="block text-[12px] font-extrabold">{item.label}</span><span className="mt-0.5 block truncate text-[9px] text-slate-500">{item.helper}</span></span>
-                    {active && <ChevronRight className="h-3.5 w-3.5 text-sky-300" />}
-                  </button>
+                    <div className="sc-sidebar-sub-label">{item.label}</div>
+                    {item.helper && <div className="sc-sidebar-sub-desc">{item.helper}</div>}
+                  </div>
                 );
               })}
             </div>
           )}
 
-          <div className="my-3 hidden h-px bg-white/10 md:block" />
-
           {PRIMARY_NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const active = activeTab === item.id;
             return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setActiveTab(item.id)}
-                className={`nav-rail-item group relative mt-1 flex min-w-[190px] items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all duration-200 md:min-w-0 md:w-full ${active ? "border-blue-400/25 bg-gradient-to-r from-blue-500/15 to-indigo-500/12 text-white shadow-lg shadow-black/20" : "border-transparent text-slate-400 hover:border-white/10 hover:bg-white/[0.065] hover:text-white"}`}
-              >
-                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all ${active ? "bg-blue-500 text-white shadow-md shadow-blue-950/40" : "bg-white/[0.07] text-slate-400 group-hover:bg-white/10 group-hover:text-sky-300"}`}>
-                  <Icon className="h-[18px] w-[18px]" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-extrabold">{item.label}</span>
-                  <span className={`mt-0.5 hidden truncate text-[10px] md:block ${active ? "text-sky-100/70" : "text-slate-500 group-hover:text-slate-400"}`}>{item.helper}</span>
-                </span>
-                <ChevronRight className={`hidden h-4 w-4 transition-transform md:block ${active ? "translate-x-0 text-sky-300" : "-translate-x-1 text-transparent group-hover:translate-x-0 group-hover:text-slate-500"}`} />
-              </button>
+              <div key={item.id} className="sc-sidebar-item" data-active={active ? "true" : "false"} onClick={() => setActiveTab(item.id)}>
+                <Icon className="sc-sidebar-item-icon" />
+                <div className="sc-sidebar-item-text">
+                  <span className="sc-sidebar-item-label">{item.label}</span>
+                  <span className="sc-sidebar-item-desc">{item.helper}</span>
+                </div>
+              </div>
             );
           })}
         </nav>
 
-        <div className="hidden border-t border-white/10 p-5 md:block">
-          <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
-            <span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-sky-400" /> Local workspace</span>
-            <span>v13 Professional Race Intelligence</span>
+        <div className="sc-sidebar-status">
+          <div className="sc-sidebar-role">
+            <div>
+              <div className="sc-sidebar-role-label">{currentRole} Mode</div>
+              <div className="sc-sidebar-role-hint">Local workspace · v13 Professional Race Intelligence</div>
+            </div>
           </div>
+          <div className="sc-sidebar-meta-row"><span>{savedCount} saved project{savedCount === 1 ? "" : "s"} on this device</span></div>
+          <div className="sc-sidebar-meta-row"><span className="sc-sidebar-dot" /><span style={{ marginLeft: -4 }}>Live</span></div>
         </div>
       </aside>
 
-      <main ref={mainRef} className="min-w-0 flex-1 overflow-y-auto" id="swimblock-main-viewport">
-        {activeTab !== "studio" && (
-          <div className="sticky top-0 z-20 hidden border-b border-slate-200/90 bg-white/90 px-8 py-4 backdrop-blur-xl md:flex md:items-center md:justify-between">
-            <div>
-              <p className="text-[11px] font-extrabold uppercase tracking-[0.17em] text-indigo-500">SetCraft workspace</p>
-              <h1 className="mt-1 font-display text-xl font-extrabold tracking-tight text-slate-950">{currentTitle}</h1>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+        <main ref={mainRef} className="min-w-0 flex-1 overflow-y-auto" id="swimblock-main-viewport">
+          {activeTab !== "studio" && (
+            <div className="sc-header">
+              <div>
+                <div className="sc-header-kicker">SetCraft workspace</div>
+                <div className="sc-header-title">{currentTitle}</div>
+              </div>
+              <span className="sc-tag" data-tone="neutral">{currentRole} perspective</span>
             </div>
-            <div className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-600">{currentRole} perspective</div>
-          </div>
-        )}
+          )}
 
-        <div className={`page-enter ${activeTab === "studio" ? "" : "p-4 md:p-7 xl:p-10"}`}>
-          {activeTab === "dashboard" && <DashboardView currentRole={currentRole} onNavigateTo={setActiveTab} savedWorkoutsCount={savedCount} />}
-          {activeTab === "studio" && <SwimStudio currentRole={currentRole} initialWorkout={studioImport} initialProject={projectImport} requestedPage={studioPage} onPageChange={setStudioPage} onInitialWorkoutLoaded={() => setStudioImport(null)} onInitialProjectLoaded={() => setProjectImport(null)} />}
-          {activeTab === "projects" && <ProjectsView onOpenProject={(project) => { setProjectImport(project); setStudioPage("build"); setActiveTab("studio"); }} onCreateProject={(project) => { setProjectImport(project); setStudioPage("project"); setActiveTab("studio"); }} />}
-          {activeTab === "famous" && <FamousSetsView onOpenWorkout={(workout) => { setStudioImport(workout); setStudioPage("build"); setActiveTab("studio"); }} />}
-          {activeTab === "race-lab" && <RaceLab />}
-          {activeTab === "calculators" && <Calculators />}
-          {activeTab === "copilot" && <AICopilot onOpenGeneratedSet={openGeneratedSetInStudio} />}
-          {activeTab === "calendar" && <CalendarView />}
-          {activeTab === "community" && <CommunityView />}
-          {activeTab === "settings" && <SettingsView currentRole={currentRole} onRoleChange={setCurrentRole} />}
-        </div>
-      </main>
+          <div className={`page-enter ${activeTab === "studio" ? "" : "p-4 md:p-7 xl:p-10"}`}>
+            {activeTab === "dashboard" && <DashboardView currentRole={currentRole} onNavigateTo={setActiveTab} savedWorkoutsCount={savedCount} />}
+            {activeTab === "studio" && <SwimStudio currentRole={currentRole} initialWorkout={studioImport} initialProject={projectImport} requestedPage={studioPage} onPageChange={setStudioPage} onInitialWorkoutLoaded={() => setStudioImport(null)} onInitialProjectLoaded={() => setProjectImport(null)} />}
+            {activeTab === "projects" && <ProjectsView onOpenProject={(project) => { setProjectImport(project); setStudioPage("build"); setActiveTab("studio"); }} onCreateProject={(project) => { setProjectImport(project); setStudioPage("project"); setActiveTab("studio"); }} />}
+            {activeTab === "famous" && <FamousSetsView onOpenWorkout={(workout) => { setStudioImport(workout); setStudioPage("build"); setActiveTab("studio"); }} />}
+            {activeTab === "race-lab" && <RaceLab />}
+            {activeTab === "calculators" && <Calculators />}
+            {activeTab === "copilot" && <AICopilot onOpenGeneratedSet={openGeneratedSetInStudio} />}
+            {activeTab === "calendar" && <CalendarView />}
+            {activeTab === "community" && <CommunityView />}
+            {activeTab === "settings" && <SettingsView currentRole={currentRole} onRoleChange={setCurrentRole} />}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

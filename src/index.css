@@ -1,18 +1,25 @@
 @import "tailwindcss";
 @import "../docs/design/tokens.css";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "../docs/design/components.css";
 @import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
+/*
+ * The pool-deck/scoreboard token system (Big Shoulders Display, IBM Plex Sans,
+ * IBM Plex Mono) lives entirely in docs/design/tokens.css and is imported
+ * above. Nothing in this file should redefine --font-display, --font-body,
+ * --font-mono, or any --color-* token — a duplicate @theme block here used to
+ * silently override the token fonts with Inter/Space Grotesk/JetBrains Mono.
+ * --font-sans is kept only as a fallback alias for --font-body so any
+ * leftover `font-sans` utility usage still resolves to the token typeface.
+ */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: var(--font-body);
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: #f8fafc;
-  color: #0f172a;
+  font-family: var(--font-body);
+  background-color: var(--color-canvas);
+  color: var(--color-ink-on-canvas);
 }
 
 ::-webkit-scrollbar { width: 7px; height: 7px; }
@@ -157,7 +164,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 html { scroll-behavior: smooth; }
 body {
   min-width: 320px;
-  background: #f1f5f9;
+  background: var(--color-canvas);
   font-size: 16px;
   letter-spacing: -0.005em;
 }
@@ -291,8 +298,8 @@ body { font-size: 17px; }
 
 #swimblock-main-viewport {
   background:
-    radial-gradient(circle at 85% 8%, rgba(59, 130, 246, .06), transparent 24rem),
-    linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+    radial-gradient(circle at 85% 8%, color-mix(in srgb, var(--color-accent) 6%, transparent), transparent 24rem),
+    linear-gradient(180deg, var(--color-canvas) 0%, var(--color-canvas-sunken) 100%);
 }
 
 #setcraft-swim-studio {

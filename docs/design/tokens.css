@@ -1,6 +1,8 @@
 /*
- * SetCraft — Design Token Proposal
- * Status: PROPOSAL ONLY. Not imported by any component or build config.
+ * SetCraft — Design Tokens
+ * Status: LIVE. Imported by src/index.css and consumed by every component,
+ * either as Tailwind v4 auto-generated utilities (bg-accent, text-ink, etc.)
+ * or directly via var(--color-*) in docs/design/components.css.
  * See tokens-rationale.md in this folder for the reasoning behind each value.
  *
  * Direction: dark pool-tile blue CHROME (sidebar, toolbar) around a LIGHT
@@ -49,6 +51,8 @@
   --color-on-signal-warn: #FFF1ED;
   /* surface-hover: nav items, rows, ghost buttons on hover/active */
   --color-surface-hover: #1A4A68;
+  /* surface-sunken: recessed dark chrome areas (below surface, above black) */
+  --color-surface-sunken: #082131;
   /* focus-ring: keyboard focus outline. Never removed, never restyled per-component. */
   --color-focus-ring: #4FDDE9;
   /* disabled: inert controls and their labels */
@@ -69,9 +73,29 @@
    * 4.5:1). */
   --color-canvas: #EEF3F7;
   --color-canvas-raised: #F9FAFB;
+  --color-canvas-sunken: #E3EAF0;
   --color-ink-on-canvas: #0B2A3F;
   --color-ink-muted-on-canvas: #3F6883;
   --color-hairline-on-canvas: #D7E2EA;
+
+  /* --- block-category colors ---
+   * The Studio's block palette/canvas/node-cards keep their own multi-color
+   * coding (per product decision) — exempt from the one-accent rule, since
+   * these dots are a functional legend (block type), not decoration. Values
+   * match the categories already shipped in SwimStudio.tsx's CATEGORY_META/
+   * NODE_STYLE maps (Tailwind's default 500/600 shades), formalized here as
+   * tokens. */
+  --color-block-warmup: #0891B2;
+  --color-block-skills: #059669;
+  --color-block-kickpull: #D97706;
+  --color-block-aerobic: #2563EB;
+  --color-block-threshold: #EA580C;
+  --color-block-sprint: #DC2626;
+  --color-block-racepace: #C026D3;
+  --color-block-lactate: #7C3AED;
+  --color-block-usrpt: #4F46E5;
+  --color-block-recovery: #0D9488;
+  --color-block-structure: #64748B;
 
   /* ---------------------------------------------------------------------
    * TYPE
@@ -101,11 +125,17 @@
   --text-display--line-height: 1.15;
   --text-display--letter-spacing: -0.005em;
 
+  --text-display-sm: 1.375rem; /* 22px — card header */
+
+  --text-body-lg: 1.125rem;    /* 18px — hero/lede copy */
+
   --text-body: 1rem;           /* 16px — default UI text */
   --text-body--line-height: 1.5;
 
   --text-body-sm: 0.875rem;    /* 14px — secondary labels, captions */
   --text-body-sm--line-height: 1.45;
+
+  --text-caption: 0.75rem;     /* 12px — meta, timestamps */
 
   --text-mono-lg: 1.25rem;     /* 20px — headline interval time (e.g. clock display) */
   --text-mono-lg--line-height: 1.2;
@@ -114,6 +144,8 @@
   --text-mono: 0.9375rem;      /* 15px — in-table splits, pace, rest */
   --text-mono--line-height: 1.4;
   --text-mono--letter-spacing: 0.01em;
+
+  --text-mono-sm: 0.8125rem;   /* 13px — dense table cells */
 /* Tabular figures are NOT set here — Tailwind v4's --text-* namespace
    * doesn't support font-feature-settings as a modifier. Apply
    * `font-variant-numeric: tabular-nums` in the <Value> component (Prompt 8). */
@@ -131,7 +163,15 @@
   --space-8: 64px;
 
   /* ---------------------------------------------------------------------
-   * RADIUS — single token, deliberately tight (tile edge, not app-store icon)
+   * RADIUS — deliberately tight (tile edge, not app-store icon)
    * ------------------------------------------------------------------- */
 --radius: 6px;
+  --radius-sm: 4px;
+
+  /* ---------------------------------------------------------------------
+   * SHADOW
+   * ------------------------------------------------------------------- */
+  --shadow-sm: 0 1px 2px rgba(11, 42, 63, 0.10);
+  --shadow-md: 0 4px 14px rgba(11, 42, 63, 0.16);
+  --shadow-nav: 0 2px 8px rgba(4, 16, 24, 0.35);
 }

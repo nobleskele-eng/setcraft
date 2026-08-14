@@ -13,7 +13,6 @@ import {
   FolderKanban,
   Blocks,
   BookOpenCheck,
-  Users,
   FileDown,
   Clock3,
 } from "lucide-react";
@@ -51,73 +50,122 @@ export default function DashboardView({ currentRole, onNavigateTo, savedWorkouts
   const mostRecent = projects.slice(0, 4);
 
   const quickActions = [
-    { id: "studio", label: "Build a practice", helper: "Open Project Setup and the Scratch-style builder", icon: Blocks, accent: "from-blue-600 to-indigo-700" },
-    { id: "projects", label: "Project Hub", helper: "Create folders, duplicate and reopen season projects", icon: FolderKanban, accent: "from-slate-800 to-slate-950" },
-    { id: "famous", label: "Workout Library", helper: "Open one of the curated or SetCraft-original templates", icon: BookOpenCheck, accent: "from-cyan-600 to-blue-700" },
-    { id: "calculators", label: "Calculator Lab", helper: "Pace, splits, send-offs, CSS, stroke and set math", icon: Calculator, accent: "from-violet-600 to-indigo-700" },
-    { id: "calendar", label: "Season Calendar", helper: "Place saved projects into weekly training plans", icon: Calendar, accent: "from-emerald-600 to-teal-700" },
-    { id: "copilot", label: "AI Coach", helper: "Generate or revise a draft and convert it to blocks", icon: Sparkles, accent: "from-fuchsia-600 to-violet-700" },
+    { id: "studio", label: "Build a practice", helper: "Open Project Setup and the Scratch-style builder", icon: Blocks },
+    { id: "projects", label: "Project Hub", helper: "Create folders, duplicate and reopen season projects", icon: FolderKanban },
+    { id: "famous", label: "Workout Library", helper: "Open one of the curated or SetCraft-original templates", icon: BookOpenCheck },
+    { id: "calculators", label: "Calculator Lab", helper: "Pace, splits, send-offs, CSS, stroke and set math", icon: Calculator },
+    { id: "calendar", label: "Season Calendar", helper: "Place saved projects into weekly training plans", icon: Calendar },
+    { id: "copilot", label: "AI Coach", helper: "Generate or revise a draft and convert it to blocks", icon: Sparkles },
+  ];
+
+  const statCards = [
+    { label: "Saved projects", value: savedWorkoutsCount },
+    { label: "Programmed volume", value: totalDistance.toLocaleString() },
+    { label: "Ready-made blocks", value: PALETTE_PRESETS.length },
+    { label: "Library workouts", value: FAMOUS_WORKOUTS.length },
   ];
 
   return (
-    <div className="mx-auto max-w-[1540px] space-y-8" id="coach-dashboard">
-      <section className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-slate-950 via-indigo-950 to-blue-900 p-7 text-white shadow-2xl shadow-slate-900/20 md:p-10 xl:p-12">
-        <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-cyan-400/15 blur-3xl" />
-        <div className="relative flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
-          <div className="max-w-3xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.07] px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.16em] text-cyan-200"><span className="h-2 w-2 rounded-full bg-cyan-300" />{currentRole} workspace</span>
-            <h1 className="mt-5 font-display text-4xl font-extrabold tracking-tight md:text-5xl">Build the practice. Verify the math. Coach the swimmers.</h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 md:text-base">SetCraft keeps visual blocks, lane versions, project folders, deterministic calculations and the final pool-deck sheet in one workflow.</p>
-          </div>
-          <button type="button" onClick={() => onNavigateTo("studio")} className="flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-6 py-4 text-sm font-extrabold text-slate-950 shadow-xl transition hover:-translate-y-1 hover:shadow-2xl"><Play className="h-4 w-4 fill-current" />Open Swim Studio</button>
-        </div>
-      </section>
-
-      <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        {[
-          { label: "Saved projects", value: savedWorkoutsCount, icon: FolderKanban },
-          { label: "Programmed volume", value: totalDistance.toLocaleString(), icon: Users },
-          { label: "Ready-made blocks", value: PALETTE_PRESETS.length, icon: Blocks },
-          { label: "Library workouts", value: FAMOUS_WORKOUTS.length, icon: BookOpenCheck },
-        ].map(({ label, value, icon: Icon }) => (
-          <div key={label} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg md:p-6"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600"><Icon className="h-5 w-5" /></span><span className="mt-5 block text-[10px] font-extrabold uppercase tracking-[0.16em] text-slate-500">{label}</span><span className="mt-1 block font-display text-3xl font-extrabold text-slate-950">{value}</span></div>
-        ))}
-      </section>
-
-      <section>
-        <div className="mb-4 flex items-end justify-between"><div><p className="text-xs font-extrabold uppercase tracking-[0.16em] text-indigo-600">Start here</p><h2 className="mt-1 font-display text-2xl font-extrabold text-slate-950">Coach tools</h2></div></div>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {quickActions.map(({ id, label, helper, icon: Icon, accent }) => (
-            <button key={id} type="button" onClick={() => onNavigateTo(id)} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white text-left shadow-sm transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl">
-              <div className={`h-2 bg-gradient-to-r ${accent}`} />
-              <div className="p-6"><div className="flex items-start justify-between"><span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 transition group-hover:bg-indigo-50 group-hover:text-indigo-600"><Icon className="h-5 w-5" /></span><ArrowRight className="h-5 w-5 -translate-x-2 text-slate-300 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" /></div><h3 className="mt-5 text-lg font-extrabold text-slate-950">{label}</h3><p className="mt-2 text-sm leading-6 text-slate-500">{helper}</p></div>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-[1.4fr_0.6fr]">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-          <div className="flex items-center justify-between"><div><p className="text-xs font-extrabold uppercase tracking-[0.16em] text-indigo-600">Local projects</p><h2 className="mt-1 font-display text-2xl font-extrabold text-slate-950">Recently edited</h2></div><button type="button" onClick={() => onNavigateTo("projects")} className="rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-extrabold text-slate-700 hover:border-indigo-300 hover:text-indigo-700">View all</button></div>
-          <div className="mt-6 space-y-3">
-            {mostRecent.length ? mostRecent.map((project) => {
-              const stats = calculateStats(project.nodes || []);
-              return <button key={project.id} type="button" onClick={() => onNavigateTo("projects")} className="flex w-full flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 text-left transition hover:border-indigo-200 hover:bg-white hover:shadow-md sm:flex-row sm:items-center sm:justify-between"><div><span className="text-sm font-extrabold text-slate-950">{project.name}</span><p className="mt-1 text-xs text-slate-500">{project.folder} · {project.phase}</p></div><div className="flex gap-2 text-[10px] font-extrabold text-slate-600"><span className="rounded-lg bg-white px-2.5 py-1.5 ring-1 ring-slate-200">{stats.totalDistance.toLocaleString()} {project.poolUnit}</span><span className="rounded-lg bg-white px-2.5 py-1.5 ring-1 ring-slate-200">{stats.estimatedDuration} min</span></div></button>;
-            }) : <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center"><FolderKanban className="mx-auto h-8 w-8 text-slate-300" /><p className="mt-3 text-sm font-extrabold text-slate-700">No saved projects yet</p><button type="button" onClick={() => onNavigateTo("studio")} className="mt-3 text-sm font-extrabold text-indigo-600">Create the first practice →</button></div>}
+    <div className="mx-auto max-w-[1540px]" id="coach-dashboard">
+      <div style={{ padding: "28px 8px", background: "var(--color-canvas-raised)", border: "1px solid var(--color-hairline-on-canvas)", borderLeft: "3px solid var(--color-accent)", borderRadius: "var(--radius)" }}>
+        <div style={{ maxWidth: 640, padding: "0 24px" }}>
+          <span className="sc-tag" data-tone="accent">{currentRole} workspace</span>
+          <h1 style={{ fontSize: "var(--text-display-xl)", marginTop: 14 }}>Build the practice. Verify the math. Coach the swimmers.</h1>
+          <p style={{ fontSize: "var(--text-body-lg)", color: "var(--color-ink-muted-on-canvas)", marginTop: 12, lineHeight: 1.5 }}>SetCraft keeps visual blocks, lane versions, project folders, deterministic calculations and the final pool-deck sheet in one workflow.</p>
+          <div style={{ marginTop: 20 }}>
+            <button type="button" className="sc-btn" data-variant="primary" data-size="md" onClick={() => onNavigateTo("studio")}><Play className="h-4 w-4 fill-current" />Open Swim Studio</button>
           </div>
         </div>
+      </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-slate-950 p-6 text-white shadow-xl md:p-8">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-cyan-300"><FileDown className="h-5 w-5" /></span>
-          <h2 className="mt-6 font-display text-2xl font-extrabold">Competition-ready workflow</h2>
-          <div className="mt-5 space-y-4 text-sm text-slate-300">
-            <p className="flex gap-3"><span className="font-extrabold text-cyan-300">1</span>Build nested sections, repeats and conditions.</p>
-            <p className="flex gap-3"><span className="font-extrabold text-cyan-300">2</span>Assign lane paces, swimmers and set-specific overrides.</p>
-            <p className="flex gap-3"><span className="font-extrabold text-cyan-300">3</span>Review totals and warnings, then export the deck sheet.</p>
+      <div style={{ padding: "24px 8px", display: "grid", gridTemplateColumns: "1fr 300px", gap: 28, alignItems: "start" }} className="max-xl:grid-cols-1">
+        <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+          <div style={{ display: "flex", border: "1px solid var(--color-hairline-on-canvas)", borderRadius: "var(--radius)", background: "var(--color-canvas-raised)" }} className="flex-wrap">
+            {statCards.map((s, i) => (
+              <div key={s.label} style={{ flex: "1 1 160px", padding: "14px 18px", borderRight: i < statCards.length - 1 ? "1px solid var(--color-hairline-on-canvas)" : "none" }}>
+                <div style={{ fontSize: 11, color: "var(--color-ink-muted-on-canvas)", fontWeight: 600 }}>{s.label}</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 22, fontVariantNumeric: "tabular-nums", color: "var(--color-ink-on-canvas)", marginTop: 2 }}>{s.value}</div>
+              </div>
+            ))}
           </div>
-          <div className="mt-7 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] p-4 text-xs text-slate-300"><Clock3 className="h-4 w-4 text-cyan-300" />Projects auto-save locally while you work.</div>
+
+          <div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "var(--text-display-sm)", marginBottom: 12 }}>Coach tools</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }} className="max-md:grid-cols-1">
+              {quickActions.map(({ id, label, helper, icon: Icon }) => (
+                <div key={id} className="sc-quick-tile" onClick={() => onNavigateTo(id)}>
+                  <span className="sc-quick-tile-icon"><Icon className="h-4 w-4" /></span>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--color-ink-on-canvas)" }}>{label}</div>
+                    <div style={{ fontSize: 11.5, color: "var(--color-ink-muted-on-canvas)", marginTop: 1 }}>{helper}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "var(--text-display-sm)" }}>Recently edited</div>
+              <button type="button" className="sc-btn" data-variant="secondary" data-size="sm" onClick={() => onNavigateTo("projects")}>View all</button>
+            </div>
+            {mostRecent.length === 0 ? (
+              <div className="sc-card" data-elevation="sm" style={{ padding: "48px 24px", textAlign: "center" }}>
+                <FolderKanban className="mx-auto h-8 w-8" style={{ color: "var(--color-ink-muted-on-canvas)" }} />
+                <div style={{ fontSize: 15, fontWeight: 600, color: "var(--color-ink-on-canvas)", marginTop: 12 }}>No saved projects yet</div>
+                <div style={{ marginTop: 12 }}>
+                  <button type="button" className="sc-btn" data-variant="primary" data-size="sm" onClick={() => onNavigateTo("studio")}>Create the first practice</button>
+                </div>
+              </div>
+            ) : (
+              <div className="sc-card" data-elevation="sm">
+                {mostRecent.map((project, i) => {
+                  const stats = calculateStats(project.nodes || []);
+                  return (
+                    <div
+                      key={project.id}
+                      className="sc-recent-row"
+                      style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 20px", borderTop: i > 0 ? "1px solid var(--color-hairline-on-canvas)" : "none", cursor: "pointer" }}
+                      onClick={() => onNavigateTo("projects")}
+                    >
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: "var(--color-ink-on-canvas)" }}>{project.name}</div>
+                        <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+                          <span className="sc-tag" data-tone="neutral">{project.folder}</span>
+                          <span className="sc-tag" data-tone="outline">{project.phase}</span>
+                        </div>
+                      </div>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 14, fontVariantNumeric: "tabular-nums", color: "var(--color-ink-on-canvas)", textAlign: "right", width: 90 }}>{stats.totalDistance.toLocaleString()} {project.poolUnit}</div>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 14, fontVariantNumeric: "tabular-nums", color: "var(--color-ink-muted-on-canvas)", textAlign: "right", width: 80 }}>{stats.estimatedDuration} min</div>
+                      <ArrowRight className="h-4 w-4" style={{ color: "var(--color-ink-muted-on-canvas)" }} />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
-      </section>
+
+        <div className="sc-card" data-elevation="sm" style={{ padding: 18 }}>
+          <span className="sc-quick-tile-icon"><FileDown className="h-5 w-5" /></span>
+          <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 16, marginTop: 12, marginBottom: 12 }}>Competition-ready workflow</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {[
+              "Build nested sections, repeats and conditions.",
+              "Assign lane paces, swimmers and set-specific overrides.",
+              "Review totals and warnings, then export the deck sheet.",
+            ].map((step, i) => (
+              <div key={step} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ width: 22, height: 22, borderRadius: "50%", border: "1px solid var(--color-hairline-on-canvas)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--color-ink-muted-on-canvas)", flex: "none" }}>{i + 1}</span>
+                <span style={{ fontSize: 13.5, fontWeight: 600, color: "var(--color-ink-on-canvas)" }}>{step}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 20, display: "flex", alignItems: "center", gap: 8, borderTop: "1px solid var(--color-hairline-on-canvas)", paddingTop: 14, fontSize: 12, color: "var(--color-ink-muted-on-canvas)" }}>
+            <Clock3 className="h-4 w-4" style={{ color: "var(--color-accent-active)" }} />Projects auto-save locally while you work.
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

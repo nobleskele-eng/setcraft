@@ -54,27 +54,27 @@ export default function Calculators() {
 
   return (
     <div className="mx-auto max-w-[1540px] space-y-6" id="calculators-hub">
-      <section className="overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-xl shadow-slate-900/5">
-        <div className="bg-gradient-to-r from-slate-950 via-indigo-950 to-blue-950 px-7 py-8 text-white md:px-10">
+      <section className="overflow-hidden rounded-[30px] border border-hairline-on-canvas bg-white shadow-sm shadow-surface/5">
+        <div className="bg-gradient-to-r from-slate-950 via-surface to-surface px-7 py-8 text-white md:px-10">
           <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
-              <div className="flex items-center gap-2 text-cyan-300">
+              <div className="flex items-center gap-2 text-disabled">
                 <Calculator className="h-5 w-5" />
-                <span className="text-xs font-extrabold uppercase tracking-[0.18em]">SetCraft Strategy Intelligence v13</span>
+                <span className="text-xs font-bold uppercase tracking-[0.18em]">SetCraft Strategy Intelligence v13</span>
               </div>
-              <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight md:text-4xl">Race Strategy Studio</h1>
-              <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300 md:text-base">
+              <h1 className="mt-3 font-display text-3xl font-bold tracking-tight md:text-4xl">Race Strategy Studio</h1>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-disabled md:text-base">
                 A professional planning workspace with independently controlled athlete factors, measured-value protocols, official reference swims, exact split plans and exportable reports.
               </p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-4 text-sm text-slate-300 backdrop-blur">
-              <p className="font-extrabold text-white">Coach-controlled outputs</p>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-4 text-sm text-disabled backdrop-blur">
+              <p className="font-bold text-white">Coach-controlled outputs</p>
               <p className="mt-1 max-w-sm text-xs leading-5">Calculators show the formula and assumptions. They do not replace coaching judgement or official meet-conversion tables.</p>
             </div>
           </div>
         </div>
 
-        <div className="border-b border-slate-200 bg-slate-50 px-4 py-3 md:px-7">
+        <div className="border-b border-hairline-on-canvas bg-canvas px-4 py-3 md:px-7">
           <div className="flex gap-2 overflow-x-auto pb-1">
             {TABS.map((tab) => {
               const Icon = tab.icon;
@@ -84,7 +84,7 @@ export default function Calculators() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex shrink-0 items-center gap-2 rounded-xl border px-4 py-3 text-sm font-extrabold transition ${active ? "border-indigo-200 bg-white text-indigo-700 shadow-sm" : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-white hover:text-slate-900"}`}
+                  className={`flex shrink-0 items-center gap-2 rounded-xl border px-4 py-3 text-sm font-bold transition ${active ? "border-hairline-on-canvas bg-white text-accent-active shadow-sm" : "border-transparent text-ink-muted-on-canvas hover:border-hairline-on-canvas hover:bg-white hover:text-surface"}`}
                 >
                   <Icon className="h-4 w-4" /> {tab.label}
                 </button>
@@ -184,32 +184,32 @@ export function LegacyRaceStrategyCalculator() {
 
   return <div className="space-y-7">
     <div className="grid gap-7 xl:grid-cols-[430px_minmax(0,1fr)]">
-      <section className="rounded-[26px] border border-slate-200 bg-slate-50 p-5 md:p-6">
-        <div className="flex items-center gap-2 text-indigo-600"><BrainCircuit className="h-5 w-5" /><p className="text-xs font-extrabold uppercase tracking-[.16em]">Athlete + race inputs</p></div>
-        <h2 className="mt-2 font-display text-2xl font-extrabold text-slate-950">Advanced race strategy</h2>
-        <p className="mt-2 text-sm leading-6 text-slate-500">Choose the course and goal, then add only the athlete context you trust. All official benchmarks remain independent of profile inputs.</p>
+      <section className="rounded-[26px] border border-hairline-on-canvas bg-canvas p-5 md:p-6">
+        <div className="flex items-center gap-2 text-accent-active"><BrainCircuit className="h-5 w-5" /><p className="text-xs font-bold uppercase tracking-[.16em]">Athlete + race inputs</p></div>
+        <h2 className="mt-2 font-display text-2xl font-bold text-surface">Advanced race strategy</h2>
+        <p className="mt-2 text-sm leading-6 text-ink-muted-on-canvas">Choose the course and goal, then add only the athlete context you trust. All official benchmarks remain independent of profile inputs.</p>
         <div className="mt-6 space-y-4">
-          <div className="grid grid-cols-3 gap-2">{(["LCM", "SCM", "SCY"] as Course[]).map((item) => <button type="button" key={item} onClick={() => switchCourse(item)} className={`rounded-xl border px-3 py-3 text-sm font-extrabold ${course === item ? "border-indigo-500 bg-indigo-600 text-white" : "border-slate-200 bg-white text-slate-600"}`}>{item}</button>)}</div>
+          <div className="grid grid-cols-3 gap-2">{(["LCM", "SCM", "SCY"] as Course[]).map((item) => <button type="button" key={item} onClick={() => switchCourse(item)} className={`rounded-xl border px-3 py-3 text-sm font-bold ${course === item ? "border-accent-hover bg-accent text-white" : "border-hairline-on-canvas bg-white text-ink-muted-on-canvas"}`}>{item}</button>)}</div>
           <div className="grid grid-cols-2 gap-3"><Field label="Event"><select value={event} onChange={(e) => { setEvent(e.target.value); setSelectedId(""); }} className={inputClass}>{eventsForCourse(course).map((item) => <option key={item}>{item}</option>)}</select></Field><Field label="Category"><select value={sex} onChange={(e) => setSex(e.target.value as SexCategory)} className={inputClass}><option>Men</option><option>Women</option></select></Field></div>
           <div className="grid grid-cols-3 gap-3"><Field label="Age"><NumberInput value={age} min={5} max={100} onChange={setAge} /></Field><Field label="Height"><NumberInput value={height} min={80} max={250} onChange={setHeight} suffix="cm" /></Field><Field label="Mass"><NumberInput value={weight} min={20} max={250} onChange={setWeight} suffix="kg" /></Field></div>
           <div className="grid grid-cols-2 gap-3"><Field label="Current PB"><TextInput value={pb} onChange={setPb} mono /></Field><Field label="Goal time"><TextInput value={goal} onChange={setGoal} mono /></Field></div>
-          <div className="rounded-2xl border border-violet-100 bg-violet-50/60 p-4"><p className="text-[10px] font-extrabold uppercase tracking-wider text-violet-700">Optional 1–10 context</p><div className="mt-3 space-y-3">{[
+          <div className="rounded-2xl border border-canvas-raised bg-canvas/60 p-4"><p className="text-[10px] font-bold uppercase tracking-wider text-accent-active">Optional 1–10 context</p><div className="mt-3 space-y-3">{[
             ["Speed", speed, setSpeed], ["Aerobic", aerobic, setAerobic], ["Lactate tolerance", lactate, setLactate], ["Power", power, setPower], ["Turns", turns, setTurns], ["Underwater", underwater, setUnderwater], ["Technique", technique, setTechnique],
-          ].map(([label, value, setter]) => <label key={label as string} className="grid grid-cols-[92px_1fr_28px] items-center gap-2 text-[11px] font-bold text-slate-600"><span>{label as string}</span><input type="range" min={1} max={10} value={value as number} onChange={(e) => (setter as React.Dispatch<React.SetStateAction<number>>)(Number(e.target.value))} className="accent-violet-600" /><span className="font-mono font-black text-violet-700">{value as number}</span></label>)}</div></div>
+          ].map(([label, value, setter]) => <label key={label as string} className="grid grid-cols-[92px_1fr_28px] items-center gap-2 text-[11px] font-bold text-ink-muted-on-canvas"><span>{label as string}</span><input type="range" min={1} max={10} value={value as number} onChange={(e) => (setter as React.Dispatch<React.SetStateAction<number>>)(Number(e.target.value))} className="accent-accent" /><span className="font-mono font-black text-accent-active">{value as number}</span></label>)}</div></div>
           <Notice>“Lactate tolerance” is a coach/athlete context rating—not a blood-lactate measurement. It ranks plan fit but never changes records, points or standards.</Notice>
         </div>
       </section>
-      <section className="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm md:p-7">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5"><div><p className="text-[10px] font-extrabold uppercase tracking-[.15em] text-emerald-600">Recommended plan</p><h3 className="mt-1 text-2xl font-extrabold text-slate-950">{selected?.name}</h3></div><span className="rounded-full bg-slate-950 px-4 py-2 text-sm font-extrabold text-white">{selected?.fit}% profile fit</span></div>
+      <section className="rounded-[26px] border border-hairline-on-canvas bg-white p-5 shadow-sm md:p-7">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-canvas-raised pb-5"><div><p className="text-[10px] font-bold uppercase tracking-[.15em] text-accent-active">Recommended plan</p><h3 className="mt-1 text-2xl font-bold text-surface">{selected?.name}</h3></div><span className="rounded-full bg-surface px-4 py-2 text-sm font-bold text-white">{selected?.fit}% profile fit</span></div>
         <div className="mt-5 grid gap-3 sm:grid-cols-3"><Metric label="Goal" value={formatTime(goalSeconds)} accent /><Metric label="PB improvement" value={improvement > 0 ? `${improvement.toFixed(2)}s` : "Goal ≥ PB"} /><Metric label={course === "SCY" ? "U.S. Open benchmark" : "World record"} value={benchmark ? formatTime(benchmark.total) : "N/A"} /></div>
-        <div className="mt-5 grid gap-3 lg:grid-cols-3">{ranked.map((item) => <button type="button" key={item.id} onClick={() => setSelectedId(item.id)} className={`rounded-2xl border p-4 text-left ${item.id === selected?.id ? "border-indigo-400 bg-indigo-50 ring-2 ring-indigo-100" : "border-slate-200 hover:border-indigo-200"}`}><div className="flex items-center justify-between"><span className="text-sm font-extrabold text-slate-900">{item.name}</span><span className="font-mono text-xs font-black text-indigo-700">{item.fit}%</span></div><p className="mt-2 text-xs leading-5 text-slate-500">{item.description}</p></button>)}</div>
+        <div className="mt-5 grid gap-3 lg:grid-cols-3">{ranked.map((item) => <button type="button" key={item.id} onClick={() => setSelectedId(item.id)} className={`rounded-2xl border p-4 text-left ${item.id === selected?.id ? "border-accent-hover bg-canvas ring-2 ring-canvas-raised" : "border-hairline-on-canvas hover:border-hairline-on-canvas"}`}><div className="flex items-center justify-between"><span className="text-sm font-bold text-surface">{item.name}</span><span className="font-mono text-xs font-black text-accent-active">{item.fit}%</span></div><p className="mt-2 text-xs leading-5 text-ink-muted-on-canvas">{item.description}</p></button>)}</div>
         <ResultTable headers={["Checkpoint", "Segment target", "Cumulative", "Execution cue"]} rows={plan.map((item, index) => [`${item.point} ${courseUnit(course)}`, formatTime(item.split), formatTime(item.cumulative), index === 0 ? "Commit cleanly, no rush" : index === plan.length - 1 ? "Hold line and finish through wall" : selected?.name])} />
         <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{cuts.map((item) => <Metric key={item.level} label={course === "SCY" && item.level === "Nationals" ? "Winter Juniors" : course === "SCY" && item.level === "Trials" ? "NCAA DI" : item.level} value={formatTime(item.time!)} />)}</div>
       </section>
     </div>
     <section className="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
-      <div className="rounded-[26px] border border-slate-200 bg-white p-6 shadow-sm"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[10px] font-extrabold uppercase tracking-[.15em] text-violet-600">Coach Block strategy AI</p><h3 className="mt-1 text-2xl font-extrabold text-slate-950">Turn the plan into execution language</h3></div><button type="button" onClick={askAi} disabled={aiLoading} className="flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-sm font-extrabold text-white disabled:opacity-60">{aiLoading ? <RefreshIcon /> : <Zap className="h-4 w-4" />}{aiLoading ? "Drafting…" : "Generate coach brief"}</button></div>{aiError && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-bold text-amber-900">{aiError}. Verified offline brief is shown.</p>}<div className="mt-5 whitespace-pre-wrap rounded-2xl bg-slate-950 p-5 text-sm leading-7 text-slate-200">{aiResult || offline}</div></div>
-      <div className="space-y-4"><div className="rounded-[26px] border border-emerald-200 bg-emerald-50 p-6"><p className="text-[10px] font-extrabold uppercase tracking-wide text-emerald-700">Best fit</p><p className="mt-2 font-extrabold text-emerald-950">{selected?.bestFor}</p></div><div className="rounded-[26px] border border-rose-200 bg-rose-50 p-6"><p className="text-[10px] font-extrabold uppercase tracking-wide text-rose-700">Primary risk</p><p className="mt-2 text-sm font-bold leading-6 text-rose-950">{selected?.risk}</p></div></div>
+      <div className="rounded-[26px] border border-hairline-on-canvas bg-white p-6 shadow-sm"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[.15em] text-accent-active">Coach Block strategy AI</p><h3 className="mt-1 text-2xl font-bold text-surface">Turn the plan into execution language</h3></div><button type="button" onClick={askAi} disabled={aiLoading} className="flex items-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-bold text-white disabled:opacity-60">{aiLoading ? <RefreshIcon /> : <Zap className="h-4 w-4" />}{aiLoading ? "Drafting…" : "Generate coach brief"}</button></div>{aiError && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-bold text-amber-900">{aiError}. Verified offline brief is shown.</p>}<div className="mt-5 whitespace-pre-wrap rounded-2xl bg-surface p-5 text-sm leading-7 text-ink-muted">{aiResult || offline}</div></div>
+      <div className="space-y-4"><div className="rounded-[26px] border border-hairline-on-canvas bg-canvas p-6"><p className="text-[10px] font-bold uppercase tracking-wide text-accent-active">Best fit</p><p className="mt-2 font-bold text-surface">{selected?.bestFor}</p></div><div className="rounded-[26px] border border-rose-200 bg-rose-50 p-6"><p className="text-[10px] font-bold uppercase tracking-wide text-rose-700">Primary risk</p><p className="mt-2 text-sm font-bold leading-6 text-rose-950">{selected?.risk}</p></div></div>
     </section>
   </div>;
 }
@@ -500,24 +500,24 @@ function ConversionCalculator() {
 function CalculatorLayout({ title, description, inputs, output }: { title: string; description: string; inputs: React.ReactNode; output: React.ReactNode }) {
   return (
     <div className="grid gap-7 xl:grid-cols-[420px_minmax(0,1fr)]">
-      <section className="rounded-[26px] border border-slate-200 bg-slate-50 p-5 md:p-6">
-        <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-indigo-600">Inputs</p>
-        <h2 className="mt-2 font-display text-2xl font-extrabold text-slate-950">{title}</h2>
-        <p className="mt-2 text-sm leading-6 text-slate-500">{description}</p>
+      <section className="rounded-[26px] border border-hairline-on-canvas bg-canvas p-5 md:p-6">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent-active">Inputs</p>
+        <h2 className="mt-2 font-display text-2xl font-bold text-surface">{title}</h2>
+        <p className="mt-2 text-sm leading-6 text-ink-muted-on-canvas">{description}</p>
         <div className="mt-6 space-y-4">{inputs}</div>
       </section>
-      <section className="min-h-[470px] rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm md:p-7">
-        <div className="mb-6 flex items-center gap-2 border-b border-slate-100 pb-4 text-slate-500"><Ruler className="h-4 w-4 text-indigo-600" /><span className="text-xs font-extrabold uppercase tracking-[0.15em]">Calculated output</span></div>
+      <section className="min-h-[470px] rounded-[26px] border border-hairline-on-canvas bg-white p-5 shadow-sm md:p-7">
+        <div className="mb-6 flex items-center gap-2 border-b border-canvas-raised pb-4 text-ink-muted-on-canvas"><Ruler className="h-4 w-4 text-accent-active" /><span className="text-xs font-bold uppercase tracking-[0.15em]">Calculated output</span></div>
         <div className="space-y-6">{output}</div>
       </section>
     </div>
   );
 }
 
-const inputClass = "w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-sm font-bold text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
+const inputClass = "w-full rounded-xl border border-disabled bg-white px-3.5 py-3 text-sm font-bold text-surface outline-none transition focus:border-accent-hover focus:ring-4 focus:ring-canvas-raised";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <label className="block"><span className="mb-1.5 block text-xs font-extrabold uppercase tracking-wider text-slate-500">{label}</span>{children}</label>;
+  return <label className="block"><span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-ink-muted-on-canvas">{label}</span>{children}</label>;
 }
 
 function TextInput({ value, onChange, placeholder, mono = false }: { value: string; onChange: (value: string) => void; placeholder?: string; mono?: boolean }) {
@@ -525,19 +525,19 @@ function TextInput({ value, onChange, placeholder, mono = false }: { value: stri
 }
 
 function NumberInput({ value, onChange, min, max, suffix }: { value: number; onChange: (value: number) => void; min?: number; max?: number; suffix?: string }) {
-  return <div className="relative"><input type="number" value={value} min={min} max={max} onChange={(event) => onChange(Number(event.target.value) || 0)} className={`${inputClass} ${suffix ? "pr-12" : ""}`} />{suffix && <span className="pointer-events-none absolute right-3 top-3.5 text-xs font-bold text-slate-400">{suffix}</span>}</div>;
+  return <div className="relative"><input type="number" value={value} min={min} max={max} onChange={(event) => onChange(Number(event.target.value) || 0)} className={`${inputClass} ${suffix ? "pr-12" : ""}`} />{suffix && <span className="pointer-events-none absolute right-3 top-3.5 text-xs font-bold text-ink-muted-on-canvas">{suffix}</span>}</div>;
 }
 
 function Formula({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 font-mono text-xs leading-5 text-indigo-800"><strong>Formula:</strong> {children}</div>;
+  return <div className="rounded-xl border border-canvas-raised bg-canvas px-4 py-3 font-mono text-xs leading-5 text-surface-raised"><strong>Formula:</strong> {children}</div>;
 }
 
 function Metric({ label, value, accent = false }: { label: string; value: React.ReactNode; accent?: boolean }) {
-  return <div className={`rounded-2xl border p-4 ${accent ? "border-cyan-200 bg-gradient-to-br from-cyan-50 to-indigo-50" : "border-slate-200 bg-slate-50"}`}><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-slate-500">{label}</p><p className={`mt-2 font-display text-xl font-extrabold ${accent ? "text-indigo-700" : "text-slate-950"}`}>{value}</p></div>;
+  return <div className={`rounded-2xl border p-4 ${accent ? "border-hairline-on-canvas bg-gradient-to-br from-canvas to-canvas" : "border-hairline-on-canvas bg-canvas"}`}><p className="text-[10px] font-bold uppercase tracking-[0.13em] text-ink-muted-on-canvas">{label}</p><p className={`mt-2 font-display text-xl font-bold ${accent ? "text-accent-active" : "text-surface"}`}>{value}</p></div>;
 }
 
 function ResultTable({ headers, rows }: { headers: string[]; rows: Array<Array<React.ReactNode>> }) {
-  return <div className="overflow-x-auto rounded-2xl border border-slate-200"><table className="w-full min-w-[520px] text-left text-sm"><thead className="bg-slate-950 text-white"><tr>{headers.map((header) => <th key={header} className="px-4 py-3 text-[10px] font-extrabold uppercase tracking-[0.13em]">{header}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{rows.map((row, rowIndex) => <tr key={rowIndex} className="transition hover:bg-indigo-50/50">{row.map((cell, cellIndex) => <td key={cellIndex} className={`px-4 py-3 ${cellIndex === 0 ? "font-extrabold text-slate-900" : "font-mono text-slate-600"}`}>{cell}</td>)}</tr>)}</tbody></table></div>;
+  return <div className="overflow-x-auto rounded-2xl border border-hairline-on-canvas"><table className="w-full min-w-[520px] text-left text-sm"><thead className="bg-surface text-white"><tr>{headers.map((header) => <th key={header} className="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.13em]">{header}</th>)}</tr></thead><tbody className="divide-y divide-canvas-raised">{rows.map((row, rowIndex) => <tr key={rowIndex} className="transition hover:bg-canvas/50">{row.map((cell, cellIndex) => <td key={cellIndex} className={`px-4 py-3 ${cellIndex === 0 ? "font-bold text-surface" : "font-mono text-ink-muted-on-canvas"}`}>{cell}</td>)}</tr>)}</tbody></table></div>;
 }
 
 function Notice({ children, tone = "info" }: { children: React.ReactNode; tone?: "info" | "warning" }) {
@@ -545,9 +545,9 @@ function Notice({ children, tone = "info" }: { children: React.ReactNode; tone?:
 }
 
 function EmptyResult({ text }: { text: string }) {
-  return <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 text-center"><Activity className="h-9 w-9 text-slate-300" /><p className="mt-3 text-sm font-bold text-slate-500">{text}</p></div>;
+  return <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-hairline-on-canvas bg-canvas text-center"><Activity className="h-9 w-9 text-disabled" /><p className="mt-3 text-sm font-bold text-ink-muted-on-canvas">{text}</p></div>;
 }
 
 function ReferenceCard({ title, text }: { title: string; text: string }) {
-  return <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="font-display text-base font-extrabold text-slate-950">{title}</p><p className="mt-2 text-sm leading-6 text-slate-500">{text}</p></div>;
+  return <div className="rounded-2xl border border-hairline-on-canvas bg-white p-5 shadow-sm"><p className="font-display text-base font-bold text-surface">{title}</p><p className="mt-2 text-sm leading-6 text-ink-muted-on-canvas">{text}</p></div>;
 }
