@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+"use client";
+
 import React, { useEffect, useRef, useState } from "react";
 import {
   LayoutDashboard,
@@ -13,7 +15,6 @@ import {
   Users,
   Settings,
   BookOpenCheck,
-  ChevronRight,
   ChevronDown,
   Menu,
   SlidersHorizontal,
@@ -22,6 +23,9 @@ import {
   ListChecks,
   FolderKanban,
   ChartNoAxesCombined,
+  LogOut,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { UserRole } from "./types";
 import DashboardView from "./components/DashboardView";
@@ -84,7 +88,13 @@ const STUDIO_SUBNAV: Array<{ id: string; page?: StudioWorkspacePage; label: stri
   { id: "review", page: "review", label: "Review & Export", helper: "Validate, preview and publish", icon: ListChecks },
 ];
 
-export default function App() {
+type AppProps = {
+  userDisplayName: string;
+  userEmail: string;
+  signOutPath: string;
+};
+
+export default function App({ userDisplayName, userEmail, signOutPath }: AppProps) {
   const [activeTab, setActiveTab] = useState<string>("studio");
   const [currentRole, setCurrentRole] = useState<UserRole>(() => {
     const saved = typeof window !== "undefined" ? localStorage.getItem("setcraft_active_role") : null;
@@ -102,6 +112,10 @@ export default function App() {
   const [studioPage, setStudioPage] = useState<StudioWorkspacePage>("project");
   const [studioNavOpen, setStudioNavOpen] = useState(true);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("setcraft_sidebar_collapsed") === "true";
+  });
   const mainRef = useRef<HTMLElement | null>(null);
 
   const updateSavedCount = () => {
@@ -128,6 +142,10 @@ export default function App() {
     const interval = window.setInterval(updateSavedCount, 2000);
     return () => window.clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("setcraft_sidebar_collapsed", String(sidebarCollapsed));
+  }, [sidebarCollapsed]);
 
   useEffect(() => {
     mainRef.current?.scrollTo({ top: 0, behavior: "smooth" });
@@ -172,6 +190,7 @@ export default function App() {
       : PRIMARY_NAV_ITEMS.find((item) => item.id === activeTab)?.label || "SetCraft";
 
   const studioActive = activeTab === "studio" || activeTab === "projects";
+  const accountInitial = userDisplayName.trim().charAt(0).toUpperCase() || "S";
 
   return (
     <div className="sc-shell" id="swimblock-root">
@@ -179,21 +198,40 @@ export default function App() {
         <button type="button" className="sc-mobile-topbar-btn" onClick={() => setMobileNavOpen((open) => !open)} aria-label="Toggle menu">
           <Menu className="h-5 w-5" />
         </button>
-        <span className="sc-sidebar-brand-name" style={{ fontSize: 16 }}>SetCraft</span>
+        <span className="sc-mobile-brand">SetCraft</span>
+        <span className="sc-mobile-account" aria-label={`Signed in as ${userDisplayName}`}>{accountInitial}</span>
       </div>
       <div className="sc-sidebar-overlay" data-open={mobileNavOpen ? "true" : "false"} onClick={() => setMobileNavOpen(false)} />
 
-      <aside className="sc-sidebar" data-open={mobileNavOpen ? "true" : "false"} id="swimblock-sidebar">
+      <aside className="sc-sidebar" data-open={mobileNavOpen ? "true" : "false"} data-collapsed={sidebarCollapsed ? "true" : "false"} id="swimblock-sidebar">
         <div className="sc-sidebar-brand">
-          <div className="sc-sidebar-brand-name">SetCraft</div>
-          <div className="sc-sidebar-brand-tag">Visual Training Studio</div>
+          <div className="sc-sidebar-brand-lockup">
+            <span className="sc-sidebar-mark" aria-hidden="true"><span /><span /><span /></span>
+            <div>
+              <div className="sc-sidebar-brand-name">SetCraft</div>
+              <div className="sc-sidebar-brand-tag">Swim performance studio</div>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="sc-sidebar-collapse"
+            onClick={() => setSidebarCollapsed((collapsed) => !collapsed)}
+            aria-label={sidebarCollapsed ? "Expand primary sidebar" : "Collapse primary sidebar"}
+            aria-pressed={sidebarCollapsed}
+            title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {sidebarCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+          </button>
         </div>
 
         <nav className="sc-sidebar-nav" aria-label="Primary navigation">
-          <div
+          <button
+            type="button"
             className="sc-sidebar-item"
             data-active={studioActive ? "true" : "false"}
             onClick={() => { if (activeTab !== "studio" && activeTab !== "projects") { openStudioPage(studioPage); setStudioNavOpen(true); } else { setStudioNavOpen((open) => !open); } }}
+            aria-expanded={studioNavOpen}
+            title="Swim Studio"
           >
             <Dumbbell className="sc-sidebar-item-icon" />
             <div className="sc-sidebar-item-text">
@@ -201,22 +239,28 @@ export default function App() {
               <span className="sc-sidebar-item-desc">Projects, block builder and deck tools</span>
             </div>
             <ChevronDown className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--color-ink-muted)", marginTop: 2, transform: studioNavOpen ? "rotate(180deg)" : undefined, transition: "transform 0.15s ease" }} />
-          </div>
+          </button>
 
           {studioNavOpen && (
             <div className="sc-sidebar-sub">
               {STUDIO_SUBNAV.map((item) => {
                 const active = item.id === "projects" ? activeTab === "projects" : activeTab === "studio" && studioPage === item.page;
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={item.id}
                     className="sc-sidebar-sub-item"
                     data-active={active ? "true" : "false"}
-                    onClick={() => item.id === "projects" ? setActiveTab("projects") : openStudioPage(item.page!)}
+                    aria-current={active ? "page" : undefined}
+                    onClick={() => {
+                      if (item.id === "projects") setActiveTab("projects");
+                      else openStudioPage(item.page!);
+                      setMobileNavOpen(false);
+                    }}
                   >
                     <div className="sc-sidebar-sub-label">{item.label}</div>
                     {item.helper && <div className="sc-sidebar-sub-desc">{item.helper}</div>}
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -226,26 +270,36 @@ export default function App() {
             const Icon = item.icon;
             const active = activeTab === item.id;
             return (
-              <div key={item.id} className="sc-sidebar-item" data-active={active ? "true" : "false"} onClick={() => setActiveTab(item.id)}>
+              <button type="button" key={item.id} className="sc-sidebar-item" data-active={active ? "true" : "false"} aria-current={active ? "page" : undefined} title={item.label} onClick={() => { setActiveTab(item.id); setMobileNavOpen(false); }}>
                 <Icon className="sc-sidebar-item-icon" />
                 <div className="sc-sidebar-item-text">
                   <span className="sc-sidebar-item-label">{item.label}</span>
                   <span className="sc-sidebar-item-desc">{item.helper}</span>
                 </div>
-              </div>
+              </button>
             );
           })}
         </nav>
 
         <div className="sc-sidebar-status">
+          <div className="sc-account-card">
+            <span className="sc-account-avatar" aria-hidden="true">{accountInitial}</span>
+            <div className="sc-account-copy">
+              <span className="sc-account-name">{userDisplayName}</span>
+              <span className="sc-account-email">{userEmail}</span>
+            </div>
+            <a className="sc-account-signout" href={signOutPath} aria-label="Log out of SetCraft" title="Log out">
+              <LogOut className="h-4 w-4" />
+            </a>
+          </div>
           <div className="sc-sidebar-role">
             <div>
-              <div className="sc-sidebar-role-label">{currentRole} Mode</div>
-              <div className="sc-sidebar-role-hint">Local workspace · v13 Professional Race Intelligence</div>
+              <div className="sc-sidebar-role-label">{currentRole} workspace</div>
+              <div className="sc-sidebar-role-hint">Race and training tools</div>
             </div>
           </div>
           <div className="sc-sidebar-meta-row"><span>{savedCount} saved project{savedCount === 1 ? "" : "s"} on this device</span></div>
-          <div className="sc-sidebar-meta-row"><span className="sc-sidebar-dot" /><span style={{ marginLeft: -4 }}>Live</span></div>
+          <div className="sc-sidebar-meta-row sc-session-row"><span><span className="sc-sidebar-dot" />Session secured</span><span>v20</span></div>
         </div>
       </aside>
 
@@ -257,7 +311,10 @@ export default function App() {
                 <div className="sc-header-kicker">SetCraft workspace</div>
                 <div className="sc-header-title">{currentTitle}</div>
               </div>
-              <span className="sc-tag" data-tone="neutral">{currentRole} perspective</span>
+              <div className="sc-header-account">
+                <span className="sc-header-account-copy"><strong>{userDisplayName}</strong><small>{currentRole} perspective</small></span>
+                <span className="sc-header-avatar">{accountInitial}</span>
+              </div>
             </div>
           )}
 

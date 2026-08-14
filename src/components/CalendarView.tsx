@@ -24,9 +24,12 @@ import { calculateStats } from "../swimStudioEngine";
 
 type PlannerDay = { phase: string; workout?: WorkoutSession };
 type CalendarPlans = Record<string, PlannerDay[]>;
+type CalendarViewMode = "week" | "month" | "year";
 
 const STORAGE_KEY = "setcraft_calendar_plan";
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAY_INITIALS = ["M", "T", "W", "T", "F", "S", "S"];
+const VIEW_MODES: CalendarViewMode[] = ["week", "month", "year"];
 const PHASES = ["General Preparation", "Aerobic Base", "Endurance", "Threshold", "Power", "Speed", "Race Prep", "Taper", "Competition", "Recovery", "Off / Rest"];
 
 const DEMO_WORKOUTS: WorkoutSession[] = [
@@ -35,11 +38,14 @@ const DEMO_WORKOUTS: WorkoutSession[] = [
   { id: "demo-speed", name: "Starts, Breakouts and Speed", focus: "Sprint quality", phase: "Speed", blocks: [], totalDistance: 1800, estimatedDuration: 42, avgIntensity: 8.5 },
 ];
 
+function startOfDay(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
 function mondayOf(date: Date): Date {
-  const copy = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const copy = startOfDay(date);
   const day = copy.getDay();
   copy.setDate(copy.getDate() - (day === 0 ? 6 : day - 1));
-  copy.setHours(0, 0, 0, 0);
   return copy;
 }
 
@@ -49,12 +55,51 @@ function addDays(date: Date, count: number): Date {
   return copy;
 }
 
+function addMonths(date: Date, count: number): Date {
+  return new Date(date.getFullYear(), date.getMonth() + count, 1);
+}
+
 function dateKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
+function isSameDay(left: Date, right: Date): boolean {
+  return dateKey(left) === dateKey(right);
+}
+
 function emptyWeek(phase: string): PlannerDay[] {
   return DAY_NAMES.map(() => ({ phase }));
+}
+
+function dayIndex(date: Date): number {
+  return (date.getDay() + 6) % 7;
+}
+
+function datesBetween(start: Date, end: Date): Date[] {
+  const dates: Date[] = [];
+  for (let cursor = startOfDay(start); cursor <= end; cursor = addDays(cursor, 1)) dates.push(cursor);
+  return dates;
+}
+
+function monthDates(date: Date): Date[] {
+  const first = new Date(date.getFullYear(), date.getMonth(), 1);
+  const last = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  return datesBetween(first, last);
+}
+
+function monthGrid(date: Date): Date[] {
+  const first = new Date(date.getFullYear(), date.getMonth(), 1);
+  const start = mondayOf(first);
+  return Array.from({ length: 42 }, (_, index) => addDays(start, index));
+}
+
+function yearDates(year: number): Date[] {
+  return datesBetween(new Date(year, 0, 1), new Date(year, 11, 31));
+}
+
+function plannerDayFor(plans: CalendarPlans, date: Date, defaultPhase: string): PlannerDay {
+  const week = plans[dateKey(mondayOf(date))];
+  return week?.[dayIndex(date)] || { phase: defaultPhase };
 }
 
 function loadPlans(): CalendarPlans {
@@ -86,20 +131,47 @@ function projectSessions(): WorkoutSession[] {
   }
 }
 
+function summarize(plans: CalendarPlans, dates: Date[], defaultPhase: string) {
+  const workouts = dates.map((date) => plannerDayFor(plans, date, defaultPhase).workout).filter(Boolean) as WorkoutSession[];
+  return {
+    sessions: workouts.length,
+    volume: workouts.reduce((sum, workout) => sum + (workout.totalDistance || 0), 0),
+    minutes: workouts.reduce((sum, workout) => sum + (workout.estimatedDuration || 0), 0),
+    intensityDays: workouts.filter((workout) => (workout.avgIntensity || 0) >= 7.5).length,
+  };
+}
+
+function periodLabel(mode: CalendarViewMode, anchorDate: Date): string {
+  if (mode === "week") {
+    const start = mondayOf(anchorDate);
+    const end = addDays(start, 6);
+    if (start.getMonth() === end.getMonth()) {
+      return `${start.toLocaleDateString(undefined, { month: "long" })} ${start.getDate()}–${end.getDate()}, ${start.getFullYear()}`;
+    }
+    return `${start.toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${end.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`;
+  }
+  if (mode === "month") return anchorDate.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  return String(anchorDate.getFullYear());
+}
+
 export default function CalendarView() {
-  const [currentWeekOffset, setCurrentWeekOffset] = React.useState(0);
+  const today = React.useMemo(() => startOfDay(new Date()), []);
+  const [viewMode, setViewMode] = React.useState<CalendarViewMode>("week");
+  const [anchorDate, setAnchorDate] = React.useState(today);
   const [plans, setPlans] = React.useState<CalendarPlans>(loadPlans);
   const [seasonPhase, setSeasonPhase] = React.useState("General Preparation");
   const [goalMeetName, setGoalMeetName] = React.useState("Goal competition");
-  const [goalMeetDate, setGoalMeetDate] = React.useState(() => {
-    const future = addDays(new Date(), 56);
-    return dateKey(future);
-  });
+  const [goalMeetDate, setGoalMeetDate] = React.useState(() => dateKey(addDays(new Date(), 56)));
   const [availableProjects, setAvailableProjects] = React.useState<WorkoutSession[]>(projectSessions);
 
-  const baseMonday = React.useMemo(() => addDays(mondayOf(new Date()), currentWeekOffset * 7), [currentWeekOffset]);
-  const weekKey = dateKey(baseMonday);
-  const week: PlannerDay[] = plans[weekKey] || emptyWeek(seasonPhase);
+  const weekStart = React.useMemo(() => mondayOf(anchorDate), [anchorDate]);
+  const weekKey = dateKey(weekStart);
+  const week = plans[weekKey] || emptyWeek(seasonPhase);
+  const weekDates = React.useMemo(() => Array.from({ length: 7 }, (_, index) => addDays(weekStart, index)), [weekStart]);
+  const currentMonthDates = React.useMemo(() => monthDates(anchorDate), [anchorDate]);
+  const currentYearDates = React.useMemo(() => yearDates(anchorDate.getFullYear()), [anchorDate]);
+  const currentPeriodDates = viewMode === "week" ? weekDates : viewMode === "month" ? currentMonthDates : currentYearDates;
+  const currentSummary = React.useMemo(() => summarize(plans, currentPeriodDates, seasonPhase), [plans, currentPeriodDates, seasonPhase]);
   const availableWorkouts = React.useMemo(() => [...availableProjects, ...DEMO_WORKOUTS], [availableProjects]);
 
   React.useEffect(() => {
@@ -116,12 +188,6 @@ export default function CalendarView() {
   const updateWeek = (updater: (days: PlannerDay[]) => PlannerDay[]) => {
     setPlans((current) => ({ ...current, [weekKey]: updater([...(current[weekKey] || emptyWeek(seasonPhase))]) }));
   };
-
-  const totalWeeklyVolume = week.reduce((sum, day) => sum + (day.workout?.totalDistance || 0), 0);
-  const totalWeeklyTime = week.reduce((sum, day) => sum + (day.workout?.estimatedDuration || 0), 0);
-  const intensityDays = week.filter((day) => (day.workout?.avgIntensity || 0) >= 7.5).length;
-  const meet = new Date(`${goalMeetDate}T12:00:00`);
-  const daysUntilMeet = Number.isFinite(meet.getTime()) ? Math.ceil((meet.getTime() - Date.now()) / 86400000) : 0;
 
   const assignWorkout = (index: number, workoutId: string) => updateWeek((days) => {
     const workout = availableWorkouts.find((item) => item.id === workoutId);
@@ -143,65 +209,213 @@ export default function CalendarView() {
     return next;
   });
 
-  const weekLabel = baseMonday.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
+  const movePeriod = (direction: number) => {
+    setAnchorDate((current) => {
+      if (viewMode === "week") return addDays(current, direction * 7);
+      if (viewMode === "month") return addMonths(current, direction);
+      return new Date(current.getFullYear() + direction, current.getMonth(), 1);
+    });
+  };
+
+  const handleViewKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, mode: CalendarViewMode) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const currentIndex = VIEW_MODES.indexOf(mode);
+    const nextIndex = event.key === "Home"
+      ? 0
+      : event.key === "End"
+        ? VIEW_MODES.length - 1
+        : (currentIndex + (event.key === "ArrowRight" ? 1 : -1) + VIEW_MODES.length) % VIEW_MODES.length;
+    const nextMode = VIEW_MODES[nextIndex];
+    setViewMode(nextMode);
+    document.getElementById(`calendar-view-${nextMode}`)?.focus();
+  };
+
+  const meet = new Date(`${goalMeetDate}T12:00:00`);
+  const daysUntilMeet = Number.isFinite(meet.getTime()) ? Math.ceil((meet.getTime() - Date.now()) / 86400000) : 0;
+  const periodUnit = viewMode === "week" ? "this week" : viewMode === "month" ? "this month" : "this year";
 
   return (
-    <div className="rounded-[28px] border border-hairline-on-canvas/80 bg-white p-6 shadow-sm md:p-9" id="calendar-workspace">
-      <div className="mb-8 flex flex-col gap-5 border-b border-canvas-raised pb-7 xl:flex-row xl:items-end xl:justify-between">
-        <div>
-          <h2 className="flex items-center gap-3 font-display text-2xl font-bold text-surface"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-canvas text-accent-active"><Calendar className="h-5 w-5" /></span>Season Calendar & Week Planner</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted-on-canvas">Assign saved SetCraft projects to training days, move sessions, label phases and keep each week stored locally.</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <button type="button" onClick={rotateSchedule} className="flex items-center gap-2 rounded-xl border border-hairline-on-canvas bg-white px-4 py-3 text-sm font-bold text-ink-on-canvas transition hover:-translate-y-0.5 hover:border-disabled hover:shadow-md"><Shuffle className="h-4 w-4 text-accent-active" />Rotate sessions</button>
-          <div className="flex items-center rounded-xl border border-hairline-on-canvas bg-canvas-raised p-1">
-            <button type="button" onClick={() => setCurrentWeekOffset((value) => value - 1)} className="rounded-lg p-2 text-ink-muted-on-canvas hover:bg-white hover:text-surface"><ChevronLeft className="h-4 w-4" /></button>
-            <span className="min-w-[190px] px-3 text-center text-xs font-bold text-ink-on-canvas">Week of {weekLabel}</span>
-            <button type="button" onClick={() => setCurrentWeekOffset((value) => value + 1)} className="rounded-lg p-2 text-ink-muted-on-canvas hover:bg-white hover:text-surface"><ChevronRight className="h-4 w-4" /></button>
+    <section className="sc-calendar" id="calendar-workspace" aria-labelledby="calendar-title">
+      <header className="sc-calendar-header">
+        <div className="sc-calendar-heading">
+          <span className="sc-calendar-icon" aria-hidden="true"><Calendar className="h-5 w-5" /></span>
+          <div>
+            <span className="sc-calendar-kicker">Training plan</span>
+            <h2 id="calendar-title">Season Calendar</h2>
+            <p>Plan the current week in detail, then step back to review monthly load and the full season.</p>
           </div>
         </div>
+
+        <div className="sc-calendar-view-switch" role="tablist" aria-label="Calendar view">
+          {VIEW_MODES.map((mode) => (
+            <button
+              key={mode}
+              id={`calendar-view-${mode}`}
+              type="button"
+              role="tab"
+              aria-selected={viewMode === mode}
+              aria-controls="calendar-period-panel"
+              tabIndex={viewMode === mode ? 0 : -1}
+              data-active={viewMode === mode ? "true" : "false"}
+              onClick={() => setViewMode(mode)}
+              onKeyDown={(event) => handleViewKeyDown(event, mode)}
+            >
+              {mode.charAt(0).toUpperCase() + mode.slice(1)}
+            </button>
+          ))}
+        </div>
+      </header>
+
+      <div className="sc-calendar-toolbar" aria-label="Calendar period controls">
+        <div className="sc-calendar-period-nav">
+          <button type="button" onClick={() => movePeriod(-1)} aria-label={`Previous ${viewMode}`} title={`Previous ${viewMode}`}><ChevronLeft className="h-4 w-4" /></button>
+          <button type="button" className="sc-calendar-today" onClick={() => setAnchorDate(today)}>Today</button>
+          <button type="button" onClick={() => movePeriod(1)} aria-label={`Next ${viewMode}`} title={`Next ${viewMode}`}><ChevronRight className="h-4 w-4" /></button>
+        </div>
+        <strong className="sc-calendar-period-label" aria-live="polite">{periodLabel(viewMode, anchorDate)}</strong>
+        {viewMode === "week" && <button type="button" onClick={rotateSchedule} className="sc-calendar-rotate"><Shuffle className="h-4 w-4" />Rotate sessions</button>}
       </div>
 
-      <div className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-4">
+      <div className="sc-calendar-metrics" aria-label={`${viewMode} summary`}>
         {[
-          { Icon: TrendingUp, label: "Weekly volume", value: `${totalWeeklyVolume.toLocaleString()} distance units` },
-          { Icon: Compass, label: "Estimated pool time", value: `${Math.floor(totalWeeklyTime / 60)}h ${totalWeeklyTime % 60}m` },
-          { Icon: Milestone, label: "Higher-intensity days", value: `${intensityDays} session${intensityDays === 1 ? "" : "s"}` },
-          { Icon: FolderOpen, label: "Saved practices available", value: `${availableProjects.length} project${availableProjects.length === 1 ? "" : "s"}` },
-        ].map(({ Icon, label, value }) => (
-          <div key={label} className="rounded-2xl border border-hairline-on-canvas bg-canvas/70 p-5 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"><Icon className="h-5 w-5 text-accent-active" /><span className="mt-4 block text-[10px] font-bold uppercase tracking-[0.14em] text-ink-muted-on-canvas">{label}</span><span className="mt-1 block text-lg font-bold text-surface">{value}</span></div>
+          { Icon: TrendingUp, label: "Planned volume", value: currentSummary.volume.toLocaleString(), suffix: "pool units" },
+          { Icon: Compass, label: "Pool time", value: `${Math.floor(currentSummary.minutes / 60)}h ${currentSummary.minutes % 60}m`, suffix: periodUnit },
+          { Icon: Milestone, label: "Quality sessions", value: String(currentSummary.intensityDays), suffix: "RPE 7.5+" },
+          { Icon: FolderOpen, label: "Sessions scheduled", value: String(currentSummary.sessions), suffix: periodUnit },
+        ].map(({ Icon, label, value, suffix }) => (
+          <div key={label} className="sc-calendar-metric">
+            <Icon className="h-4 w-4" aria-hidden="true" />
+            <span>{label}</span>
+            <strong>{value}</strong>
+            <small>{suffix}</small>
+          </div>
         ))}
       </div>
 
-      <div className="mb-8 grid gap-5 rounded-2xl border border-rose-200 bg-rose-50/50 p-5 lg:grid-cols-[1fr_220px_190px] lg:items-end">
-        <label><span className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-rose-800"><Flag className="h-4 w-4" />Goal competition</span><input value={goalMeetName} onChange={(event) => setGoalMeetName(event.target.value)} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-bold text-surface outline-none focus:ring-2 focus:ring-rose-200" /></label>
-        <label><span className="mb-2 block text-xs font-bold uppercase tracking-wider text-rose-800">Meet date</span><input type="date" value={goalMeetDate} onChange={(event) => setGoalMeetDate(event.target.value)} className="w-full rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-bold text-surface-raised outline-none" /></label>
-        <div className="rounded-xl border border-rose-200 bg-white px-4 py-3 text-center"><span className="block text-[10px] font-bold uppercase tracking-wider text-rose-700">Countdown</span><span className="text-xl font-bold text-rose-900">{daysUntilMeet >= 0 ? `${daysUntilMeet} days` : `${Math.abs(daysUntilMeet)} days ago`}</span></div>
+      <div className="sc-calendar-settings">
+        <label className="sc-calendar-meet-name">
+          <span><Flag className="h-4 w-4" aria-hidden="true" />Goal competition</span>
+          <input value={goalMeetName} onChange={(event) => setGoalMeetName(event.target.value)} aria-label="Goal competition name" />
+        </label>
+        <label>
+          <span>Meet date</span>
+          <input type="date" value={goalMeetDate} onChange={(event) => setGoalMeetDate(event.target.value)} />
+        </label>
+        <div className="sc-calendar-countdown" aria-live="polite"><span>Countdown</span><strong>{daysUntilMeet >= 0 ? `${daysUntilMeet} days` : `${Math.abs(daysUntilMeet)} days ago`}</strong></div>
+        <label>
+          <span>Default phase</span>
+          <select value={seasonPhase} onChange={(event) => setSeasonPhase(event.target.value)}>{PHASES.map((phase) => <option key={phase}>{phase}</option>)}</select>
+        </label>
       </div>
 
-      <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-hairline-on-canvas bg-canvas p-4 sm:flex-row sm:items-center sm:justify-between"><div><span className="block text-sm font-bold text-surface">Default week phase</span><span className="text-xs text-ink-muted-on-canvas">Used for empty days and new week plans.</span></div><select value={seasonPhase} onChange={(event) => setSeasonPhase(event.target.value)} className="rounded-xl border border-hairline-on-canvas bg-white px-4 py-3 text-sm font-bold text-surface-raised outline-none focus:border-accent-hover">{PHASES.map((phase) => <option key={phase}>{phase}</option>)}</select></div>
+      <div id="calendar-period-panel" role="tabpanel" aria-labelledby={`calendar-view-${viewMode}`} tabIndex={0} className="sc-calendar-panel">
+        {viewMode === "week" && (
+          <div className="sc-calendar-week" aria-label={`Week of ${weekStart.toLocaleDateString()}`}>
+            {DAY_NAMES.map((dayName, index) => {
+              const date = weekDates[index];
+              const day = week[index] || { phase: seasonPhase };
+              const fullDate = date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+              return (
+                <article key={dateKey(date)} className="sc-calendar-day" data-today={isSameDay(date, today) ? "true" : "false"}>
+                  <header>
+                    <div><span>{dayName}</span><strong>{date.getDate()}</strong><small>{date.toLocaleDateString(undefined, { month: "short" })}</small></div>
+                    <button type="button" onClick={() => assignWorkout(index, "")} aria-label={`Clear session for ${fullDate}`} title="Clear session"><X className="h-4 w-4" /></button>
+                  </header>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-7" id="weekly-calendar-grid">
-        {DAY_NAMES.map((dayName, index) => {
-          const date = addDays(baseMonday, index);
-          const day = week[index] || { phase: seasonPhase };
-          return (
-            <article key={dateKey(date)} className="flex min-h-[360px] flex-col rounded-2xl border border-hairline-on-canvas bg-canvas/50 p-4 transition hover:-translate-y-1 hover:border-hairline-on-canvas hover:bg-white hover:shadow-lg">
-              <header className="flex items-start justify-between gap-2"><div><span className="block text-xs font-bold text-ink-muted-on-canvas">{dayName}</span><span className="mt-1 block font-display text-2xl font-bold text-surface">{date.getDate()}</span></div><button type="button" onClick={() => assignWorkout(index, "")} title="Clear session" className="rounded-lg p-2 text-disabled hover:bg-rose-50 hover:text-rose-600"><X className="h-4 w-4" /></button></header>
-              <select value={day.phase || seasonPhase} onChange={(event) => updateWeek((days) => { days[index] = { ...days[index], phase: event.target.value }; return days; })} className="mt-3 w-full rounded-lg border border-hairline-on-canvas bg-white px-2.5 py-2 text-[10px] font-bold uppercase tracking-wide text-ink-muted-on-canvas outline-none">{PHASES.map((phase) => <option key={phase}>{phase}</option>)}</select>
+                  <label className="sc-calendar-field">
+                    <span className="sr-only">Training phase for {fullDate}</span>
+                    <select value={day.phase || seasonPhase} onChange={(event) => updateWeek((days) => { days[index] = { ...days[index], phase: event.target.value }; return days; })}>{PHASES.map((phase) => <option key={phase}>{phase}</option>)}</select>
+                  </label>
 
-              {day.workout ? (
-                <div className="mt-4 flex-1 rounded-2xl border border-hairline-on-canvas bg-white p-4 shadow-sm"><span className="text-[10px] font-bold uppercase tracking-wider text-accent-active">{day.workout.focus}</span><h3 className="mt-2 text-sm font-bold leading-snug text-surface">{day.workout.name}</h3><div className="mt-4 grid grid-cols-2 gap-2 text-center"><span className="rounded-lg bg-canvas-raised px-2 py-2 text-[10px] font-bold text-ink-muted-on-canvas">{day.workout.totalDistance.toLocaleString()}</span><span className="rounded-lg bg-canvas-raised px-2 py-2 text-[10px] font-bold text-ink-muted-on-canvas">{day.workout.estimatedDuration} min</span></div></div>
-              ) : <div className="mt-4 flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-disabled bg-white/70 p-4 text-center"><Plus className="h-6 w-6 text-disabled" /><span className="mt-2 text-xs font-bold text-ink-muted-on-canvas">Rest day or assign a project</span></div>}
+                  {day.workout ? (
+                    <div className="sc-calendar-session">
+                      <span>{day.workout.focus}</span>
+                      <h3>{day.workout.name}</h3>
+                      <dl><div><dt>Distance</dt><dd>{day.workout.totalDistance.toLocaleString()}</dd></div><div><dt>Time</dt><dd>{day.workout.estimatedDuration} min</dd></div></dl>
+                    </div>
+                  ) : (
+                    <div className="sc-calendar-rest"><Plus className="h-5 w-5" aria-hidden="true" /><span>Rest day</span><small>or assign a practice below</small></div>
+                  )}
 
-              <select value={day.workout?.id || ""} onChange={(event) => assignWorkout(index, event.target.value)} className="mt-4 w-full rounded-xl border border-hairline-on-canvas bg-white px-3 py-2.5 text-xs font-bold text-ink-on-canvas outline-none focus:border-accent-hover"><option value="">Choose practice…</option>{availableProjects.length > 0 && <optgroup label="Saved projects">{availableProjects.map((workout) => <option key={workout.id} value={workout.id}>{workout.name}</option>)}</optgroup>}<optgroup label="Sample plans">{DEMO_WORKOUTS.map((workout) => <option key={workout.id} value={workout.id}>{workout.name}</option>)}</optgroup></select>
-              {day.workout && <div className="mt-3 flex items-center justify-between border-t border-hairline-on-canvas pt-3 text-xs font-bold text-ink-muted-on-canvas"><span>Move</span><div className="flex gap-1"><button type="button" onClick={() => shiftWorkout(index, (index + 6) % 7)} className="rounded-lg px-2 py-1 hover:bg-canvas-raised hover:text-surface">←</button><button type="button" onClick={() => shiftWorkout(index, (index + 1) % 7)} className="rounded-lg px-2 py-1 hover:bg-canvas-raised hover:text-surface">→</button></div></div>}
-            </article>
-          );
-        })}
+                  <label className="sc-calendar-field">
+                    <span className="sr-only">Practice for {fullDate}</span>
+                    <select value={day.workout?.id || ""} onChange={(event) => assignWorkout(index, event.target.value)}>
+                      <option value="">Choose practice…</option>
+                      {availableProjects.length > 0 && <optgroup label="Saved projects">{availableProjects.map((workout) => <option key={workout.id} value={workout.id}>{workout.name}</option>)}</optgroup>}
+                      <optgroup label="Sample plans">{DEMO_WORKOUTS.map((workout) => <option key={workout.id} value={workout.id}>{workout.name}</option>)}</optgroup>
+                    </select>
+                  </label>
+
+                  {day.workout && (
+                    <div className="sc-calendar-move">
+                      <span>Move session</span>
+                      <div>
+                        <button type="button" onClick={() => shiftWorkout(index, (index + 6) % 7)} aria-label={`Move ${day.workout.name} to previous day`}>←</button>
+                        <button type="button" onClick={() => shiftWorkout(index, (index + 1) % 7)} aria-label={`Move ${day.workout.name} to next day`}>→</button>
+                      </div>
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        )}
+
+        {viewMode === "month" && (
+          <div className="sc-calendar-table-wrap">
+            <table className="sc-calendar-month-table">
+              <caption className="sr-only">Monthly training overview for {periodLabel("month", anchorDate)}</caption>
+              <thead><tr>{DAY_NAMES.map((day) => <th scope="col" key={day}>{day}</th>)}</tr></thead>
+              <tbody>
+                {Array.from({ length: 6 }, (_, row) => (
+                  <tr key={row}>
+                    {monthGrid(anchorDate).slice(row * 7, row * 7 + 7).map((date) => {
+                      const day = plannerDayFor(plans, date, seasonPhase);
+                      const outside = date.getMonth() !== anchorDate.getMonth();
+                      const fullDate = date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+                      return (
+                        <td key={dateKey(date)} data-outside={outside ? "true" : "false"} data-today={isSameDay(date, today) ? "true" : "false"}>
+                          <button type="button" onClick={() => { setAnchorDate(date); setViewMode("week"); }} aria-label={`${fullDate}. ${day.workout ? `${day.workout.name}, ${day.workout.totalDistance} distance units` : "No session scheduled"}. Open week.`}>
+                            <span className="sc-month-date">{date.getDate()}</span>
+                            {day.workout ? <><span className="sc-month-session">{day.workout.name}</span><small>{day.workout.totalDistance.toLocaleString()} · {day.workout.estimatedDuration} min</small></> : <span className="sc-month-rest">Rest / open</span>}
+                          </button>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {viewMode === "year" && (
+          <div className="sc-calendar-year" aria-label={`${anchorDate.getFullYear()} training overview`}>
+            {Array.from({ length: 12 }, (_, monthIndex) => {
+              const monthDate = new Date(anchorDate.getFullYear(), monthIndex, 1);
+              const dates = monthDates(monthDate);
+              const gridDates = monthGrid(monthDate);
+              const summary = summarize(plans, dates, seasonPhase);
+              return (
+                <button key={monthIndex} type="button" className="sc-calendar-year-month" onClick={() => { setAnchorDate(monthDate); setViewMode("month"); }} aria-label={`${monthDate.toLocaleDateString(undefined, { month: "long", year: "numeric" })}: ${summary.sessions} sessions, ${summary.volume} distance units. Open month.`}>
+                  <header><strong>{monthDate.toLocaleDateString(undefined, { month: "long" })}</strong><span>{summary.sessions} sessions</span></header>
+                  <div className="sc-year-day-labels" aria-hidden="true">{DAY_INITIALS.map((day, index) => <span key={`${day}-${index}`}>{day}</span>)}</div>
+                  <div className="sc-year-days" aria-hidden="true">
+                    {gridDates.map((date) => {
+                      const day = plannerDayFor(plans, date, seasonPhase);
+                      return <span key={dateKey(date)} data-outside={date.getMonth() !== monthIndex ? "true" : "false"} data-session={day.workout ? "true" : "false"} data-quality={(day.workout?.avgIntensity || 0) >= 7.5 ? "true" : "false"}>{date.getDate()}</span>;
+                    })}
+                  </div>
+                  <footer><span>{summary.volume.toLocaleString()} volume</span><span>{Math.round(summary.minutes / 60)}h pool time</span></footer>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      <div className="mt-8 flex items-start gap-3 rounded-2xl border border-hairline-on-canvas bg-canvas p-5"><Info className="mt-0.5 h-4 w-4 shrink-0 text-accent-active" /><p className="text-xs leading-relaxed text-surface"><strong>Planning note:</strong> Weekly volume and intensity-day counts are summaries, not automatic readiness decisions. Use them alongside actual completion, athlete feedback, meet timing and qualified coaching judgment.</p></div>
-    </div>
+      <div className="sc-calendar-note"><Info className="h-4 w-4" aria-hidden="true" /><p><strong>Coach note:</strong> Calendar totals are planning signals, not readiness decisions. Compare them with actual completion, athlete feedback, meet timing and qualified coaching judgment.</p></div>
+    </section>
   );
 }

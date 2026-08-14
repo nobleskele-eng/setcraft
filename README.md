@@ -1,59 +1,91 @@
-# SetCraft Swim Studio v13 — Professional Race Intelligence
+# SetCraft Swim Studio v20
 
-SetCraft is a coach-oriented workout, race-analysis and race-strategy workspace for LCM, SCM and SCY. v13 redesigns both race tools around structured tabs, independently controlled athlete factors, a large official comparison library, exact split provenance and professional PDF reports.
+SetCraft is a coach-first swim planning and race-intelligence workspace. It combines a visual set builder, lane planning, pool-deck exports, season planning, race analysis, strategy tools, curated workouts, and a server-protected AI coaching layer in one authenticated application.
 
-## v13 highlights
+## What changed in v20
 
-- Race Analysis Studio with dedicated Race Input, Athlete Profile, Split Breakdown, Comparisons and Report tabs.
-- Race Strategy Studio with dedicated Race Plan, Athlete Profile, Reference Races and Coach Brief tabs.
-- Every performance factor can be switched off, self-rated from 1–10, or entered as a protocol-specific professional value. Measured lactate is retained as neutral event context and is never interpreted as “higher is better.”
-- 4,854 selected non-record races from 13,558 eligible official results, with 31,842 official checkpoints across LCM, SCM and SCY.
-- Four comparison bands: 1,071 Sectionals, 1,466 Nationals, 1,079 Trials and 1,238 World Class references. The bands are performance-navigation labels; source result, course, meet and AQUA points remain visible.
-- World records remain a separate benchmark layer. SCY leaders are labeled U.S. Open benchmarks rather than world records.
-- Minor athlete names are anonymized in the local reference library. Coach-owned references remain local to the browser and require an authorization confirmation.
-- Event-aware individual split fields plus quick paste. Empty comma positions remain empty, and only unknown or invalid checkpoints are modeled.
-- Exportable analysis and strategy PDFs plus audit-ready JSON.
-- Deterministic calculations and official source provenance remain locked facts for Gemini explanations; the app includes a safe offline brief when no API key is configured.
+- The primary application sidebar can be collapsed or restored from every workspace page. The preference is remembered on the device.
+- Build Sets now has clearly labeled controls for the block library and workout inspector, plus a one-click **Focus canvas** mode.
+- The block library and inspector can also be closed directly from their own panel headers.
+- Builder panel preferences persist while moving between Project Setup, Build Sets, Lane Plan, Deck Sheet, and Review & Export.
+- The builder grid was resized so the right inspector remains inside the viewport instead of extending past the page edge.
+- At narrower widths, optional builder panels become contained overlays; the workout canvas remains usable without page-level horizontal scrolling.
+- v19 calendar improvements remain included: accessible Week, Month, and Year views with period summaries and drill-down navigation.
 
-## Reference data
+## Main workspaces
 
-The generated field library uses official Omega Lenex results for the 2025 World Championships, 2024 World 25 m Championships, 2026 Toyota National Championships and 2026 Speedo Junior National Championships, plus official 2026 NCAA Division I final-results PDFs. See `docs/RACE_LIBRARY_DATA_MANIFEST.json` for counts and source URLs.
+- **Project Hub** — create, save, organize, reopen, and group workout projects by season folder.
+- **Project Setup** — define the practice name, training phase, pool course, duration, focus, tags, and folder.
+- **Build Sets** — compose nested sections, repeats, conditions, progressions, time caps, lane branches, notes, and swim blocks.
+- **Lane Plan** — assign swimmers, lanes, send-offs, pace versions, and lane-specific set variants.
+- **Deck Sheet** — prepare practice headers, coach notes, targets, goal-time tables, and print-ready deck information.
+- **Review & Export** — validate the workout, inspect calculated totals, preview the deck sheet, and export PDF or structured JSON.
+- **Season Calendar** — plan detailed weeks and review monthly or yearly training load.
+- **Race Analysis Lab** — compare LCM, SCM, and SCY performances with official reference data and transparent modeled checkpoints.
+- **Race Strategy Studio** — build athlete-aware race plans without allowing profile inputs or AI text to overwrite locked records or calculations.
+- **Coach Block AI** — generate and revise coach-reviewed drafts through protected server routes.
 
-Regenerate the checked-in library by passing the six official source files to the build script:
+## Local requirements
 
-```bash
-node scripts/build-race-library.mjs <usa-nationals.lef> <usa-junior-nationals.lef> <worlds.lef> <world-scm.lef> <ncaa-men.txt> <ncaa-women.txt>
-```
+- Node.js 22.13 or newer
+- npm
 
-## Run
-
-Requires Node.js 22.13 or newer.
+## Install and run
 
 ```bash
 npm run install:ci
 npm run dev
 ```
 
-Open the local address printed by the development server. For live Gemini responses, copy `.env.example` to `.env` or `.env.local`, set `GEMINI_API_KEY`, and restart. The application remains functional without credentials.
+Open the local address shown by the development server.
 
-SetCraft uses Gemini 3.6 Flash server-side. To add the reviewed coaching-knowledge layer and verify all five AI workflows:
+## Optional Gemini configuration
+
+The application remains usable without AI credentials. For live AI responses, copy `.env.example` to `.env.local`, add the required Gemini key, and restart the development server. Gemini calls are made through authenticated server routes; keys must never be placed in client-side code or committed to source control.
+
+To prepare the reviewed coaching-knowledge layer and run the AI evaluation set:
 
 ```bash
 npm run ai:setup-rag -- --write-env
-npm run dev
-# In a second terminal:
 npm run ai:eval
 ```
 
-See `docs/AI_MODEL_IMPLEMENTATION_GUIDE.md` for the complete Windows walkthrough, privacy rules and evaluation process.
+See `docs/AI_MODEL_IMPLEMENTATION_GUIDE.md` for the complete configuration, evaluation, and privacy workflow.
 
-## Verify
+## Verification
+
+Run the complete production and policy test suite:
 
 ```bash
-npm run test:race
+npm test
+```
+
+Individual checks are also available:
+
+```bash
 npm run lint
 npm run build
+npm run test:race
+npm run test:ai-policy
 npm run validate:artifact
 ```
 
-Official totals, measured checkpoints, modeled checkpoints, athlete context and AI narrative are separate evidence layers. Neither AI nor profile inputs may change records, standards, points or provenance.
+## Reference data and evidence boundaries
+
+The checked-in race library uses official Omega/Lenex and NCAA result sources documented in `docs/RACE_LIBRARY_DATA_MANIFEST.json`. World records, U.S. Open SCY benchmarks, entered splits, modeled checkpoints, athlete context, and AI narrative remain separate evidence layers.
+
+Regenerate the field library by supplying the six official source files:
+
+```bash
+node scripts/build-race-library.mjs <usa-nationals.lef> <usa-junior-nationals.lef> <worlds.lef> <world-scm.lef> <ncaa-men.txt> <ncaa-women.txt>
+```
+
+## Data storage and privacy
+
+- Workout drafts, panel preferences, saved projects, custom blocks, and calendar plans are stored locally in the browser unless a future hosted data layer is explicitly configured.
+- Authentication protects the workspace and AI endpoints.
+- Coaches remain responsible for checking athlete suitability, medical restrictions, intervals, recovery, and final practice decisions.
+
+## Release
+
+This source package corresponds to **SetCraft Swim Studio v20**.

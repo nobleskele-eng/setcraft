@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -29,7 +29,9 @@ import {
   Maximize2,
   Keyboard,
   PanelLeftClose,
+  PanelLeftOpen,
   PanelRightClose,
+  PanelRightOpen,
   MonitorUp,
   LayoutTemplate,
   ListChecks,
@@ -543,7 +545,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
   const [activeCategory, setActiveCategory] = useState("Warm-up");
   const [paletteSearch, setPaletteSearch] = useState("");
   const [rightTab, setRightTab] = useState<RightTab>("inspector");
-  const [studioPage, setStudioPage] = useState<StudioPage>(requestedPage || "project");
+  const [internalStudioPage, setInternalStudioPage] = useState<StudioPage>(requestedPage || "project");
   const [paletteVisible, setPaletteVisible] = useState(true);
   const [inspectorVisible, setInspectorVisible] = useState(true);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
@@ -572,6 +574,31 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
   const [aiAuditLoading, setAiAuditLoading] = useState(false);
   const [aiAuditError, setAiAuditError] = useState("");
   const paletteSearchRef = useRef<HTMLInputElement | null>(null);
+
+  // Use one navigation path for clicks from either workflow bar. Previously, a
+  // child effect could restore the old requestedPage before the parent received
+  // the new page, which made the top tabs appear to flash or ignore a click.
+  const studioPage = requestedPage ?? internalStudioPage;
+  const setStudioPage = useCallback((page: StudioPage) => {
+    setInternalStudioPage(page);
+    if (page !== requestedPage) onPageChange?.(page);
+  }, [onPageChange, requestedPage]);
+
+  useEffect(() => {
+    const savedLibrary = localStorage.getItem("setcraft_builder_library_visible");
+    const savedInspector = localStorage.getItem("setcraft_builder_inspector_visible");
+    if (savedLibrary !== null) setPaletteVisible(savedLibrary !== "false");
+    if (savedInspector !== null) setInspectorVisible(savedInspector !== "false");
+    if (savedLibrary === null && savedInspector === null && window.matchMedia("(max-width: 1180px)").matches) {
+      setPaletteVisible(false);
+      setInspectorVisible(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("setcraft_builder_library_visible", String(paletteVisible));
+    localStorage.setItem("setcraft_builder_inspector_visible", String(inspectorVisible));
+  }, [paletteVisible, inspectorVisible]);
 
 
   useEffect(() => {
@@ -642,14 +669,6 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
     setSelectedId(null);
     onInitialProjectLoaded?.();
   }, [initialProject, onInitialProjectLoaded]);
-
-  useEffect(() => {
-    if (requestedPage && requestedPage !== studioPage) setStudioPage(requestedPage);
-  }, [requestedPage, studioPage]);
-
-  useEffect(() => {
-    onPageChange?.(studioPage);
-  }, [studioPage, onPageChange]);
 
   useEffect(() => {
     setAutoSaveState("saving");
@@ -1140,7 +1159,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
   return (
     <div className="w-full" id="setcraft-swim-studio">
       <section className="overflow-hidden bg-canvas-raised">
-        <div className="sc-nav flex-wrap !h-auto py-2">
+        <div className="sc-nav studio-command-bar flex-wrap !h-auto py-2">
           <span className="sc-nav-brand">Swim Studio</span>
           <span className="text-[10px] font-medium text-ink-muted">Scratch-style set programming</span>
           <div className="h-6 w-px bg-hairline" />
@@ -1177,8 +1196,8 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
           </div>
         )}
 
-        <nav className="sc-nav !h-auto flex-wrap py-2" aria-label="Swim Studio workflow">
-          <div className="flex w-full flex-wrap items-center gap-1.5">
+        <nav className="sc-nav studio-workflow !h-auto py-1.5" aria-label="Swim Studio workflow" role="tablist">
+          <div className="studio-workflow-track">
             {([
               { id: "project", label: "Project Setup", helper: `${projectFolder} · ${phase}`, icon: FolderPlus },
               { id: "build", label: "Build Sets", helper: `${stats.setCount} sets · ${stats.totalDistance.toLocaleString()} ${poolUnit}`, icon: LayoutTemplate },
@@ -1189,7 +1208,35 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
               const Icon = item.icon;
               const active = studioPage === item.id;
               return (
-                <button key={item.id} type="button" onClick={() => setStudioPage(item.id)} title={item.helper} className="sc-nav-item flex items-center gap-2" data-active={active ? "true" : "false"}>
+                <button
+                  key={item.id}
+                  id={`studio-tab-${item.id}`}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  aria-controls={`studio-page-${item.id}`}
+                  tabIndex={active ? 0 : -1}
+                  onClick={() => setStudioPage(item.id)}
+                  onKeyDown={(event) => {
+                    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+                    const tabs = Array.from(event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]') || []);
+                    if (!tabs.length) return;
+                    event.preventDefault();
+                    const currentIndex = tabs.indexOf(event.currentTarget);
+                    const nextIndex = event.key === "Home"
+                      ? 0
+                      : event.key === "End"
+                        ? tabs.length - 1
+                        : (currentIndex + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+                    const nextPage = tabs[nextIndex].dataset.page as StudioPage;
+                    tabs[nextIndex].focus();
+                    setStudioPage(nextPage);
+                  }}
+                  data-page={item.id}
+                  title={item.helper}
+                  className="sc-nav-item studio-workflow-tab flex items-center gap-2"
+                  data-active={active ? "true" : "false"}
+                >
                   <Icon className="h-3.5 w-3.5" style={{ color: active ? "var(--color-accent)" : "var(--color-ink-muted)" }} />
                   <span className="whitespace-nowrap">{item.label}</span>
                   {active && <span className="hidden max-w-[220px] truncate text-[11px] font-semibold xl:inline" style={{ color: "var(--color-accent)", opacity: 0.85 }}>· {item.helper}</span>}
@@ -1200,7 +1247,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
         </nav>
 
         {studioPage === "project" && (
-          <div className="studio-stage-page min-h-[960px] bg-gradient-to-b from-slate-50 via-white to-canvas/40 px-6 py-8 lg:px-10 lg:py-10">
+          <div id="studio-page-project" role="tabpanel" aria-labelledby="studio-tab-project" tabIndex={0} className="studio-stage-page min-h-[960px] bg-gradient-to-b from-slate-50 via-white to-canvas/40 px-6 py-8 lg:px-10 lg:py-10">
             <div className="mx-auto max-w-[1500px] space-y-7">
               <header className="flex flex-wrap items-end justify-between gap-5 rounded-[28px] border border-hairline-on-canvas bg-white p-7 shadow-sm">
                 <div>
@@ -1237,14 +1284,14 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
         )}
 
         {studioPage === "build" && (
-          <>
+          <div id="studio-page-build" role="tabpanel" aria-labelledby="studio-tab-build" tabIndex={0}>
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-hairline-on-canvas bg-gradient-to-r from-slate-50 to-canvas/40 px-6 pt-4 pb-3.5"><div className="flex flex-wrap items-baseline gap-x-3.5 gap-y-1.5"><span className="text-[10px] font-bold uppercase leading-none tracking-[0.16em] text-ink-muted-on-canvas">Building</span><h2 className="font-display text-base font-bold leading-none text-surface">{sessionName}</h2><span className="text-xs font-medium leading-none text-ink-muted-on-canvas">{phase} · {projectFolder} · {targetMinutes} min</span></div><button type="button" onClick={() => setStudioPage("project")} className="shrink-0 rounded-lg border border-disabled bg-white px-3.5 py-1.5 text-[13px] font-bold text-ink-on-canvas transition hover:border-disabled hover:bg-canvas">Edit project setup</button></div>
 
         <QuickSetComposer draft={quickSetDraft} onChange={setQuickSetDraft} onAdd={addQuickSet} destination={selectedNode && selectedNode.kind !== "set" && selectedNode.kind !== "note" && !selectedNode.locked ? nodeLabel(selectedNode) : "Workout end"} poolUnit={poolUnit} />
 
-        <div className={`grid min-h-[1080px] grid-cols-1 ${paletteVisible && inspectorVisible ? "xl:grid-cols-[390px_minmax(720px,1fr)_430px]" : paletteVisible ? "xl:grid-cols-[390px_minmax(760px,1fr)]" : inspectorVisible ? "xl:grid-cols-[minmax(760px,1fr)_430px]" : "xl:grid-cols-1"}`}>
+        <div className="studio-builder-layout min-h-[1080px]" data-library={paletteVisible ? "true" : "false"} data-inspector={inspectorVisible ? "true" : "false"}>
           {paletteVisible && (
-          <aside className="grid min-h-[940px] grid-cols-[108px_minmax(0,1fr)] border-r border-hairline-on-canvas bg-white">
+          <aside className="studio-block-library grid min-h-[940px] grid-cols-[92px_minmax(0,1fr)] border-r border-hairline-on-canvas bg-white" aria-label="Block library">
             <div className="border-r border-hairline-on-canvas bg-canvas py-2">
               {categories.map((category) => {
                 const meta = CATEGORY_META[category] || CATEGORY_META.Structure;
@@ -1262,7 +1309,10 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
             <div className="min-w-0">
               <div className="border-b border-canvas-raised p-3">
                 <div className="relative"><Search className="absolute left-3 top-2.5 h-4 w-4 text-ink-muted-on-canvas" /><input ref={paletteSearchRef} value={paletteSearch} onChange={(event) => setPaletteSearch(event.target.value)} placeholder="Search all blocks (Ctrl+K)" className="w-full rounded-xl border border-hairline-on-canvas bg-canvas py-2 pl-9 pr-3 text-xs text-ink-on-canvas outline-none focus:border-accent-hover focus:bg-white" /></div>
-                <p className="mt-2 text-xs font-bold uppercase tracking-wider text-ink-muted-on-canvas">{searchQuery ? "Search results" : activeCategory}</p>
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <p className="text-xs font-bold uppercase tracking-wider text-ink-muted-on-canvas">{searchQuery ? "Search results" : activeCategory}</p>
+                  <button type="button" onClick={() => setPaletteVisible(false)} className="studio-panel-edge-close" aria-label="Hide block library" title="Hide block library"><PanelLeftClose className="h-4 w-4" /></button>
+                </div>
               </div>
               <div className="max-h-[950px] space-y-2 overflow-y-auto p-3">
                 {activeCategory === "My Blocks" && !searchQuery && (
@@ -1315,13 +1365,20 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
           </aside>
           )}
 
-          <main className={`min-w-0 bg-[#f7fbff] ${inspectorVisible ? "border-r border-hairline-on-canvas" : ""}`}>
+          <main className={`studio-canvas-pane min-w-0 bg-[#f7fbff] ${inspectorVisible ? "border-r border-hairline-on-canvas" : ""}`}>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5 border-b border-hairline-on-canvas bg-white px-5 py-2.5">
               <div className="flex items-center gap-2"><CircleDot className="h-4 w-4 text-accent-active" /><span className="text-sm font-bold text-surface-raised">Scripts</span></div>
               <div className="ml-auto flex flex-wrap items-center gap-2">
-                <div className="flex items-center gap-1.5">
-                  <button type="button" onClick={() => setPaletteVisible((value) => !value)} className={`flex h-9 w-9 items-center justify-center rounded-lg border transition ${paletteVisible ? "border-hairline-on-canvas bg-canvas text-accent-active" : "border-hairline-on-canvas bg-white text-ink-muted-on-canvas hover:bg-canvas"}`} title={paletteVisible ? "Hide block library" : "Show block library"}><PanelLeftClose className="h-4 w-4" /></button>
-                  <button type="button" onClick={() => setInspectorVisible((value) => !value)} className={`flex h-9 w-9 items-center justify-center rounded-lg border transition ${inspectorVisible ? "border-hairline-on-canvas bg-canvas text-accent-active" : "border-hairline-on-canvas bg-white text-ink-muted-on-canvas hover:bg-canvas"}`} title={inspectorVisible ? "Hide inspector" : "Show inspector"}><PanelRightClose className="h-4 w-4" /></button>
+                <div className="studio-panel-controls">
+                  <button type="button" onClick={() => setPaletteVisible((value) => !value)} className="studio-panel-toggle" data-active={paletteVisible ? "true" : "false"} aria-pressed={paletteVisible}>
+                    {paletteVisible ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+                    <span>{paletteVisible ? "Hide library" : "Show library"}</span>
+                  </button>
+                  <button type="button" onClick={() => setInspectorVisible((value) => !value)} className="studio-panel-toggle" data-active={inspectorVisible ? "true" : "false"} aria-pressed={inspectorVisible}>
+                    {inspectorVisible ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
+                    <span>{inspectorVisible ? "Hide inspector" : "Show inspector"}</span>
+                  </button>
+                  {(paletteVisible || inspectorVisible) && <button type="button" onClick={() => { setPaletteVisible(false); setInspectorVisible(false); }} className="studio-panel-toggle" title="Hide both side panels"><Maximize2 className="h-4 w-4" /><span>Focus canvas</span></button>}
                 </div>
                 <span className="h-6 w-px bg-hairline-on-canvas" />
                 <div className="flex items-center gap-1.5">
@@ -1374,11 +1431,14 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
           </main>
 
           {inspectorVisible && (
-          <aside className="min-w-0 bg-white">
-            <div className="grid grid-cols-3 border-b border-hairline-on-canvas bg-canvas p-1.5">
-              <TabButton active={rightTab === "inspector"} onClick={() => setRightTab("inspector")} icon={MoreHorizontal} label="Inspector" />
-              <TabButton active={rightTab === "analysis"} onClick={() => setRightTab("analysis")} icon={Gauge} label="Analysis" badge={warningCount || undefined} />
-              <TabButton active={rightTab === "preview"} onClick={() => setRightTab("preview")} icon={Maximize2} label="Preview" />
+          <aside className="studio-inspector-panel min-w-0 bg-white" aria-label="Workout inspector">
+            <div className="studio-inspector-header">
+              <div className="grid min-w-0 flex-1 grid-cols-3">
+                <TabButton active={rightTab === "inspector"} onClick={() => setRightTab("inspector")} icon={MoreHorizontal} label="Inspector" />
+                <TabButton active={rightTab === "analysis"} onClick={() => setRightTab("analysis")} icon={Gauge} label="Analysis" badge={warningCount || undefined} />
+                <TabButton active={rightTab === "preview"} onClick={() => setRightTab("preview")} icon={Maximize2} label="Preview" />
+              </div>
+              <button type="button" onClick={() => setInspectorVisible(false)} className="studio-panel-edge-close" aria-label="Hide workout inspector" title="Hide inspector"><PanelRightClose className="h-4 w-4" /></button>
             </div>
 
             <div className="max-h-[1010px] overflow-y-auto p-5">
@@ -1428,11 +1488,11 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
           </aside>
           )}
         </div>
-          </>
+          </div>
         )}
 
         {studioPage === "lanes" && (
-          <div className="bg-canvas p-4 md:p-6">
+          <div id="studio-page-lanes" role="tabpanel" aria-labelledby="studio-tab-lanes" tabIndex={0} className="bg-canvas p-4 md:p-6">
             <LaneAssignmentPanel
               config={laneAssignments}
               onChange={setLaneAssignments}
@@ -1447,7 +1507,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
         )}
 
         {studioPage === "deck" && (
-          <div className="bg-canvas p-4 md:p-6">
+          <div id="studio-page-deck" role="tabpanel" aria-labelledby="studio-tab-deck" tabIndex={0} className="bg-canvas p-4 md:p-6">
             <LaneAssignmentPanel
               config={laneAssignments}
               onChange={setLaneAssignments}
@@ -1462,7 +1522,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
         )}
 
         {studioPage === "review" && (
-          <div className="bg-canvas p-4 md:p-6">
+          <div id="studio-page-review" role="tabpanel" aria-labelledby="studio-tab-review" tabIndex={0} className="bg-canvas p-4 md:p-6">
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_390px]">
               <section className="professional-card overflow-hidden rounded-2xl border border-hairline-on-canvas bg-white shadow-sm">
                 <div className="flex flex-wrap items-center gap-3 border-b border-hairline bg-surface px-5 py-5 text-white">

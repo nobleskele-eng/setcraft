@@ -161,7 +161,7 @@ export default function SettingsView({ currentRole, onRoleChange }: SettingsView
       <div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
         <section className="space-y-5 rounded-2xl border border-hairline-on-canvas bg-canvas/70 p-6 xl:col-span-5">
           <div className="flex items-center gap-2 text-accent-active"><UserCheck className="h-5 w-5" /><h3 className="font-display text-lg font-bold text-surface">Perspective role</h3></div>
-          <p className="text-sm leading-relaxed text-ink-muted-on-canvas">Switch the visible perspective without pretending that production authentication exists. Role-based accounts are a later backend milestone.</p>
+          <p className="text-sm leading-relaxed text-ink-muted-on-canvas">Switch the working perspective inside your secured account. This changes the interface context only; team permissions still require a shared club backend.</p>
           <div className="space-y-3">
             {[
               { role: "Coach" as UserRole, title: "Coach workspace", desc: "Build practices, organize lanes, validate and export." },
@@ -202,7 +202,7 @@ export default function SettingsView({ currentRole, onRoleChange }: SettingsView
           <div>
             <h4 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-ink-muted-on-canvas"><Link2 className="h-4 w-4" />Prototype team link</h4>
             <div className="rounded-2xl border border-hairline-on-canvas bg-white p-5">
-              <div className="flex items-center justify-between gap-5"><div><span className="block text-sm font-bold text-surface">Allow shared-coach features</span><span className="mt-1 block text-xs text-ink-muted-on-canvas">Interface preference only until accounts and a shared database are added.</span></div><Toggle value={preferences.coachShare} onClick={() => setPreference("coachShare", !preferences.coachShare)} label="Toggle shared coach features" /></div>
+              <div className="flex items-center justify-between gap-5"><div><span className="block text-sm font-bold text-surface">Allow shared-coach features</span><span className="mt-1 block text-xs text-ink-muted-on-canvas">Stored as a workspace preference until shared team records and permissions are added.</span></div><Toggle value={preferences.coachShare} onClick={() => setPreference("coachShare", !preferences.coachShare)} label="Toggle shared coach features" /></div>
               <div className="mt-4 flex flex-col gap-3 sm:flex-row"><input value={preferences.inviteCode} onChange={(event) => setPreference("inviteCode", event.target.value.toUpperCase().slice(0, 30))} placeholder="Optional team code" className="min-w-0 flex-1 rounded-xl border border-hairline-on-canvas bg-canvas px-4 py-3 font-mono text-sm font-bold text-surface-raised outline-none focus:border-accent-hover focus:ring-2 focus:ring-canvas-raised" /><span className="flex items-center justify-center rounded-xl border border-hairline-on-canvas bg-canvas-raised px-4 py-3 text-xs font-bold uppercase tracking-wider text-ink-muted-on-canvas">Saved locally</span></div>
             </div>
           </div>
@@ -220,7 +220,7 @@ export default function SettingsView({ currentRole, onRoleChange }: SettingsView
             </div>
           </div>
 
-          <div className="flex items-start gap-3 rounded-2xl border border-hairline-on-canvas bg-canvas p-5 text-xs leading-relaxed text-surface"><Key className="mt-0.5 h-4 w-4 shrink-0" /><p><strong>Production boundary:</strong> secure sign-in, encrypted cloud records, consent management, club permissions and verified regulatory compliance are not implemented in this local prototype. The interface now states that boundary accurately.</p></div>
+          <div className="flex items-start gap-3 rounded-2xl border border-hairline-on-canvas bg-canvas p-5 text-xs leading-relaxed text-surface"><Key className="mt-0.5 h-4 w-4 shrink-0" /><p><strong>Production boundary:</strong> secure account access is active. Projects still live on this device; encrypted shared records, consent management, club permissions and verified regulatory compliance remain future backend work.</p></div>
         </section>
       </div>
     </div>
