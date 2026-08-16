@@ -1,28 +1,37 @@
-# SetCraft Swim Studio v20
+# SetCraft Swim Studio v21
 
-SetCraft is a coach-first swim planning and race-intelligence workspace. It combines a visual set builder, lane planning, pool-deck exports, season planning, race analysis, strategy tools, curated workouts, and a server-protected AI coaching layer in one authenticated application.
+SetCraft is a coach-first swim planning and race-intelligence workspace. v21 adds a public product website, first-party email/password accounts, and a protected studio entrance while retaining the complete workout, lane, calendar, and race-analysis system.
 
-## What changed in v20
+## What changed in v21
 
-- The primary application sidebar can be collapsed or restored from every workspace page. The preference is remembered on the device.
-- Build Sets now has clearly labeled controls for the block library and workout inspector, plus a one-click **Focus canvas** mode.
-- The block library and inspector can also be closed directly from their own panel headers.
-- Builder panel preferences persist while moving between Project Setup, Build Sets, Lane Plan, Deck Sheet, and Review & Export.
-- The builder grid was resized so the right inspector remains inside the viewport instead of extending past the page edge.
-- At narrower widths, optional builder panels become contained overlays; the workout canvas remains usable without page-level horizontal scrolling.
-- v19 calendar improvements remain included: accessible Week, Month, and Year views with period summaries and drill-down navigation.
+- A responsive public landing page now loads at `/`, so visitors no longer meet an authentication wall or dead entry route before seeing SetCraft.
+- The landing page uses an editorial, sport-led visual system with real swimming photography, clear product storytelling, strong navigation, and direct links into the working studio.
+- **Log in** and **Sign up** sit at the top right on desktop and remain easy to reach on smaller screens.
+- First-party account creation supports full name, email, password, phone, swim club, club role, city/region, and primary course.
+- Credentials and sessions are stored in D1. Passwords use PBKDF2-SHA-256 with a unique salt and 210,000 iterations; session tokens are hashed before storage and sent in HttpOnly, SameSite cookies.
+- `/studio` and the Gemini coaching routes require a valid SetCraft session. Anonymous studio visits redirect to `/login`.
+- A branded not-found page replaces the unhelpful black `Not Found` response for unknown application routes.
+- v20's collapsible application sidebar, closable builder library and inspector, focus-canvas mode, corrected inspector sizing, and persisted panel preferences remain included.
+- The Season Calendar still provides accessible Week, Month, and Year views with period summaries and drill-down navigation.
+
+## Main routes
+
+- `/` — public SetCraft landing page
+- `/login` — email and password login
+- `/signup` — account and swim-club profile creation
+- `/studio` — authenticated coaching workspace
 
 ## Main workspaces
 
 - **Project Hub** — create, save, organize, reopen, and group workout projects by season folder.
-- **Project Setup** — define the practice name, training phase, pool course, duration, focus, tags, and folder.
+- **Project Setup** — define the practice name, phase, pool course, duration, focus, tags, and folder.
 - **Build Sets** — compose nested sections, repeats, conditions, progressions, time caps, lane branches, notes, and swim blocks.
 - **Lane Plan** — assign swimmers, lanes, send-offs, pace versions, and lane-specific set variants.
-- **Deck Sheet** — prepare practice headers, coach notes, targets, goal-time tables, and print-ready deck information.
-- **Review & Export** — validate the workout, inspect calculated totals, preview the deck sheet, and export PDF or structured JSON.
-- **Season Calendar** — plan detailed weeks and review monthly or yearly training load.
-- **Race Analysis Lab** — compare LCM, SCM, and SCY performances with official reference data and transparent modeled checkpoints.
-- **Race Strategy Studio** — build athlete-aware race plans without allowing profile inputs or AI text to overwrite locked records or calculations.
+- **Deck Sheet** — prepare practice headers, coach notes, targets, goal-time tables, and print-ready information.
+- **Review & Export** — validate totals, preview the deck sheet, and export PDF or structured JSON.
+- **Season Calendar** — plan by week and review monthly or yearly training load.
+- **Race Analysis Lab** — compare LCM, SCM, and SCY performances with clear evidence boundaries.
+- **Race Strategy Studio** — build athlete-aware plans without overwriting locked records or calculations.
 - **Coach Block AI** — generate and revise coach-reviewed drafts through protected server routes.
 
 ## Local requirements
@@ -38,6 +47,16 @@ npm run dev
 ```
 
 Open the local address shown by the development server.
+
+## Account database
+
+The hosted configuration binds a D1 database as `DB`. The checked-in Drizzle migration creates `users` and `sessions`.
+
+When changing the schema, generate a new migration with:
+
+```bash
+npm run db:generate
+```
 
 ## Optional Gemini configuration
 
@@ -70,22 +89,13 @@ npm run test:ai-policy
 npm run validate:artifact
 ```
 
-## Reference data and evidence boundaries
-
-The checked-in race library uses official Omega/Lenex and NCAA result sources documented in `docs/RACE_LIBRARY_DATA_MANIFEST.json`. World records, U.S. Open SCY benchmarks, entered splits, modeled checkpoints, athlete context, and AI narrative remain separate evidence layers.
-
-Regenerate the field library by supplying the six official source files:
-
-```bash
-node scripts/build-race-library.mjs <usa-nationals.lef> <usa-junior-nationals.lef> <worlds.lef> <world-scm.lef> <ncaa-men.txt> <ncaa-women.txt>
-```
-
 ## Data storage and privacy
 
-- Workout drafts, panel preferences, saved projects, custom blocks, and calendar plans are stored locally in the browser unless a future hosted data layer is explicitly configured.
-- Authentication protects the workspace and AI endpoints.
-- Coaches remain responsible for checking athlete suitability, medical restrictions, intervals, recovery, and final practice decisions.
+- Account profiles and hashed sessions are stored in the hosted D1 database.
+- Workout drafts, panel preferences, saved projects, custom blocks, and calendar plans remain in the browser unless a future hosted project-data layer is configured.
+- Gemini requests pass through session-protected server routes.
+- Coaches remain responsible for athlete suitability, medical restrictions, intervals, recovery, and final practice decisions.
 
 ## Release
 
-This source package corresponds to **SetCraft Swim Studio v20**.
+This source package corresponds to **SetCraft Swim Studio v21**.

@@ -15,7 +15,7 @@
     "ai:eval": "node --import tsx scripts/ai-eval.ts",
     "ai:audit-knowledge": "node --import tsx scripts/ai-knowledge-audit.ts",
     "ai:generate-coverage": "node --import tsx scripts/ai-generate-coverage.ts",
-    "test": "npm run build && npm run test:race && npm run test:ai-policy && node --test tests/rendered-html.test.mjs",
+    "test": "npm run build && npm run test:race && npm run test:ai-policy && node --no-warnings=ExperimentalWarning --experimental-loader ./scripts/cloudflare-workers-loader.mjs --test tests/rendered-html.test.mjs",
     "test:race": "node --import tsx --test tests/race-intelligence.test.ts",
     "test:ai-policy": "node --import tsx --test tests/ai-policy-guardrails.test.ts",
     "validate:artifact": "bash scripts/validate-artifact.sh",
