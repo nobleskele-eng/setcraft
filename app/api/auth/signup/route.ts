@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
   const fullName = text(body.fullName, 100);
   const email = normalizeEmail(text(body.email, 254));
   const password = typeof body.password === "string" ? body.password : "";
+  const confirmPassword = typeof body.confirmPassword === "string" ? body.confirmPassword : "";
   const phone = text(body.phone, 30);
   const clubName = text(body.clubName, 120);
   const clubRole = text(body.clubRole, 60);
@@ -30,6 +31,8 @@ export async function POST(request: NextRequest) {
   if (!validEmail(email)) return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
   const passwordError = validatePassword(password);
   if (passwordError) return NextResponse.json({ error: passwordError }, { status: 400 });
+  if (password !== confirmPassword) return NextResponse.json({ error: "Passwords do not match." }, { status: 400 });
+  if (body.termsAccepted !== "yes") return NextResponse.json({ error: "Accept the Terms of Service and Privacy Policy to continue." }, { status: 400 });
 
   try {
     const user = await createAccount({

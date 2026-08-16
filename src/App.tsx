@@ -299,7 +299,7 @@ export default function App({ userDisplayName, userEmail, signOutPath }: AppProp
             </div>
           </div>
           <div className="sc-sidebar-meta-row"><span>{savedCount} saved project{savedCount === 1 ? "" : "s"} on this device</span></div>
-          <div className="sc-sidebar-meta-row sc-session-row"><span><span className="sc-sidebar-dot" />Session secured</span><span>v21</span></div>
+          <div className="sc-sidebar-meta-row sc-session-row"><span><span className="sc-sidebar-dot" />Session secured</span><span>v22</span></div>
         </div>
       </aside>
 

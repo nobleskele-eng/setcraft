@@ -7,6 +7,8 @@ import {
   ClipboardCheck,
   Gauge,
   Layers3,
+  Mail,
+  Phone,
   Route,
   ShieldCheck,
   Sparkles,
@@ -15,6 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type { AppUser } from "../../app/auth";
+import { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_PHONE_HREF } from "../siteDetails";
 
 const heroImage = "https://images.unsplash.com/photo-1519315901367-f34ff9154487?auto=format&fit=crop&fm=jpg&q=82&w=2200";
 const poolImage = "https://images.unsplash.com/photo-1560090964-cc7c8bfb293e?auto=format&fit=crop&fm=jpg&q=82&w=1800";
@@ -64,6 +67,7 @@ export default function LandingPage({ user }: { user: AppUser | null }) {
           <a href="#workflow">Workflow</a>
           <a href="#intelligence">Race intelligence</a>
           <a href="#standards">Why SetCraft</a>
+          <a href="#contact">Contact</a>
         </nav>
         <div className="sc-landing-actions">
           {user ? (
@@ -213,6 +217,19 @@ export default function LandingPage({ user }: { user: AppUser | null }) {
         </div>
       </section>
 
+      <section className="sc-landing-contact" id="contact">
+        <div>
+          <p className="sc-landing-overline">A real team behind the workspace</p>
+          <h2>Questions before<br />the first session?</h2>
+          <p>Talk to SetCraft about account access, club setup, product feedback, privacy, or partnership ideas. The contact details below are placeholders for launch preparation.</p>
+        </div>
+        <div className="sc-landing-contact-actions">
+          <a href={`mailto:${SUPPORT_EMAIL}`}><Mail /><span><small>Email support</small><strong>{SUPPORT_EMAIL}</strong></span><ArrowRight /></a>
+          <a href={`tel:${SUPPORT_PHONE_HREF}`}><Phone /><span><small>Call SetCraft</small><strong>{SUPPORT_PHONE}</strong></span><ArrowRight /></a>
+          <Link href="/contact">Open the contact centre <ArrowRight /></Link>
+        </div>
+      </section>
+
       <section className="sc-landing-cta">
         <div><p className="sc-landing-overline">Your next session starts here</p><h2>Build the work.<br />Own the details.</h2></div>
         <div><p>Create a SetCraft account and open the complete studio—from the first training idea to the race review.</p><a className="sc-landing-button sc-landing-button-light sc-landing-button-large" href={user ? "/studio" : "/signup"}>{user ? "Open studio" : "Get started"}<ArrowRight /></a></div>
@@ -221,7 +238,7 @@ export default function LandingPage({ user }: { user: AppUser | null }) {
       <footer className="sc-landing-footer">
         <Link className="sc-landing-logo" href="/"><span className="sc-landing-logo-mark" aria-hidden="true"><span /><span /><span /></span><span><strong>SetCraft</strong><small>Swim performance studio</small></span></Link>
         <p>Purpose-built workout design and race intelligence for competitive swimming.</p>
-        <div><a href="#platform">Platform</a><a href="#workflow">Workflow</a><a href="/login">Log in</a><a href="/signup">Sign up</a></div>
+        <div><a href="#platform">Platform</a><a href="#contact">Contact</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/login">Log in</a><a href="/signup">Sign up</a></div>
         <small>© 2026 SetCraft. Coaches remain responsible for athlete suitability and final practice decisions.</small>
       </footer>
     </main>

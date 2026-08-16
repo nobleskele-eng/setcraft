@@ -16,6 +16,10 @@ type GeminiResult = {
   sources: Array<{ fileName: string; source?: string }>;
 };
 
+type CoachingImage = { name: string; mimeType: "image/jpeg" | "image/png" | "image/webp"; data: string };
+const IMAGE_MIME_TYPES = new Set<CoachingImage["mimeType"]>(["image/jpeg", "image/png", "image/webp"]);
+const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
+
 function safeText(value: unknown, fallback = "") {
   return typeof value === "string" ? value.trim().slice(0, 12000) : fallback;
 }
@@ -23,6 +27,19 @@ function safeText(value: unknown, fallback = "") {
 function safeNumber(value: unknown, fallback: number, min: number, max: number) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? Math.min(max, Math.max(min, parsed)) : fallback;
+}
+
+function safeCoachingImage(value: unknown): CoachingImage | null {
+  if (!value || typeof value !== "object") return null;
+  const input = value as Record<string, unknown>;
+  const mimeType = typeof input.mimeType === "string" ? input.mimeType : "";
+  const data = typeof input.data === "string" ? input.data.trim() : "";
+  const name = typeof input.name === "string" ? input.name.trim().slice(0, 120) : "coaching-image";
+  if (!IMAGE_MIME_TYPES.has(mimeType as CoachingImage["mimeType"]) || !/^[A-Za-z0-9+/]+={0,2}$/.test(data)) return null;
+  const padding = data.endsWith("==") ? 2 : data.endsWith("=") ? 1 : 0;
+  const byteLength = Math.floor(data.length * 3 / 4) - padding;
+  if (byteLength <= 0 || byteLength > MAX_IMAGE_BYTES) return null;
+  return { name, mimeType: mimeType as CoachingImage["mimeType"], data };
 }
 
 function fileSearchStoreName() {
@@ -63,7 +80,7 @@ function offlineResult(fallback: string): GeminiResult {
   };
 }
 
-async function generate(workflow: AiWorkflow, system: string, prompt: string, fallback: string): Promise<GeminiResult> {
+async function generate(workflow: AiWorkflow, system: string, prompt: string, fallback: string, image?: CoachingImage): Promise<GeminiResult> {
   const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
   if (!key) return offlineResult(fallback);
 
@@ -72,7 +89,10 @@ async function generate(workflow: AiWorkflow, system: string, prompt: string, fa
     const ai = new GoogleGenAI({ apiKey: key });
     const interaction = await ai.interactions.create({
       model: MODEL,
-      input: prompt,
+      input: image ? [
+        { type: "text" as const, text: `${prompt}\n\nAttached coaching image: ${image.name}` },
+        { type: "image" as const, data: image.data, mime_type: image.mimeType },
+      ] : prompt,
       system_instruction: [
         system,
         `This request is for the SetCraft ${workflow} workflow.`,
@@ -180,10 +200,14 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
   if (action === "chat") {
     const messages = Array.isArray(body.messages) ? body.messages.slice(-20) as Array<Record<string, unknown>> : [];
     if (!messages.length) return NextResponse.json({ error: "At least one message is required." }, { status: 400 });
+    const image = body.image === undefined ? undefined : safeCoachingImage(body.image);
+    if (body.image !== undefined && !image) {
+      return NextResponse.json({ error: "Use one JPEG, PNG, or WebP image no larger than 6 MB." }, { status: 400 });
+    }
     const history = messages.map((message) => `${message.sender === "user" ? "Coach" : "SetCraft"}: ${safeText(message.text)}`).join("\n");
-    const system = "You are SetCraft's concise evidence-aware swimming-coach copilot. Ask for course, event, athlete level and session objective when they materially change the answer. Give practical options, transparent calculations, technique cues and a clear coach-check step. Distinguish LCM, SCM and SCY; never call SCY performances world records. Never invent official cuts, make medical or athlete-readiness decisions, or diagnose physiology from self-ratings.";
-    const fallback = "Define the target pace or technical outcome first, then choose a repeat distance that lets the coach observe it. Set recovery from the lane's real completion time and preserve the session's purpose.";
-    return NextResponse.json(await generate("chat", system, history, fallback));
+    const system = "You are SetCraft's concise evidence-aware swimming-coach copilot. Ask for course, event, athlete level and session objective when they materially change the answer. Give practical options, transparent calculations, technique cues and a clear coach-check step. Distinguish LCM, SCM and SCY; never call SCY performances world records. Never invent official cuts, make medical or athlete-readiness decisions, or diagnose physiology from self-ratings. For images, describe only visible evidence, distinguish observation from inference, note camera-angle and single-frame limits, and ask for context. Never identify a person, infer age or other sensitive traits, diagnose injury, assess medical status, or determine athlete readiness from an image.";
+    const fallback = image ? "The attached image requires live Gemini vision to review. Add the coaching context in text and try again when live AI is available; do not make a technique, identity, injury, or readiness conclusion from the unavailable image." : "Define the target pace or technical outcome first, then choose a repeat distance that lets the coach observe it. Set recovery from the lane's real completion time and preserve the session's purpose.";
+    return NextResponse.json(await generate("chat", system, history, fallback, image));
   }
 
   return NextResponse.json({ error: "Unknown SetCraft AI action." }, { status: 404 });

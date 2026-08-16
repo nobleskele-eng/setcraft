@@ -5,6 +5,7 @@ import { env } from "cloudflare:workers";
 export const SESSION_COOKIE = "setcraft_session";
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 const PASSWORD_ITERATIONS = 210_000;
+const PASSWORD_RESET_MAX_AGE_MINUTES = 20;
 
 export type AppUser = {
   id: string;
@@ -57,6 +58,15 @@ export async function ensureAuthSchema() {
         )`),
         env.DB.prepare("CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON sessions(user_id)"),
         env.DB.prepare("CREATE INDEX IF NOT EXISTS sessions_expires_at_idx ON sessions(expires_at)"),
+        env.DB.prepare(`CREATE TABLE IF NOT EXISTS password_reset_tokens (
+          id TEXT PRIMARY KEY,
+          user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          expires_at TEXT NOT NULL,
+          used_at TEXT,
+          created_at TEXT NOT NULL
+        )`),
+        env.DB.prepare("CREATE INDEX IF NOT EXISTS password_reset_user_idx ON password_reset_tokens(user_id)"),
+        env.DB.prepare("CREATE INDEX IF NOT EXISTS password_reset_expiry_idx ON password_reset_tokens(expires_at)"),
       ]);
     })().catch((error) => {
       schemaReady = null;
@@ -163,6 +173,50 @@ export async function deleteSession(token: string | undefined) {
   if (!token || !env.DB) return;
   await ensureAuthSchema();
   await env.DB.prepare("DELETE FROM sessions WHERE id = ?").bind(await sha256(token)).run();
+}
+
+export async function createPasswordResetToken(emailValue: string) {
+  await ensureAuthSchema();
+  const email = normalizeEmail(emailValue);
+  const user = await env.DB.prepare("SELECT id, email, full_name AS displayName FROM users WHERE email = ? LIMIT 1")
+    .bind(email)
+    .first<{ id: string; email: string; displayName: string }>();
+  if (!user) return null;
+
+  const token = toBase64Url(crypto.getRandomValues(new Uint8Array(32)));
+  const id = await sha256(token);
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + PASSWORD_RESET_MAX_AGE_MINUTES * 60 * 1000);
+  await env.DB.batch([
+    env.DB.prepare("DELETE FROM password_reset_tokens WHERE user_id = ? OR expires_at <= ? OR used_at IS NOT NULL").bind(user.id, now.toISOString()),
+    env.DB.prepare("INSERT INTO password_reset_tokens (id, user_id, expires_at, used_at, created_at) VALUES (?, ?, ?, NULL, ?)")
+      .bind(id, user.id, expiresAt.toISOString(), now.toISOString()),
+  ]);
+  return { token, email: user.email, displayName: user.displayName, expiresAt };
+}
+
+export async function resetPasswordWithToken(token: string, password: string) {
+  await ensureAuthSchema();
+  const id = await sha256(token);
+  const now = new Date().toISOString();
+  const reset = await env.DB.prepare("SELECT user_id AS userId FROM password_reset_tokens WHERE id = ? AND used_at IS NULL AND expires_at > ? LIMIT 1")
+    .bind(id, now)
+    .first<{ userId: string }>();
+  if (!reset) return false;
+
+  const consumed = await env.DB.prepare("UPDATE password_reset_tokens SET used_at = ? WHERE id = ? AND used_at IS NULL AND expires_at > ?")
+    .bind(now, id, now)
+    .run();
+  if (!consumed.meta.changes) return false;
+
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const passwordHash = await derivePassword(password, salt, PASSWORD_ITERATIONS);
+  await env.DB.batch([
+    env.DB.prepare("UPDATE users SET password_hash = ?, password_salt = ?, password_iterations = ?, updated_at = ? WHERE id = ?")
+      .bind(toBase64Url(passwordHash), toBase64Url(salt), PASSWORD_ITERATIONS, now, reset.userId),
+    env.DB.prepare("DELETE FROM sessions WHERE user_id = ?").bind(reset.userId),
+  ]);
+  return true;
 }
 
 export async function getAppUser(): Promise<AppUser | null> {

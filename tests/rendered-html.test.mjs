@@ -35,6 +35,9 @@ test("renders the public landing page with development preview metadata", async 
   assert.match(html, /Create your workspace/i);
   assert.match(html, /Log in/i);
   assert.match(html, /Sign up/i);
+  assert.match(html, /Terms/i);
+  assert.match(html, /Privacy/i);
+  assert.match(html, /Questions before/i);
   assert.doesNotMatch(html, /Home Dashboard/i);
 });
 
@@ -71,6 +74,7 @@ test("renders complete login and sign-up routes", async () => {
   const loginHtml = await loginResponse.text();
   assert.match(loginHtml, /Log in to SetCraft/i);
   assert.match(loginHtml, /Email address/i);
+  assert.match(loginHtml, /Forgot password/i);
 
   const signupResponse = await worker.fetch(
     new Request("http://localhost/signup", { headers: { accept: "text/html" } }),
@@ -81,8 +85,47 @@ test("renders complete login and sign-up routes", async () => {
   const signupHtml = await signupResponse.text();
   assert.match(signupHtml, /Tell us about your coaching world/i);
   assert.match(signupHtml, /Full name/i);
+  assert.match(signupHtml, /Repeat password/i);
   assert.match(signupHtml, /Swim club/i);
   assert.match(signupHtml, /Primary course/i);
+  assert.match(signupHtml, /Terms of Service/i);
+  assert.match(signupHtml, /Privacy Policy/i);
+});
+
+test("renders the public trust and account-recovery pages", async () => {
+  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
+  workerUrl.searchParams.set("trust-routes-test", `${process.pid}-${Date.now()}`);
+  const { default: worker } = await import(workerUrl.href);
+  const env = { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } };
+  const ctx = { waitUntil() {}, passThroughOnException() {} };
+  const expectations = [
+    ["/terms", /Coaching and athlete responsibility/i],
+    ["/privacy", /AI prompts and image processing/i],
+    ["/contact", /Start with the/i],
+    ["/forgot-password", /Forgot your password/i],
+    ["/reset-password", /Create a new password/i],
+  ];
+  for (const [path, pattern] of expectations) {
+    const response = await worker.fetch(new Request(`http://localhost${path}`, { headers: { accept: "text/html" } }), env, ctx);
+    assert.equal(response.status, 200, path);
+    assert.match(await response.text(), pattern, path);
+  }
+});
+
+test("rejects mismatched sign-up and reset passwords before storage", async () => {
+  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
+  workerUrl.searchParams.set("password-validation-test", `${process.pid}-${Date.now()}`);
+  const { default: worker } = await import(workerUrl.href);
+  const env = { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } };
+  const ctx = { waitUntil() {}, passThroughOnException() {} };
+
+  const signup = await worker.fetch(new Request("http://localhost/api/auth/signup", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ fullName: "Taylor Coach", email: "coach@example.com", password: "StrongPass2026", confirmPassword: "DifferentPass2026", termsAccepted: "yes" }) }), env, ctx);
+  assert.equal(signup.status, 400);
+  assert.match(await signup.text(), /Passwords do not match/i);
+
+  const reset = await worker.fetch(new Request("http://localhost/api/auth/reset-password", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token: "invalid", password: "StrongPass2026", confirmPassword: "StrongPass2026" }) }), env, ctx);
+  assert.equal(reset.status, 400);
+  assert.match(await reset.text(), /invalid or has expired/i);
 });
 
 test("rejects anonymous Gemini requests", async () => {

@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useRef, useEffect } from "react";
-import { Sparkles, Send, Bot, RefreshCw, User, HelpCircle, Dumbbell, AlertTriangle, PlayCircle } from "lucide-react";
+import React, { ChangeEvent, useState, useRef, useEffect } from "react";
+import { Sparkles, Send, Bot, RefreshCw, User, HelpCircle, Dumbbell, AlertTriangle, PlayCircle, ImagePlus, FileImage, X } from "lucide-react";
 import { AIChatMessage, AISuggestion } from "../types";
 
 const SUGGESTIONS: AISuggestion[] = [
@@ -24,6 +24,10 @@ type AiHealth = {
 };
 
 type AiResponseMode = "rag" | "live" | "offline";
+type ChatImage = { name: string; mimeType: string; data: string; preview: string; size: number };
+
+const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
 
 export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
   const [activeTab, setActiveTab] = useState<"chat" | "generator" | "modifier">("chat");
@@ -39,7 +43,9 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
     }
   ]);
   const [loadingChat, setLoadingChat] = useState(false);
+  const [chatImage, setChatImage] = useState<ChatImage | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   // Generator state
   const [genFocus, setGenFocus] = useState("Lactate Threshold");
@@ -83,18 +89,21 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
 
   // 1. Submit Chat
   const handleChatSubmit = async (textToSend?: string) => {
-    const text = textToSend || chatInput;
-    if (!text.trim()) return;
+    const text = (textToSend || chatInput).trim() || (chatImage ? "Review this uploaded swim-coaching image. Describe only what is visibly supported, state limitations, and give coach-check steps." : "");
+    if (!text) return;
+    const submittedImage = chatImage;
 
     const userMsg: AIChatMessage = {
       id: `u-${Date.now()}`,
       sender: "user",
       text,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      ...(submittedImage ? { imageName: submittedImage.name, imagePreview: submittedImage.preview } : {}),
     };
 
     setChatMessages(prev => [...prev, userMsg]);
     if (!textToSend) setChatInput("");
+    setChatImage(null);
     setLoadingChat(true);
     setRequestError("");
 
@@ -102,7 +111,10 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
       const response = await fetch("/api/gemini/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...chatMessages, userMsg] })
+        body: JSON.stringify({
+          messages: [...chatMessages, userMsg].map(({ sender, text: messageText }) => ({ sender, text: messageText })),
+          ...(submittedImage ? { image: { name: submittedImage.name, mimeType: submittedImage.mimeType, data: submittedImage.data } } : {}),
+        })
       });
       if (!response.ok) throw new Error(`AI request failed (${response.status})`);
       const data = await response.json();
@@ -121,6 +133,30 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
     } finally {
       setLoadingChat(false);
     }
+  };
+
+  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setRequestError("");
+    if (!IMAGE_TYPES.includes(file.type)) {
+      setRequestError("Use a JPEG, PNG, or WebP image.");
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      setRequestError("Images must be 6 MB or smaller.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const preview = typeof reader.result === "string" ? reader.result : "";
+      const data = preview.split(",", 2)[1] || "";
+      if (!data) return setRequestError("SetCraft could not read that image.");
+      setChatImage({ name: file.name.slice(0, 120), mimeType: file.type, data, preview, size: file.size });
+    };
+    reader.onerror = () => setRequestError("SetCraft could not read that image.");
+    reader.readAsDataURL(file);
   };
 
   // 2. Submit Generator
@@ -192,7 +228,7 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(168,85,247,.28),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(34,211,238,.18),transparent_35%)]" />
         <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-disabled"><Sparkles className="h-5 w-5" /><span className="text-xs font-black uppercase tracking-[.2em]">SetCraft AI workspace v13</span></div>
+          <div className="flex items-center gap-2 text-disabled"><Sparkles className="h-5 w-5" /><span className="text-xs font-black uppercase tracking-[.2em]">SetCraft AI workspace v22</span></div>
           <h2 className="mt-3 text-4xl font-display font-black tracking-tight md:text-5xl">
             Coach Block AI
           </h2>
@@ -277,6 +313,7 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
                         idx % 2 === 1 ? <strong key={idx} className="font-bold text-surface">{chunk}</strong> : chunk
                       )}
                     </div>
+                    {m.imagePreview && <div className="mt-3 overflow-hidden rounded-xl border border-white/15 bg-black/5"><img src={m.imagePreview} alt={`Uploaded coaching reference: ${m.imageName || "image"}`} className="max-h-52 w-full object-cover" /><span className="flex items-center gap-1.5 px-3 py-2 text-[9px] opacity-70"><FileImage className="h-3 w-3" />{m.imageName}</span></div>}
                     <span className="text-[9px] text-ink-muted-on-canvas font-mono block text-right mt-2">{m.timestamp}</span>
                   </div>
                 </div>
@@ -291,18 +328,21 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
             </div>
 
             {/* Input box */}
-            <div className="border-t border-hairline-on-canvas/80 p-4 bg-white flex gap-3">
+            {chatImage && <div className="border-t border-hairline-on-canvas/80 bg-white px-4 pt-3"><div className="flex items-center gap-3 rounded-xl border border-hairline-on-canvas bg-canvas p-2"><img src={chatImage.preview} alt="Selected image preview" className="h-14 w-14 rounded-lg object-cover" /><span className="min-w-0 flex-1"><strong className="block truncate text-[11px] text-surface">{chatImage.name}</strong><small className="text-[9px] text-ink-muted-on-canvas">{(chatImage.size / 1024 / 1024).toFixed(1)} MB · sent with the next message</small></span><button type="button" onClick={() => setChatImage(null)} aria-label="Remove selected image" className="rounded-lg p-2 text-ink-muted-on-canvas hover:bg-white hover:text-rose-700"><X className="h-4 w-4" /></button></div></div>}
+            <div className="border-t border-hairline-on-canvas/80 p-4 bg-white flex gap-2">
+              <button type="button" onClick={() => imageInputRef.current?.click()} aria-label="Attach an image for AI review" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-hairline-on-canvas bg-canvas text-surface hover:border-disabled hover:bg-white"><ImagePlus className="h-4 w-4" /></button>
               <input
                 type="text"
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleChatSubmit()}
-                placeholder="Ask about swim mechanics, energy systems, tapered cycles..."
+                placeholder="Ask a coaching question or attach an image..."
                 className="flex-1 bg-canvas border border-hairline-on-canvas text-surface rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-hairline-on-canvas font-sans"
               />
               <button
                 onClick={() => handleChatSubmit()}
-                className="bg-surface hover:bg-surface-raised text-white rounded-xl px-5 flex items-center justify-center font-bold text-xs transition shadow-sm"
+                disabled={loadingChat || (!chatInput.trim() && !chatImage)}
+                className="bg-surface hover:bg-surface-raised text-white rounded-xl px-5 flex items-center justify-center font-bold text-xs transition shadow-sm disabled:cursor-not-allowed disabled:opacity-45"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -311,6 +351,12 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
 
           {/* Quick recommendations panel (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
+            <input ref={imageInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={handleImageChange} />
+            <div className="rounded-2xl border border-dashed border-disabled bg-canvas/70 p-4">
+              <div className="flex items-start gap-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-accent-active shadow-xs"><ImagePlus className="h-4 w-4" /></span><div><strong className="text-xs text-surface">AI image review</strong><p className="mt-1 text-[10px] leading-relaxed text-ink-muted-on-canvas">Attach a stroke frame, deck photo, whiteboard, or race screenshot. SetCraft describes visible evidence and coach checks—not identity, diagnosis, or injury.</p></div></div>
+              <button type="button" onClick={() => imageInputRef.current?.click()} className="mt-3 w-full rounded-xl border border-hairline-on-canvas bg-white px-3 py-2.5 text-[10px] font-bold text-surface hover:border-disabled">{chatImage ? "Replace image" : "Choose image"} · JPEG, PNG, WebP</button>
+              <p className="mt-2 text-[9px] leading-relaxed text-ink-muted-on-canvas">6 MB max. Upload only content you are authorized to share; avoid medical records and identifiable minors without permission.</p>
+            </div>
             <h3 className="text-[10px] text-ink-muted-on-canvas font-mono uppercase tracking-wider">Coach Quick Presets</h3>
             <div className="space-y-3.5">
               {SUGGESTIONS.map((s, idx) => (
