@@ -13,8 +13,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SetCraft Swim Studio",
-  description: "Professional swim workout design, race intelligence and split modelling.",
+  title: {
+    default: "SetCraft — Swim Performance Studio",
+    template: "%s | SetCraft",
+  },
+  description: "Design workouts, organize lanes, deliver deck sheets, plan seasons, and analyze races in one professional swim coaching workspace.",
   other: {
     "codex-preview": "development",
   },

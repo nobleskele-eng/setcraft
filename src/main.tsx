@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
-import AuthGate from "./components/AuthGate";
+import LandingPage from "./components/LandingPage";
 import "./index.css";
 
 const localWorkspacePreview = import.meta.env.DEV
@@ -15,6 +15,6 @@ createRoot(document.getElementById('root')!).render(
         userEmail="coach@setcraft.local"
         signOutPath="/"
       />
-    ) : <AuthGate />}
+    ) : <LandingPage user={null} />}
   </StrictMode>,
 );
