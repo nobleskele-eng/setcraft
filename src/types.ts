@@ -113,6 +113,8 @@ export interface AIChatMessage {
   sender: "user" | "copilot";
   text: string;
   timestamp: string;
+  imageName?: string;
+  imagePreview?: string;
 }
 
 export interface AISuggestion {

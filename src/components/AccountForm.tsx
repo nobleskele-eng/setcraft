@@ -11,9 +11,15 @@ export default function AccountForm({ mode }: { mode: Mode }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!isLogin && password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
     setPending(true);
     setError("");
     const values = Object.fromEntries(new FormData(event.currentTarget).entries());
@@ -79,11 +85,11 @@ export default function AccountForm({ mode }: { mode: Mode }) {
               <label>
                 Password
                 <span className="sc-account-password">
-                  <input name="password" type={showPassword ? "text" : "password"} autoComplete={isLogin ? "current-password" : "new-password"} required minLength={isLogin ? undefined : 10} maxLength={128} placeholder={isLogin ? "Enter your password" : "10+ characters"} />
+                  <input name="password" type={showPassword ? "text" : "password"} autoComplete={isLogin ? "current-password" : "new-password"} required minLength={isLogin ? undefined : 10} maxLength={128} placeholder={isLogin ? "Enter your password" : "10+ characters"} value={password} onChange={(event) => setPassword(event.target.value)} />
                   <button type="button" onClick={() => setShowPassword((shown) => !shown)} aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff /> : <Eye />}</button>
                 </span>
               </label>
-              {!isLogin && <p className="sc-account-password-note"><LockKeyhole /> Use 10+ characters with uppercase, lowercase, and a number.</p>}
+              {isLogin ? <Link className="sc-account-forgot" href="/forgot-password">Forgot password?</Link> : <><label>Repeat password<input name="confirmPassword" type={showPassword ? "text" : "password"} autoComplete="new-password" required minLength={10} maxLength={128} value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} aria-invalid={Boolean(confirmPassword && password !== confirmPassword)} placeholder="Enter the same password again" /></label><p className={`sc-account-password-note ${confirmPassword && password !== confirmPassword ? "is-error" : ""}`}><LockKeyhole /> {confirmPassword ? password === confirmPassword ? "Passwords match." : "Passwords do not match yet." : "Use 10+ characters with uppercase, lowercase, and a number."}</p></>}
             </fieldset>
 
             {!isLogin && (
@@ -97,7 +103,7 @@ export default function AccountForm({ mode }: { mode: Mode }) {
                   <label>Club city<input name="clubCity" maxLength={120} placeholder="Toronto, ON" /></label>
                   <label>Primary course<select name="clubCourse" defaultValue=""><option value="">Select a course</option><option value="LCM">LCM — 50 m</option><option value="SCM">SCM — 25 m</option><option value="SCY">SCY — 25 yd</option><option value="Multiple">Multiple courses</option></select></label>
                 </div>
-                <label className="sc-account-consent"><input type="checkbox" required /> <span>I agree to use SetCraft responsibly and confirm that coaches remain responsible for athlete suitability and final practice decisions.</span></label>
+                <label className="sc-account-consent"><input name="termsAccepted" value="yes" type="checkbox" required /> <span>I agree to the <Link href="/terms">Terms of Service</Link> and <Link href="/privacy">Privacy Policy</Link>, and confirm that coaches remain responsible for athlete suitability and final practice decisions.</span></label>
               </fieldset>
             )}
 
