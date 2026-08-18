@@ -161,6 +161,9 @@
   --space-6: 32px;
   --space-7: 48px;
   --space-8: 64px;
+  --space-9: 80px;
+  --space-10: 96px;
+  --space-11: 120px;
 
   /* ---------------------------------------------------------------------
    * RADIUS — deliberately tight (tile edge, not app-store icon)
@@ -174,4 +177,27 @@
   --shadow-sm: 0 1px 2px rgba(11, 42, 63, 0.10);
   --shadow-md: 0 4px 14px rgba(11, 42, 63, 0.16);
   --shadow-nav: 0 2px 8px rgba(4, 16, 24, 0.35);
+
+  /* ---------------------------------------------------------------------
+   * LANDING — BAR TIMELINE LAYOUT
+   * One-off structural dimensions for the "bar timeline" marketing landing
+   * page (src/components/LandingPage.tsx), transcribed from the external
+   * design blueprint (SetCraft-Landing.dc.html). Kept separate from the
+   * core scale above because these are specific to this one layout rather
+   * than general-purpose spacing.
+   * ------------------------------------------------------------------- */
+  --landing-rail-width: 72px;        /* fixed left timeline sidebar */
+  --landing-nav-height: 56px;        /* fixed top nav bar */
+  --landing-rail-label-top: 14px;    /* "00:00" label offset inside rail */
+  --landing-pillar-icon-gap: 36px;   /* step-card icon row to heading */
+  --landing-pillar-pad-y: 28px;      /* step-card vertical padding */
+  --landing-pillar-min-height: 360px;
+  --landing-eyebrow-gap: 20px;       /* eyebrow label to heading/nav padding */
+  --landing-max-width: 1400px;       /* hero / outro two-column max width */
+  --landing-max-width-narrow: 820px; /* bridge section max width */
+  --landing-copy-max-width-md: 640px; /* section heading max width */
+  --landing-copy-max-width-sm: 560px; /* hero paragraph max width */
+  --landing-visual-max-width: 520px; /* hero/outro side visual column */
+  --landing-text-micro: 0.6875rem;    /* 11px — rotated bar labels, beat/pattern counters */
+  --landing-text-micro-2xs: 0.5625rem; /* 9px — rail clock/cue meta labels */
 }

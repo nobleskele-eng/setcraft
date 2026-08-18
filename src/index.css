@@ -1507,6 +1507,26 @@ textarea:focus-visible {
   .sc-contact-grid, .sc-contact-support-cards { grid-template-columns: 1fr; }
 }
 
+/* ===== Bar-timeline landing page (src/components/LandingPage.tsx) ===== */
+@keyframes sc-hero-rise {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.sc-hero-h1-clip { display: block; overflow: hidden; }
+.sc-hero-h1-inner {
+  display: inline-block;
+  animation: sc-hero-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.sc-pillar-cell {
+  opacity: 0;
+  transform: translateY(var(--space-2));
+  transition: opacity 0.45s ease-out, transform 0.45s ease-out;
+}
+.sc-pillar-cell[data-in="true"] { opacity: 1; transform: translateY(0); }
+
 @media (prefers-reduced-motion: reduce) {
   .sc-landing *, .sc-account-page * { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  .sc-hero-h1-inner { animation: none; }
+  .sc-pillar-cell { opacity: 1; transform: none; transition: none; }
 }
