@@ -15,6 +15,6 @@ createRoot(document.getElementById('root')!).render(
         userEmail="coach@setcraft.local"
         signOutPath="/"
       />
-    ) : <LandingPage user={null} />}
+    ) : <LandingPage />}
   </StrictMode>,
 );

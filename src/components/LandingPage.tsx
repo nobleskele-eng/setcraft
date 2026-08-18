@@ -1,246 +1,346 @@
-import {
-  ArrowRight,
-  BarChart3,
-  CalendarDays,
-  Check,
-  ChevronRight,
-  ClipboardCheck,
-  Gauge,
-  Layers3,
-  Mail,
-  Phone,
-  Route,
-  ShieldCheck,
-  Sparkles,
-  Users,
-  Waves,
-} from "lucide-react";
+"use client";
+
+import { useEffect, useRef } from "react";
 import Link from "next/link";
-import type { AppUser } from "../../app/auth";
-import { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_PHONE_HREF } from "../siteDetails";
 
-const heroImage = "https://images.unsplash.com/photo-1519315901367-f34ff9154487?auto=format&fit=crop&fm=jpg&q=82&w=2200";
-const poolImage = "https://images.unsplash.com/photo-1560090964-cc7c8bfb293e?auto=format&fit=crop&fm=jpg&q=82&w=1800";
+function accentA(pct: number): string {
+  return `color-mix(in oklch, var(--color-accent) ${pct}%, transparent)`;
+}
 
-const productAreas = [
+function surfaceA(pct: number): string {
+  return `color-mix(in oklch, var(--color-surface) ${pct}%, transparent)`;
+}
+
+const railCenter = "calc(var(--landing-rail-width) / 2)";
+
+const PILLARS = [
   {
-    eyebrow: "Plan",
-    title: "Build sets visually, without losing coaching intent.",
-    copy: "Compose sections, repeats, recovery, equipment, intensity, nested conditions, and lane variants in one structured canvas.",
-    icon: Layers3,
-    tone: "aqua",
+    step: "01",
+    title: "Deterministic math",
+    copy: "The engine computes totals, feasibility, send-off vs. target time, warm-up and booking checks directly. AI never overrides a validated calculation.",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-active)" strokeWidth="1.5" strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true">
+        <rect x="4" y="3" width="16" height="18"></rect>
+        <line x1="4" y1="8" x2="20" y2="8"></line>
+        <line x1="9" y1="12" x2="9" y2="12.01"></line>
+        <line x1="13" y1="12" x2="13" y2="12.01"></line>
+        <line x1="17" y1="12" x2="17" y2="12.01"></line>
+        <line x1="9" y1="16" x2="9" y2="16.01"></line>
+        <line x1="13" y1="16" x2="13" y2="16.01"></line>
+        <line x1="17" y1="16" x2="17" y2="16.01"></line>
+      </svg>
+    ),
   },
   {
-    eyebrow: "Deliver",
-    title: "Turn one session into a lane-ready deck sheet.",
-    copy: "Assign groups, set realistic send-offs, create pace versions, validate totals, and export a clean practice sheet for deck.",
-    icon: ClipboardCheck,
-    tone: "green",
+    step: "02",
+    title: "Provenance on every split",
+    copy: "Every checkpoint is labeled Official, Secondary or Estimated. An estimated value is never presented as an official one, on screen or in the PDF.",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-active)" strokeWidth="1.5" strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true">
+        <path d="M12 3 L20 6 V12 C20 16.5 16.5 19.5 12 21 C7.5 19.5 4 16.5 4 12 V6 Z"></path>
+        <polyline points="9,12 11.5,14.5 15.5,10.5"></polyline>
+      </svg>
+    ),
   },
   {
-    eyebrow: "Analyze",
-    title: "Read races with the evidence still attached.",
-    copy: "Compare LCM, SCM, and SCY performances using clear split labels, official references, and coach-controlled AI explanation.",
-    icon: BarChart3,
-    tone: "orange",
+    step: "03",
+    title: "Block-language authoring",
+    copy: "Structured practice sets in a block language with containers and presets, plus a Quick Write parser for the coach notation you already use on paper.",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-active)" strokeWidth="1.5" strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="4"></rect>
+        <rect x="3" y="10" width="12" height="4"></rect>
+        <rect x="3" y="16" width="15" height="4"></rect>
+      </svg>
+    ),
   },
   {
-    eyebrow: "Develop",
-    title: "See the week, month, season, and athlete context.",
-    copy: "Map training phases, review load over time, and keep planning connected to the season instead of isolated spreadsheets.",
-    icon: CalendarDays,
-    tone: "violet",
+    step: "04",
+    title: "Local first, coach owned",
+    copy: "Projects, drafts, custom blocks and calendar plans live in the browser. No forced accounts, manual export and import, limits are explained rather than hidden.",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-active)" strokeWidth="1.5" strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="7"></rect>
+        <rect x="3" y="13" width="18" height="7"></rect>
+        <line x1="7" y1="7.5" x2="7" y2="7.51"></line>
+        <line x1="7" y1="16.5" x2="7" y2="16.51"></line>
+      </svg>
+    ),
+  },
+  {
+    step: "05",
+    title: "Optional AI second opinion",
+    copy: "A Gemini-backed copilot for interpretation, with a labeled offline fallback when no key is configured. It cannot rewrite records, standards, points or provenance.",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-active)" strokeWidth="1.5" strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true">
+        <path d="M12 3 L13.5 8.5 L19 10 L13.5 11.5 L12 17 L10.5 11.5 L5 10 L10.5 8.5 Z"></path>
+        <path d="M18 16 L18.8 18.2 L21 19 L18.8 19.8 L18 22 L17.2 19.8 L15 19 L17.2 18.2 Z"></path>
+      </svg>
+    ),
   },
 ];
 
-export default function LandingPage({ user }: { user: AppUser | null }) {
+export default function LandingPage() {
+  const scrubberRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const scrubber = scrubberRef.current;
+    if (!scrubber) return;
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const scrollable = (doc.scrollHeight || document.body.scrollHeight) - window.innerHeight;
+      const ratio = scrollable > 0 ? window.scrollY / scrollable : 0;
+      const top = ratio * window.innerHeight;
+      scrubber.style.top = `${Math.max(0, Math.min(window.innerHeight - 24, top))}px`;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    onScroll();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    const cells = Array.from(document.querySelectorAll<HTMLElement>(".sc-pillar-cell"));
+    if (!cells.length) return;
+
+    const reveal = (el: HTMLElement) => {
+      if (el.getAttribute("data-in") === "true") return;
+      const step = parseInt(el.getAttribute("data-step") || "1", 10);
+      window.setTimeout(() => el.setAttribute("data-in", "true"), (step - 1) * 60);
+    };
+
+    if (!("IntersectionObserver" in window)) {
+      cells.forEach((c) => c.setAttribute("data-in", "true"));
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          reveal(entry.target as HTMLElement);
+          io.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -10% 0px" }
+    );
+    cells.forEach((c) => {
+      io.observe(c);
+      const r = c.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) reveal(c);
+    });
+    const fallback = window.setTimeout(() => cells.forEach((c) => reveal(c)), 1500);
+
+    return () => {
+      io.disconnect();
+      window.clearTimeout(fallback);
+    };
+  }, []);
+
   return (
-    <main className="sc-landing">
-      <a className="sc-skip-link" href="#main-content">Skip to content</a>
-      <header className="sc-landing-nav">
-        <Link className="sc-landing-logo" href="/" aria-label="SetCraft home">
-          <span className="sc-landing-logo-mark" aria-hidden="true"><span /><span /><span /></span>
-          <span><strong>SetCraft</strong><small>Swim performance studio</small></span>
-        </Link>
-        <nav className="sc-landing-links" aria-label="Landing page navigation">
-          <a href="#platform">Platform</a>
-          <a href="#workflow">Workflow</a>
-          <a href="#intelligence">Race intelligence</a>
-          <a href="#standards">Why SetCraft</a>
-          <a href="#contact">Contact</a>
-        </nav>
-        <div className="sc-landing-actions">
-          {user ? (
-            <a className="sc-landing-button sc-landing-button-primary" href="/studio">Open studio <ArrowRight /></a>
-          ) : (
-            <>
-              <a className="sc-landing-login" href="/login">Log in</a>
-              <a className="sc-landing-button sc-landing-button-primary" href="/signup">Sign up <ArrowRight /></a>
-            </>
-          )}
-        </div>
-      </header>
+    <div style={{ minHeight: "100vh", paddingLeft: "var(--landing-rail-width)", paddingTop: "var(--landing-nav-height)", position: "relative" }}>
+      {/* Timeline spine */}
+      <aside aria-label="Timeline spine" style={{ position: "fixed", left: 0, top: 0, width: "var(--landing-rail-width)", height: "100vh", background: "var(--color-surface)", zIndex: 40, fontFamily: "var(--font-mono)" }}>
+        <div aria-hidden="true" style={{ position: "absolute", left: railCenter, top: "var(--space-6)", bottom: "var(--space-6)", width: 1, background: "var(--color-accent)" }} />
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            left: `calc(${railCenter} - 6px)`,
+            top: "var(--space-6)",
+            bottom: "var(--space-6)",
+            width: "var(--space-3)",
+            backgroundImage: "linear-gradient(to bottom, var(--color-accent) 1px, transparent 1px)",
+            backgroundSize: "100% var(--space-9)",
+            backgroundPosition: "0 0",
+            opacity: 0.65,
+          }}
+        />
 
-      <section className="sc-landing-hero" id="main-content">
-        <div className="sc-landing-hero-copy">
-          <div className="sc-landing-kicker"><span>Built for coaches on deck</span><span>LCM · SCM · SCY</span></div>
-          <h1>From session brief<br />to <em>better swimming.</em></h1>
-          <p className="sc-landing-hero-lede">
-            SetCraft brings workout design, lane planning, deck delivery, season planning, and race intelligence into one serious coaching workspace.
-          </p>
-          <div className="sc-landing-hero-actions">
-            <a className="sc-landing-button sc-landing-button-primary sc-landing-button-large" href={user ? "/studio" : "/signup"}>
-              {user ? "Open your studio" : "Create your workspace"}<ArrowRight />
-            </a>
-            <a className="sc-landing-button sc-landing-button-ghost sc-landing-button-large" href="#platform">See the platform</a>
-          </div>
-          <div className="sc-landing-proof" aria-label="Platform highlights">
-            <span><Check />Visual set building</span>
-            <span><Check />Race evidence controls</span>
-            <span><Check />Coach-reviewed AI</span>
-          </div>
+        <div aria-hidden="true" style={{ position: "absolute", left: 0, right: 0, top: "var(--landing-rail-label-top)", textAlign: "center", fontFamily: "var(--font-mono)", fontSize: "var(--landing-text-micro-2xs)", color: "var(--color-accent)", letterSpacing: "0.14em" }}>00:00</div>
+
+        <div aria-hidden="true" style={{ position: "absolute", left: 0, right: 0, top: "var(--space-6)", bottom: "var(--space-6)", pointerEvents: "none", fontFamily: "var(--font-mono)", fontSize: "var(--landing-text-micro-2xs)", letterSpacing: "0.15em", color: "var(--color-ink-muted)" }}>
+          <span style={{ position: "absolute", left: 0, right: railCenter, top: 0, textAlign: "right", paddingRight: "var(--space-2)", transform: "translateY(-4px)" }}>01</span>
+          <span style={{ position: "absolute", left: 0, right: railCenter, top: "25%", textAlign: "right", paddingRight: "var(--space-2)" }}>02</span>
+          <span style={{ position: "absolute", left: 0, right: railCenter, top: "50%", textAlign: "right", paddingRight: "var(--space-2)" }}>03</span>
+          <span style={{ position: "absolute", left: 0, right: railCenter, top: "75%", textAlign: "right", paddingRight: "var(--space-2)" }}>04</span>
         </div>
 
-        <figure className="sc-landing-hero-media">
-          <img src={heroImage} alt="Competitive swimmers racing through marked pool lanes" />
-          <div className="sc-landing-photo-shade" />
-          <figcaption>Photo by Marcus Ng on Unsplash</figcaption>
-          <div className="sc-landing-live-card" aria-label="Example session overview">
-            <div className="sc-landing-live-card-head">
-              <span><Waves />Quality aerobic</span><small>Tuesday · SCM</small>
-            </div>
-            <div className="sc-landing-live-metrics">
-              <div><strong>3,800</strong><small>metres</small></div>
-              <div><strong>75</strong><small>minutes</small></div>
-              <div><strong>6</strong><small>lanes</small></div>
-            </div>
-            <div className="sc-landing-live-set">
-              <span>MAIN SET</span>
-              <strong>3 × (4 × 100 Free)</strong>
-              <small>Threshold shape · descend 1–4</small>
-            </div>
-          </div>
-        </figure>
-      </section>
+        <div ref={scrubberRef} aria-hidden="true" style={{ position: "absolute", left: "var(--space-5)", top: "var(--space-6)", width: "var(--space-5)", height: "var(--space-5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2, willChange: "top", filter: `drop-shadow(0 0 6px ${accentA(35)})` }}>
+          <div style={{ position: "absolute", inset: 0, border: "1px solid var(--color-accent)" }} />
+          <div style={{ position: "absolute", top: -1, left: -1, width: 5, height: 1, background: "var(--color-accent)" }} />
+          <div style={{ position: "absolute", top: -1, left: -1, width: 1, height: 5, background: "var(--color-accent)" }} />
+          <div style={{ position: "absolute", top: -1, right: -1, width: 5, height: 1, background: "var(--color-accent)" }} />
+          <div style={{ position: "absolute", top: -1, right: -1, width: 1, height: 5, background: "var(--color-accent)" }} />
+          <div style={{ position: "absolute", bottom: -1, left: -1, width: 5, height: 1, background: "var(--color-accent)" }} />
+          <div style={{ position: "absolute", bottom: -1, left: -1, width: 1, height: 5, background: "var(--color-accent)" }} />
+          <div style={{ position: "absolute", bottom: -1, right: -1, width: 5, height: 1, background: "var(--color-accent)" }} />
+          <div style={{ position: "absolute", bottom: -1, right: -1, width: 1, height: 5, background: "var(--color-accent)" }} />
+          <div style={{ width: "var(--space-2)", height: "var(--space-2)", background: "var(--color-accent)" }} />
+        </div>
+      </aside>
 
-      <section className="sc-landing-format-bar" aria-label="SetCraft capability summary">
-        <p>One connected studio</p>
-        <div><strong>01</strong><span>Design the work</span></div>
-        <div><strong>02</strong><span>Organize the lanes</span></div>
-        <div><strong>03</strong><span>Deliver on deck</span></div>
-        <div><strong>04</strong><span>Learn from the race</span></div>
-      </section>
+      {/* Top nav */}
+      <nav className="sc-nav" style={{ position: "fixed", top: 0, left: "var(--landing-rail-width)", right: 0, zIndex: 39, height: "var(--landing-nav-height)" }}>
+        <span className="sc-nav-brand">SetCraft</span>
+        <span className="sc-nav-spacer" />
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", color: "var(--color-ink-muted)", letterSpacing: "0.08em" }}>BAR 01 / 04</span>
+        <Link className="sc-nav-item" href="/login">Log in</Link>
+        <Link className="sc-btn" data-variant="primary" data-size="sm" href="/studio" role="button">Open Swim Studio</Link>
+      </nav>
 
-      <section className="sc-landing-section" id="platform">
-        <div className="sc-landing-section-heading">
+      {/* BAR 01 — INTRO */}
+      <section id="bar-01" aria-labelledby="bar-01-title" style={{ position: "relative", background: "var(--color-surface)", color: "var(--color-ink)", minHeight: "calc(100vh - var(--landing-nav-height))", padding: "var(--space-9) var(--space-8) var(--space-10) var(--space-10)", overflow: "hidden" }}>
+        <div aria-hidden="true" style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "var(--color-accent)", opacity: 0.3 }} />
+        <div style={{ position: "absolute", top: "var(--landing-rail-label-top)", left: "var(--space-5)", fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", letterSpacing: "0.1em", color: "var(--color-accent)", opacity: 0.75 }}>BAR 01 – INTRO</div>
+        <div aria-hidden="true" style={{ position: "absolute", top: "50%", left: "var(--space-5)", transform: "translateY(-50%) rotate(-90deg)", transformOrigin: "left center", whiteSpace: "nowrap", fontFamily: "var(--font-mono)", fontSize: "var(--landing-text-micro)", letterSpacing: "0.18em", color: "var(--color-ink-muted)" }}>BAR 01 – INTRO</div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.05fr) minmax(0, 0.95fr)", gap: "var(--space-8)", alignItems: "center", maxWidth: "var(--landing-max-width)" }}>
           <div>
-            <p className="sc-landing-overline">The complete coaching workspace</p>
-            <h2>Every detail has a place.<br /><span>Nothing feels buried.</span></h2>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", letterSpacing: "0.14em", color: "var(--color-accent)", marginBottom: "var(--landing-eyebrow-gap)" }}>// BAR 01 / INTRO</div>
+            <h1 id="bar-01-title" style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "clamp(3rem, 6vw, 5rem)", lineHeight: 0.98, letterSpacing: "-0.015em", color: "var(--color-ink)", margin: "0 0 var(--space-5)" }}>
+              <span className="sc-hero-h1-clip"><span className="sc-hero-h1-inner">Write the practice.</span></span>
+              <span className="sc-hero-h1-clip"><span className="sc-hero-h1-inner" style={{ animationDelay: "0.08s" }}>Read the race.</span></span>
+              <span className="sc-hero-h1-clip"><span className="sc-hero-h1-inner" style={{ animationDelay: "0.16s", color: "var(--color-accent)" }}>On one deck.</span></span>
+            </h1>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-body-lg)", lineHeight: 1.55, color: "var(--color-ink-muted)", maxWidth: "var(--landing-copy-max-width-sm)", margin: "0 0 var(--space-6)" }}>
+              SetCraft is a coach-oriented workspace for authoring structured practice sets and reading race performance against official World Aquatics data. Deterministic math is the source of truth; every derived value carries visible provenance.
+            </p>
+            <Link className="sc-btn" data-variant="primary" data-size="lg" href="/studio" role="button">Open Swim Studio</Link>
           </div>
-          <p>Purpose-built tools stay connected, but each workflow has room to breathe—from first draft to final review.</p>
-        </div>
-        <div className="sc-landing-feature-grid">
-          {productAreas.map((area) => {
-            const Icon = area.icon;
-            return (
-              <article className="sc-landing-feature-card" data-tone={area.tone} key={area.title}>
-                <div className="sc-landing-feature-top"><span>{area.eyebrow}</span><Icon /></div>
-                <h3>{area.title}</h3>
-                <p>{area.copy}</p>
-                <a href={user ? "/studio" : "/signup"}>Explore in SetCraft <ChevronRight /></a>
-              </article>
-            );
-          })}
-        </div>
-      </section>
 
-      <section className="sc-landing-product-stage" id="workflow">
-        <div className="sc-landing-product-copy">
-          <p className="sc-landing-overline">A clearer building rhythm</p>
-          <h2>Think like a coach.<br />Build like a system.</h2>
-          <p>Start with the purpose, compose the work, adapt it to real lanes, and validate the finished session before anyone touches the water.</p>
-          <ol>
-            <li><span>1</span><div><strong>Set the session brief</strong><small>Phase, duration, course, goal, and athlete context.</small></div></li>
-            <li><span>2</span><div><strong>Compose the set</strong><small>Reusable blocks, nested repeats, notes, and constraints.</small></div></li>
-            <li><span>3</span><div><strong>Fit the lanes</strong><small>Groups, send-offs, distance versions, and pace targets.</small></div></li>
-            <li><span>4</span><div><strong>Review and deliver</strong><small>Validation, totals, deck sheet, PDF, and calendar.</small></div></li>
-          </ol>
-        </div>
-        <div className="sc-landing-product-window" aria-label="SetCraft builder interface preview">
-          <div className="sc-landing-window-bar"><span /><span /><span /><strong>Tuesday — Quality aerobic</strong><small>Auto-saved</small></div>
-          <div className="sc-landing-window-layout">
-            <aside>
-              <p>BLOCKS</p>
-              <div><Sparkles />Warm-up</div><div><Gauge />Threshold</div><div><Route />Race pace</div><div><Users />Lane split</div>
-            </aside>
-            <div className="sc-landing-window-canvas">
-              <div className="sc-landing-window-section"><span>SECTION</span><strong>Activation & skills</strong><small>1,200 m</small></div>
-              <div className="sc-landing-window-set" data-color="blue"><span>WARM-UP</span><strong>4 × 100 Choice</strong><small>@ 1:40 · RPE 3</small></div>
-              <div className="sc-landing-window-set" data-color="green"><span>DRILL</span><strong>8 × 50 Free</strong><small>@ 1:00 · streamline focus</small></div>
-              <div className="sc-landing-window-section"><span>SECTION</span><strong>Main set</strong><small>2,000 m</small></div>
-              <div className="sc-landing-window-set" data-color="orange"><span>REPEAT × 3</span><strong>4 × 100 Free</strong><small>@ 1:25 · descend 1–4</small></div>
+          <div aria-hidden="true" style={{ justifySelf: "end", alignSelf: "center", width: "100%", maxWidth: "var(--landing-visual-max-width)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: "var(--space-1)", fontFamily: "var(--font-mono)", fontSize: "var(--landing-text-micro)", letterSpacing: "0.08em", color: "var(--color-ink-muted)", marginBottom: "var(--space-2)" }}>
+              {["01", "02", "03", "04", "05", "06", "07", "08"].map((n) => <span key={n} style={{ textAlign: "center" }}>{n}</span>)}
             </div>
-            <aside className="sc-landing-window-inspector">
-              <p>INSPECTOR</p><strong>4 × 100 Free</strong>
-              <label>Stroke<span>Freestyle</span></label><label>Send-off<span>1:25</span></label><label>Effort<span>RPE 7</span></label>
-            </aside>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: "var(--space-1)" }}>
+              {[true, false, false, true, false, false, true, false].map((filled, i) => (
+                <div key={i} style={{ aspectRatio: "1", border: `1px solid ${accentA(40)}`, background: filled ? accentA(60) : undefined }} />
+              ))}
+            </div>
+            <div style={{ marginTop: "var(--space-3)", display: "flex", justifyContent: "space-between", fontFamily: "var(--font-mono)", fontSize: "var(--landing-text-micro)", letterSpacing: "0.08em", color: "var(--color-ink-muted)" }}>
+              <span>PATTERN 03 / 08</span>
+              <span>1 BAR</span>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="sc-landing-intelligence" id="intelligence">
-        <figure>
-          <img src={poolImage} alt="Outdoor competition swimming pool with marked lanes" />
-          <figcaption>Photo by Serena Repice Lentini on Unsplash</figcaption>
-        </figure>
-        <div>
-          <p className="sc-landing-overline">Race intelligence with boundaries</p>
-          <h2>Explain the race.<br />Keep the evidence intact.</h2>
-          <p>SetCraft separates entered splits, modeled checkpoints, official references, athlete context, and AI narrative—so an explanation never quietly rewrites the facts.</p>
-          <div className="sc-landing-intelligence-list">
-            <span><ShieldCheck /><strong>Locked facts</strong><small>Records, standards, points, and supplied calculations stay immutable.</small></span>
-            <span><Gauge /><strong>Course-aware</strong><small>LCM, SCM, and SCY are labeled and compared responsibly.</small></span>
-            <span><Sparkles /><strong>Coach-controlled AI</strong><small>Drafts support the decision; they do not make it.</small></span>
+      {/* BAR 02 — STEPS */}
+      <section id="bar-02" aria-labelledby="bar-02-title" style={{ position: "relative", background: "var(--color-canvas)", color: "var(--color-ink-on-canvas)", padding: "var(--space-11) var(--space-8) var(--space-11) var(--space-10)", overflow: "hidden" }}>
+        <div aria-hidden="true" style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "var(--color-accent)", opacity: 0.3 }} />
+        <div aria-hidden="true" style={{ position: "absolute", top: "50%", left: "var(--space-5)", transform: "translateY(-50%) rotate(-90deg)", transformOrigin: "left center", whiteSpace: "nowrap", fontFamily: "var(--font-mono)", fontSize: "var(--landing-text-micro)", letterSpacing: "0.18em", color: "var(--color-ink-muted-on-canvas)" }}>BAR 02 – STEPS</div>
+
+        <div style={{ maxWidth: "var(--landing-max-width)", margin: "0 auto var(--space-6)" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", letterSpacing: "0.14em", color: "var(--color-accent-active)", marginBottom: "var(--space-3)" }}>// FIVE STEPS TO A BAR</div>
+          <h2 id="bar-02-title" style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "clamp(2rem, 3.6vw, 3rem)", lineHeight: 1.02, letterSpacing: "-0.01em", margin: 0, color: "var(--color-ink-on-canvas)", maxWidth: "var(--landing-copy-max-width-md)" }}>
+            The product is five deliberate steps.
+          </h2>
+        </div>
+
+        <div style={{ maxWidth: "var(--landing-max-width)", margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", fontFamily: "var(--font-mono)", fontSize: "var(--landing-text-micro)", letterSpacing: "0.12em", color: "var(--color-ink-muted-on-canvas)", marginBottom: "var(--space-2)" }}>
+            {PILLARS.map((p) => <span key={p.step}>STEP {p.step}</span>)}
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 0, border: `1px solid ${accentA(50)}`, background: "var(--color-canvas-raised)" }}>
+            {PILLARS.map((p, i) => (
+              <article
+                key={p.step}
+                className="sc-pillar-cell"
+                data-step={i + 1}
+                style={{
+                  borderRight: i < PILLARS.length - 1 ? `1px solid ${accentA(50)}` : undefined,
+                  padding: "var(--landing-pillar-pad-y) var(--space-5)",
+                  minHeight: "var(--landing-pillar-min-height)",
+                  display: "flex",
+                  flexDirection: "column",
+                  position: "relative",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "var(--landing-pillar-icon-gap)" }}>
+                  {p.icon}
+                  {i > 0 && <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", letterSpacing: "0.12em", color: "var(--color-ink-muted-on-canvas)" }}>{p.step}</span>}
+                </div>
+                <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "var(--text-display-sm)", lineHeight: 1.1, letterSpacing: "-0.005em", margin: "0 0 var(--space-3)" }}>{p.title}</h3>
+                <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-body-sm)", lineHeight: 1.55, color: "var(--color-ink-muted-on-canvas)", margin: 0 }}>{p.copy}</p>
+              </article>
+            ))}
+          </div>
+
+          <div aria-hidden="true" style={{ position: "relative", height: "var(--space-5)", marginTop: -1, background: "var(--color-canvas-sunken)", border: `1px solid ${accentA(50)}`, borderTop: "none" }}>
+            <div style={{ position: "absolute", inset: "5px 0", display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 0 }}>
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div key={i} style={{ background: accentA(40), borderRight: i < 4 ? `1px solid ${accentA(50)}` : undefined }} />
+              ))}
+            </div>
+            <div style={{ position: "absolute", inset: 0, backgroundImage: `repeating-linear-gradient(to right, transparent 0, transparent calc(100% / 16 - 1px), ${surfaceA(35)} calc(100% / 16 - 1px), ${surfaceA(35)} calc(100% / 16))`, pointerEvents: "none" }} />
+          </div>
+          <div style={{ marginTop: "var(--space-2)", display: "grid", gridTemplateColumns: "repeat(5, 1fr)", fontFamily: "var(--font-mono)", fontSize: "var(--landing-text-micro)", letterSpacing: "0.1em", color: "var(--color-ink-muted-on-canvas)" }}>
+            <span>BEAT 01</span><span>BEAT 05</span><span>BEAT 09</span><span>BEAT 13</span><span style={{ textAlign: "right" }}>BEAT 16</span>
           </div>
         </div>
       </section>
 
-      <section className="sc-landing-standards" id="standards">
-        <div>
-          <p className="sc-landing-overline">Designed for real pool decks</p>
-          <h2>Professional where it matters.<br />Quiet where it should be.</h2>
-        </div>
-        <div className="sc-landing-standard-grid">
-          <article><strong>Readable under pressure</strong><p>Large type, high contrast, keyboard support, and clear states make the interface easier to use between repeats.</p></article>
-          <article><strong>Built around the coach</strong><p>Real completion time, swimmer restrictions, and session purpose stay ahead of generic recommendations.</p></article>
-          <article><strong>Structured for growth</strong><p>Projects, folders, custom blocks, season plans, and race records create a workspace that improves over time.</p></article>
+      {/* BAR 03 — BRIDGE */}
+      <section id="bar-03" aria-labelledby="bar-03-title" style={{ position: "relative", background: "var(--color-canvas-sunken)", color: "var(--color-ink-on-canvas)", padding: "var(--space-10) var(--space-8) var(--space-10) var(--space-10)", overflow: "hidden" }}>
+        <div aria-hidden="true" style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "var(--color-accent)", opacity: 0.3 }} />
+        <div aria-hidden="true" style={{ position: "absolute", top: "50%", left: "var(--space-5)", transform: "translateY(-50%) rotate(-90deg)", transformOrigin: "left center", whiteSpace: "nowrap", fontFamily: "var(--font-mono)", fontSize: "var(--landing-text-micro)", letterSpacing: "0.18em", color: "var(--color-ink-muted-on-canvas)" }}>BAR 03 – BRIDGE</div>
+
+        <div style={{ maxWidth: "var(--landing-max-width-narrow)", margin: "0 auto", textAlign: "center" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", letterSpacing: "0.16em", color: "var(--color-accent-active)", opacity: 0.6, marginBottom: "var(--space-5)" }}>// BRIDGE</div>
+          <p id="bar-03-title" style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-body-lg)", lineHeight: 1.55, color: "var(--color-ink-on-canvas)", margin: 0 }}>
+            Race Intelligence uses official 2026 World Aquatics points, current LCM world records checked against World Aquatics as of 4 August 2026, and exact-age standards. 4,854 selected non-record reference races. 31,842 official checkpoints across LCM, SCM and SCY. Records, standards and points are locked facts.
+          </p>
         </div>
       </section>
 
-      <section className="sc-landing-contact" id="contact">
-        <div>
-          <p className="sc-landing-overline">A real team behind the workspace</p>
-          <h2>Questions before<br />the first session?</h2>
-          <p>Talk to SetCraft about account access, club setup, product feedback, privacy, or partnership ideas. The contact details below are placeholders for launch preparation.</p>
-        </div>
-        <div className="sc-landing-contact-actions">
-          <a href={`mailto:${SUPPORT_EMAIL}`}><Mail /><span><small>Email support</small><strong>{SUPPORT_EMAIL}</strong></span><ArrowRight /></a>
-          <a href={`tel:${SUPPORT_PHONE_HREF}`}><Phone /><span><small>Call SetCraft</small><strong>{SUPPORT_PHONE}</strong></span><ArrowRight /></a>
-          <Link href="/contact">Open the contact centre <ArrowRight /></Link>
+      {/* BAR 04 — OUTRO */}
+      <section id="bar-04" aria-labelledby="bar-04-title" style={{ position: "relative", background: "var(--color-surface)", color: "var(--color-ink)", padding: "var(--space-11) var(--space-8) var(--space-11) var(--space-10)", overflow: "hidden" }}>
+        <div aria-hidden="true" style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "var(--color-accent)", opacity: 0.3 }} />
+        <div aria-hidden="true" style={{ position: "absolute", top: "50%", left: "var(--space-5)", transform: "translateY(-50%) rotate(-90deg)", transformOrigin: "left center", whiteSpace: "nowrap", fontFamily: "var(--font-mono)", fontSize: "var(--landing-text-micro)", letterSpacing: "0.18em", color: "var(--color-ink-muted)" }}>BAR 04 – OUTRO</div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.05fr) minmax(0, 0.95fr)", gap: "var(--space-8)", alignItems: "center", maxWidth: "var(--landing-max-width)" }}>
+          <div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", letterSpacing: "0.14em", color: "var(--color-accent)", marginBottom: "var(--landing-eyebrow-gap)" }}>// BAR 04 / OUTRO</div>
+            <h2 id="bar-04-title" style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "clamp(2.5rem, 5vw, 4rem)", lineHeight: 1.0, letterSpacing: "-0.015em", color: "var(--color-ink)", margin: "0 0 var(--space-5)", maxWidth: "var(--landing-copy-max-width-md)" }}>
+              Open the deck. The bar is complete.
+            </h2>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-body-lg)", lineHeight: 1.55, color: "var(--color-ink-muted)", maxWidth: "var(--landing-visual-max-width)", margin: "0 0 var(--space-6)" }}>
+              Write the practice, run the race, hand off the deck sheet. No account required to start.
+            </p>
+            <Link className="sc-btn" data-variant="primary" data-size="lg" href="/studio" role="button">Open Swim Studio</Link>
+          </div>
+
+          <div aria-hidden="true" style={{ justifySelf: "end", alignSelf: "center", width: "100%", maxWidth: "var(--landing-visual-max-width)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: "var(--space-1)", fontFamily: "var(--font-mono)", fontSize: "var(--landing-text-micro)", letterSpacing: "0.08em", color: "var(--color-ink-muted)", marginBottom: "var(--space-2)" }}>
+              {["01", "02", "03", "04", "05", "06", "07", "08"].map((n) => <span key={n} style={{ textAlign: "center" }}>{n}</span>)}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: "var(--space-1)" }}>
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} style={{ aspectRatio: "1", border: `1px solid ${accentA(40)}`, background: accentA(60) }} />
+              ))}
+            </div>
+            <div style={{ marginTop: "var(--space-3)", display: "flex", justifyContent: "space-between", fontFamily: "var(--font-mono)", fontSize: "var(--landing-text-micro)", letterSpacing: "0.08em", color: "var(--color-ink-muted)" }}>
+              <span>PATTERN 08 / 08</span>
+              <span>BAR COMPLETE</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="sc-landing-cta">
-        <div><p className="sc-landing-overline">Your next session starts here</p><h2>Build the work.<br />Own the details.</h2></div>
-        <div><p>Create a SetCraft account and open the complete studio—from the first training idea to the race review.</p><a className="sc-landing-button sc-landing-button-light sc-landing-button-large" href={user ? "/studio" : "/signup"}>{user ? "Open studio" : "Get started"}<ArrowRight /></a></div>
-      </section>
-
-      <footer className="sc-landing-footer">
-        <Link className="sc-landing-logo" href="/"><span className="sc-landing-logo-mark" aria-hidden="true"><span /><span /><span /></span><span><strong>SetCraft</strong><small>Swim performance studio</small></span></Link>
-        <p>Purpose-built workout design and race intelligence for competitive swimming.</p>
-        <div><a href="#platform">Platform</a><a href="#contact">Contact</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/login">Log in</a><a href="/signup">Sign up</a></div>
-        <small>© 2026 SetCraft. Coaches remain responsible for athlete suitability and final practice decisions.</small>
+      <footer className="sc-nav" style={{ height: "auto", padding: "var(--landing-eyebrow-gap) var(--space-4)", flexWrap: "wrap", gap: "var(--space-4)" }}>
+        <span className="sc-nav-brand">SetCraft</span>
+        <Link className="sc-nav-item" href="/studio">Studio</Link>
+        <Link className="sc-nav-item" href="/studio">Race Intelligence</Link>
+        <Link className="sc-nav-item" href="/studio">Calculators</Link>
+        <span className="sc-nav-item" aria-disabled="true" style={{ cursor: "default", opacity: 0.5 }}>Docs</span>
+        <span className="sc-nav-spacer" />
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", color: "var(--color-ink-muted)", letterSpacing: "0.08em" }}>v13 – PERFORMANCE INTELLIGENCE</span>
       </footer>
-    </main>
+    </div>
   );
 }
