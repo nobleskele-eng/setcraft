@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type { AppUser } from "../../app/auth";
+import LandingLaneRope from "./LandingLaneRope";
 import { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_PHONE_HREF } from "../siteDetails";
 
 const heroImage = "https://images.unsplash.com/photo-1519315901367-f34ff9154487?auto=format&fit=crop&fm=jpg&q=82&w=2200";
@@ -56,6 +57,7 @@ const productAreas = [
 export default function LandingPage({ user }: { user: AppUser | null }) {
   return (
     <main className="sc-landing">
+      <LandingLaneRope />
       <a className="sc-skip-link" href="#main-content">Skip to content</a>
       <header className="sc-landing-nav">
         <Link className="sc-landing-logo" href="/" aria-label="SetCraft home">
