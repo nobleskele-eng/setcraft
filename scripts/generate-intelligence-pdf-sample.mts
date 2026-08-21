@@ -10,7 +10,7 @@ const rows = [
 
 const bytes = await buildIntelligencePdf({
   title: "200 Free Race Analysis",
-  kicker: "SetCraft Analysis Studio",
+  kicker: "LaneLab Analysis Studio",
   subtitle: "LCM Men analysis for 1:52.50. Entered and modeled checkpoints are identified independently throughout this report.",
   generatedLabel: "11 Aug 2026",
   metrics: [
@@ -30,4 +30,4 @@ const bytes = await buildIntelligencePdf({
 });
 
 await mkdir("output/pdf", { recursive: true });
-await writeFile("output/pdf/setcraft-intelligence-sample.pdf", bytes);
+await writeFile("output/pdf/lanelab-intelligence-sample.pdf", bytes);

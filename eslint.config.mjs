@@ -12,7 +12,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    "SetCraft_Swim_Studio_Final_v11_Performance_Intelligence/**",
+    "LaneLab_Swim_Studio_Final_v11_Performance_Intelligence/**",
     "server.ts",
   ]),
   {

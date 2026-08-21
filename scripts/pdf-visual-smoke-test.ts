@@ -65,5 +65,5 @@ const bytes = await createWorkoutPdfBytes({
     goalTimeTables: [{ id: "goals", title: "100 freestyle target splits", columns: ["Female", "Male"], rows: [{ id: "15", label: "15 yo", values: ["0:16", "0:15"] }, { id: "16", label: "16 yo", values: ["0:16", "0:14"] }] }],
   },
 });
-await writeFile("/mnt/data/setcraft_v5_deck_sheet_sample.pdf", bytes);
+await writeFile("/mnt/data/lanelab_v5_deck_sheet_sample.pdf", bytes);
 console.log(`Wrote ${bytes.length} bytes`);

@@ -1,7 +1,7 @@
 /*
- * SetCraft — Design System Components
+ * LaneLab — Design System Components
  * Global `.sc-*` component classes built on top of docs/design/tokens.css.
- * Transcribed from the "SetCraft design system" reference exports
+ * Transcribed from the "LaneLab design system" reference exports
  * (app-shell-standalone.html, dashboard-standalone.html,
  * build-sets-standalone.html) — every value here traces back to a token,
  * never a raw hex/px/font. Imported from src/index.css after tokens.css.

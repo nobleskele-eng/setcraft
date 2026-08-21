@@ -83,8 +83,8 @@ export default function RaceStrategyStudio() {
     finally { setAiLoading(false); }
   };
 
-  const exportPdf = () => downloadIntelligencePdf(`setcraft-${event.toLowerCase().replaceAll(" ", "-")}-${course.toLowerCase()}-strategy.pdf`, {
-    title: `${event} Race Strategy`, kicker: "SetCraft Strategy Studio",
+  const exportPdf = () => downloadIntelligencePdf(`lanelab-${event.toLowerCase().replaceAll(" ", "-")}-${course.toLowerCase()}-strategy.pdf`, {
+    title: `${event} Race Strategy`, kicker: "LaneLab Strategy Studio",
     subtitle: `${course} ${sex} plan for a ${formatTime(goal)} goal. Strategy targets are coaching aids; reference checkpoints retain their source provenance.`,
     generatedLabel: new Date().toLocaleString(),
     metrics: [
@@ -132,7 +132,7 @@ export default function RaceStrategyStudio() {
       <div className="space-y-6"><StudioCard eyebrow="Recommended architecture" title={selected?.name || "Race strategy"} action={<span className="rounded-full bg-canvas-raised px-3 py-1.5 text-xs font-black text-accent-active">{selected?.fit || 0}% fit</span>}>
         <div className="grid gap-3 md:grid-cols-3">{ranked.map((item) => <button type="button" key={item.id} onClick={() => setStrategyId(item.id)} className={`rounded-2xl border p-4 text-left ${item.id === selected?.id ? "border-accent-hover bg-canvas ring-4 ring-canvas-raised" : "border-hairline-on-canvas hover:border-hairline-on-canvas"}`}><div className="flex items-center justify-between gap-2"><p className="text-sm font-black text-surface">{item.name}</p><span className="font-mono text-xs font-black text-accent-active">{item.fit}%</span></div><p className="mt-2 text-xs leading-5 text-ink-muted-on-canvas">{item.description}</p></button>)}</div>
         <RaceTable plan={plan} course={course} cue={selected?.name || "Hold shape"} />
-        <div className="mt-5 flex flex-wrap gap-3"><button type="button" onClick={exportPdf} className="inline-flex items-center gap-2 rounded-xl bg-surface px-4 py-3 text-xs font-black text-white"><Download className="h-4 w-4" />Export strategy PDF</button><button type="button" onClick={() => downloadJson("setcraft-race-strategy-v13.json", payload)} className="inline-flex items-center gap-2 rounded-xl border border-disabled bg-white px-4 py-3 text-xs font-black text-ink-on-canvas"><Layers3 className="h-4 w-4" />Export JSON</button></div>
+        <div className="mt-5 flex flex-wrap gap-3"><button type="button" onClick={exportPdf} className="inline-flex items-center gap-2 rounded-xl bg-surface px-4 py-3 text-xs font-black text-white"><Download className="h-4 w-4" />Export strategy PDF</button><button type="button" onClick={() => downloadJson("lanelab-race-strategy-v13.json", payload)} className="inline-flex items-center gap-2 rounded-xl border border-disabled bg-white px-4 py-3 text-xs font-black text-ink-on-canvas"><Layers3 className="h-4 w-4" />Export JSON</button></div>
       </StudioCard></div>
     </div>}
 

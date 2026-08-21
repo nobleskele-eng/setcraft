@@ -30,6 +30,8 @@ yarn-error.log*
 # env files (the safe template is intentionally committed)
 .env*
 !.env.example
+.dev.vars*
+!.dev.vars.example
 
 # vercel
 .vercel
@@ -46,5 +48,6 @@ next-env.d.ts
 /work/
 /ai/eval-results/
 
-# Archived source snapshot kept locally; the active application is the project root.
+# Archived source snapshots are not part of the active application.
 /SetCraft_Swim_Studio_Final_v11_Performance_Intelligence/
+/LaneLab_Swim_Studio_Final_v11_Performance_Intelligence/

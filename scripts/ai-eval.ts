@@ -28,8 +28,8 @@ function loadCases(filePath: string) {
 async function main() {
   const root = process.cwd();
   loadProjectEnv(root);
-  const baseUrl = (process.env.SETCRAFT_BASE_URL || "http://localhost:5173").replace(/\/$/, "");
-  const evalFile = path.resolve(root, process.argv[2] || "ai/evals/setcraft-evals.jsonl");
+  const baseUrl = (process.env.LANELAB_BASE_URL || "http://localhost:5173").replace(/\/$/, "");
+  const evalFile = path.resolve(root, process.argv[2] || "ai/evals/lanelab-evals.jsonl");
   const cases = loadCases(evalFile);
   const results: Array<Record<string, unknown>> = [];
 
@@ -37,7 +37,7 @@ async function main() {
     const health = await fetch(`${baseUrl}/api/health`);
     if (!health.ok) throw new Error(`health check returned ${health.status}`);
   } catch (error) {
-    throw new Error(`SetCraft is not running at ${baseUrl}. Start npm run dev in another PowerShell window, then rerun npm run ai:eval. ${error instanceof Error ? error.message : ""}`);
+    throw new Error(`LaneLab is not running at ${baseUrl}. Start npm run dev in another PowerShell window, then rerun npm run ai:eval. ${error instanceof Error ? error.message : ""}`);
   }
 
   for (const testCase of cases) {
@@ -86,7 +86,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(`SetCraft evaluation failed: ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`LaneLab evaluation failed: ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 });
 

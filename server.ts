@@ -75,10 +75,10 @@ app.post("/api/gemini/generate-set", async (req, res) => {
     ? req.body.equipment.map((item: unknown) => safeText(item)).filter(Boolean).slice(0, 12)
     : [];
 
-  const systemPrompt = "You are a swim-workout drafting assistant for qualified coaches. Produce a practical draft, not medical advice or an autonomous prescription. Use SetCraft Quick Write syntax so the result can become editable blocks: headings start with #; set lines look like 8x100 Free @ 1:30 RPE 7 - coaching cue; optional containers use Repeat 3x: followed later by end. Include warm-up/recovery when appropriate, state assumptions, and never invent athlete readiness.";
-  
+  const systemPrompt = "You are a swim-workout drafting assistant for qualified coaches. Produce a practical draft, not medical advice or an autonomous prescription. Use LaneLab Quick Write syntax so the result can become editable blocks: headings start with #; set lines look like 8x100 Free @ 1:30 RPE 7 - coaching cue; optional containers use Repeat 3x: followed later by end. Include warm-up/recovery when appropriate, state assumptions, and never invent athlete readiness.";
+
   const userPrompt = `Generate a swim set for a ${swimmerLevel} swimmer focusing on ${focus}. The target distance for this main block should be around ${targetDistance} meters/yards. Allowed equipment: ${equipment ? equipment.join(", ") : "none"}.`;
-  
+
   const fallback = `# Main Set
 4x200 Free @ 3:15 RPE 6 - even splits, long line${equipment.length ? `, equipment: ${equipment.join(", ")}` : ""}
 6x50 Kick @ 1:15 RPE 5 - consistent tempo from the hips
@@ -96,8 +96,8 @@ app.post("/api/gemini/edit-set", async (req, res) => {
   const originalSet = safeText(req.body?.originalSet, "# Main Set\n8x100 Free @ 1:40 RPE 7");
   const modificationRequest = safeText(req.body?.modificationRequest, "Make the set easier while preserving its purpose.");
 
-  const systemPrompt = "You are a swim-workout editing assistant for qualified coaches. Preserve the stated training objective while following the modification request. Return the revised workout in SetCraft Quick Write syntax: headings start with #; set lines look like 8x100 Free @ 1:30 RPE 7 - coaching cue; Repeat 3x: containers end with end. Do not make medical-readiness decisions; flag assumptions for coach review.";
-  
+  const systemPrompt = "You are a swim-workout editing assistant for qualified coaches. Preserve the stated training objective while following the modification request. Return the revised workout in LaneLab Quick Write syntax: headings start with #; set lines look like 8x100 Free @ 1:30 RPE 7 - coaching cue; Repeat 3x: containers end with end. Do not make medical-readiness decisions; flag assumptions for coach review.";
+
   const userPrompt = `Original Swim Set:
 ${originalSet}
 
@@ -120,7 +120,7 @@ app.post("/api/gemini/audit-workout", async (req, res) => {
   const sets = Array.isArray(req.body?.sets) ? req.body.sets.slice(0, 500) : [];
 
   const systemPrompt = "You are a professional swim coach safety auditor. You will analyze a swim workout and flag issues like: unrealistic pace intervals, lack of warm-up/cool-down, extreme overtraining warnings, or weird structural flow. Return your audit report in JSON with 'isSafe': boolean, 'warnings': string[], and 'recommendations': string[]. Always output clean, parsing-friendly content.";
-  
+
   const userPrompt = `Audit these swim workout sets for safety and pacing:
 ${JSON.stringify(sets)}`;
 
@@ -187,15 +187,15 @@ app.post("/api/gemini/chat", async (req, res) => {
     res.status(400).json({ error: "At least one chat message is required." });
     return;
   }
-  
+
   // Format message history
   const chatHistory = messages.map((m: any) => `${m.sender === "user" ? "Coach" : "AI Coach"}: ${m.text}`).join("\n");
 
-  const systemPrompt = "You are Coach Block, the friendly, supportive, yet rigorous AI Swimming Coach at SetCraft. Swimmers of all calibers come to you to ask about training pacing, taper plans, dryland workouts, stroke technique, and motivation. Answer direct, keeping it punchy, practical, and packed with professional swim coaching tips.";
+  const systemPrompt = "You are Coach Block, the friendly, supportive, yet rigorous AI Swimming Coach at LaneLab. Swimmers of all calibers come to you to ask about training pacing, taper plans, dryland workouts, stroke technique, and motivation. Answer direct, keeping it punchy, practical, and packed with professional swim coaching tips.";
 
   const userPrompt = `Conversation History:\n${chatHistory}\n\nCoach: ${messages[messages.length - 1].text}`;
 
-  const fallback = "Use the session objective to choose the next step: define the target pace or technical outcome, select a repeat distance that lets the coach observe it, and set recovery from the lane’s real completion time rather than a generic rule. For tapering or return-to-training decisions, use the athlete’s recent work, meet schedule and qualified coach judgment; SetCraft should present options and calculations, not determine readiness.";
+  const fallback = "Use the session objective to choose the next step: define the target pace or technical outcome, select a repeat distance that lets the coach observe it, and set recovery from the lane’s real completion time rather than a generic rule. For tapering or return-to-training decisions, use the athlete’s recent work, meet schedule and qualified coach judgment; LaneLab should present options and calculations, not determine readiness.";
 
   const text = await getGeminiResponse(systemPrompt, userPrompt, fallback);
   res.json({ text });
@@ -203,13 +203,13 @@ app.post("/api/gemini/chat", async (req, res) => {
 
 
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, service: "setcraft", aiMode: ai ? "live" : "simulation", model: GEMINI_MODEL });
+  res.json({ ok: true, service: "lanelab", aiMode: ai ? "live" : "simulation", model: GEMINI_MODEL });
 });
 
 // Central JSON error response for malformed request bodies or unexpected route errors.
 app.use((error: any, _req: Request, res: Response, next: NextFunction) => {
   if (!error) return next();
-  console.error("SetCraft server error", error);
+  console.error("LaneLab server error", error);
   res.status(error?.status || 500).json({ error: error?.message || "Unexpected server error." });
 });
 
@@ -231,7 +231,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`🏊 SetCraft Server running on port ${PORT}`);
+    console.log(`🏊 LaneLab Server running on port ${PORT}`);
   });
 }
 

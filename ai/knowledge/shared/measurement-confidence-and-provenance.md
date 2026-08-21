@@ -1,13 +1,13 @@
 title: Measurement, confidence, and provenance framework
 review_status: approved_sample
-reviewer: SetCraft evidence baseline
+reviewer: LaneLab evidence baseline
 review_date: 2026-08-11
 applies_to: all workflows
 
-# Three labels SetCraft must keep separate
+# Three labels LaneLab must keep separate
 
 - **Measured:** directly recorded with a named method, unit, date, and protocol.
-- **Derived:** calculated by SetCraft from measured or official inputs using a disclosed formula.
+- **Derived:** calculated by LaneLab from measured or official inputs using a disclosed formula.
 - **Modeled:** estimated from a model, interpolation, course conversion, or assumed race shape.
 
 Never relabel modeled data as measured. Never infer a measured physiological value from performance, appearance, body size, or a self-rating.
@@ -58,6 +58,6 @@ Example: "The third 50 was 1.1 seconds slower than the second 50" is an observat
 
 # Conversion and standards boundary
 
-A course conversion is a planning estimate. Entry eligibility depends on the specific meet, federation, qualifying window, proof rules, event, category, course, and season. SetCraft should never convert a time and announce that it is guaranteed to be accepted.
+A course conversion is a planning estimate. Entry eligibility depends on the specific meet, federation, qualifying window, proof rules, event, category, course, and season. LaneLab should never convert a time and announce that it is guaranteed to be accepted.
 
 Official standards and records are date-sensitive deterministic data. Retrieval documents may explain them but may not overwrite them.

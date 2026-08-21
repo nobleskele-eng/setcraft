@@ -1,6 +1,6 @@
 title: Workout modification rules
 review_status: approved_sample
-reviewer: SetCraft product baseline
+reviewer: LaneLab product baseline
 review_date: 2026-08-11
 applies_to: set-modifier
 

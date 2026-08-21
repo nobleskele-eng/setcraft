@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     });
     return response;
   } catch (error) {
-    console.error("[SetCraft auth] Login failed:", error instanceof Error ? error.message : "Unknown error");
+    console.error("[LaneLab auth] Login failed:", error instanceof Error ? error.message : "Unknown error");
     return NextResponse.json({ error: "Login is temporarily unavailable. Please try again." }, { status: 500 });
   }
 }

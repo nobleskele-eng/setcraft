@@ -1,10 +1,10 @@
-# SetCraft AI coaching pack manifest
+# LaneLab AI coaching pack manifest
 
 Version date: 2026-08-11
 
 ## What this pack is
 
-This is a retrieval and evaluation pack for the five SetCraft Gemini workflows. It does not alter Gemini model weights. It combines deterministic product guardrails, original SetCraft coaching documents, source and copyright governance, Gemini File Search, live evaluations, and synthetic coverage cases.
+This is a retrieval and evaluation pack for the five LaneLab Gemini workflows. It does not alter Gemini model weights. It combines deterministic product guardrails, original LaneLab coaching documents, source and copyright governance, Gemini File Search, live evaluations, and synthetic coverage cases.
 
 ## Included coverage
 
@@ -37,7 +37,7 @@ Topics include:
 
 The pack uses original summaries anchored to official rules/federation material and peer-reviewed reviews. It does not contain copied books, paid articles, entire SwimSwam stories, social-media posts, YouTube transcripts, Instagram archives, or private athlete records.
 
-Media and social sources can enter a human review queue as practitioner perspectives. They should be summarized in SetCraft's own words, attributed, checked against higher-quality evidence, and approved before upload.
+Media and social sources can enter a human review queue as practitioner perspectives. They should be summarized in LaneLab's own words, attributed, checked against higher-quality evidence, and approved before upload.
 
 ## Why it is not a million scraped items
 
@@ -45,7 +45,7 @@ A million duplicated or unverified records would increase retrieval noise, cost,
 
 ## Upload process
 
-From the SetCraft repository:
+From the LaneLab repository:
 
 ```powershell
 npm ci

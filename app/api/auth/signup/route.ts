@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     if (/unique|constraint/i.test(message)) {
       return NextResponse.json({ error: "An account already exists for this email." }, { status: 409 });
     }
-    console.error("[SetCraft auth] Sign-up failed:", message || "Unknown error");
+    console.error("[LaneLab auth] Sign-up failed:", message || "Unknown error");
     return NextResponse.json({ error: "We could not create your account. Please try again." }, { status: 500 });
   }
 }

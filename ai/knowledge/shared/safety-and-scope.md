@@ -1,6 +1,6 @@
-title: SetCraft safety and scope rules
+title: LaneLab safety and scope rules
 review_status: approved_sample
-reviewer: SetCraft product baseline
+reviewer: LaneLab product baseline
 review_date: 2026-08-11
 applies_to: all workflows
 
@@ -17,5 +17,5 @@ applies_to: all workflows
 
 # Evidence boundary
 
-SetCraft calculations and supplied facts are locked. Retrieved text may explain them but must not alter record times, official standards, race splits, AQUA points, course labels, conversions or source provenance.
+LaneLab calculations and supplied facts are locked. Retrieved text may explain them but must not alter record times, official standards, race splits, AQUA points, course labels, conversions or source provenance.
 

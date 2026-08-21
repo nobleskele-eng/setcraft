@@ -1,0 +1,36 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "lanelab",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-08-21",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "dist/client",
+    "not_found_handling": "none",
+    "binding": "ASSETS"
+  },
+  "images": {
+    "binding": "IMAGES"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "lanelab-production",
+      "database_id": "00000000-0000-4000-8000-000000000000",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "vars": {
+    "GEMINI_MODEL": "gemini-3.6-flash",
+    "PASSWORD_RESET_FROM_EMAIL": "LaneLab <noreply@lanelab.studio>"
+  },
+  "routes": [
+    { "pattern": "lanelab.studio", "custom_domain": true },
+    { "pattern": "www.lanelab.studio", "custom_domain": true }
+  ],
+  "placement": {
+    "mode": "smart"
+  },
+  "workers_dev": true,
+  "preview_urls": true
+}

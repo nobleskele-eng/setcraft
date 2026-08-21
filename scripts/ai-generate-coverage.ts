@@ -45,7 +45,7 @@ function main() {
                   "respects coach-entered constraints",
                   "ends with a coach check",
                 ],
-                provenance: "synthetic coverage case generated from SetCraft's reviewed taxonomy; not an athlete record",
+                provenance: "synthetic coverage case generated from LaneLab's reviewed taxonomy; not an athlete record",
               }));
             }
           }
@@ -54,7 +54,7 @@ function main() {
     }
   }
 
-  const output = path.join(process.cwd(), "ai", "datasets", "setcraft-coverage-cases.jsonl");
+  const output = path.join(process.cwd(), "ai", "datasets", "lanelab-coverage-cases.jsonl");
   fs.mkdirSync(path.dirname(output), { recursive: true });
   fs.writeFileSync(output, `${rows.join("\n")}\n`, "utf8");
   console.log(`Generated ${rows.length.toLocaleString()} synthetic coverage cases: ${path.relative(process.cwd(), output)}`);

@@ -60,7 +60,7 @@ export default function Calculators() {
             <div>
               <div className="flex items-center gap-2 text-disabled">
                 <Calculator className="h-5 w-5" />
-                <span className="text-xs font-bold uppercase tracking-[0.18em]">SetCraft Strategy Intelligence v13</span>
+                <span className="text-xs font-bold uppercase tracking-[0.18em]">LaneLab Strategy Intelligence v13</span>
               </div>
               <h1 className="mt-3 font-display text-3xl font-bold tracking-tight md:text-4xl">Race Strategy Studio</h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-disabled md:text-base">
@@ -451,7 +451,7 @@ function SetMathCalculator() {
             ["Cycle / rep", formatSwimTime(result.cycleSeconds)],
             ["Work : rest", result.workRestRatio ? `${result.workRestRatio.toFixed(2)} : 1` : "No modeled rest"],
           ]} />
-          {impossibleSendoff && <Notice tone="warning">The entered send-off is faster than the modeled completion time. SetCraft used the completion time for duration, but the coach must choose a feasible cycle or faster target pace.</Notice>}
+          {impossibleSendoff && <Notice tone="warning">The entered send-off is faster than the modeled completion time. LaneLab used the completion time for duration, but the coach must choose a feasible cycle or faster target pace.</Notice>}
         </>
       }
     />

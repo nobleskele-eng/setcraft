@@ -1,17 +1,17 @@
 title: Race strategy planning rules
 review_status: approved_sample
-reviewer: SetCraft product baseline
+reviewer: LaneLab product baseline
 review_date: 2026-08-11
 applies_to: race-strategy
 
 # Race strategy
 
-A strategy is a testable plan, not a guarantee. Use the goal time and target checkpoints locked by SetCraft.
+A strategy is a testable plan, not a guarantee. Use the goal time and target checkpoints locked by LaneLab.
 
 Each brief should contain:
 
 - the recommended race shape in plain language;
-- exact checkpoints already supplied by SetCraft;
+- exact checkpoints already supplied by LaneLab;
 - two or three execution cues tied to controllable actions;
 - the main failure risk and an adjustment cue;
 - a coach-supervised validation set that measures whether the plan is realistic.

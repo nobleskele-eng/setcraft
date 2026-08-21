@@ -55,7 +55,7 @@ async function findStore(ai: GoogleGenAI, displayName: string, configuredName: s
     try {
       return await ai.fileSearchStores.get({ name: configuredName });
     } catch {
-      console.warn("The configured File Search store was not found; SetCraft will create or reuse one by display name.");
+      console.warn("The configured File Search store was not found; LaneLab will create or reuse one by display name.");
     }
   }
 
@@ -95,7 +95,7 @@ async function main() {
   }
 
   const ai = new GoogleGenAI({ apiKey });
-  const displayName = flagValue("--store-name") || process.env.SETCRAFT_RAG_STORE_NAME || "SetCraft Coaching Knowledge";
+  const displayName = flagValue("--store-name") || process.env.LANELAB_RAG_STORE_NAME || "LaneLab Coaching Knowledge";
   const configuredName = normalizeStoreName(process.env.GEMINI_FILE_SEARCH_STORE);
   let store = await findStore(ai, displayName, configuredName);
 
@@ -124,12 +124,12 @@ async function main() {
 
   for (const filePath of approvedFiles.sort()) {
     const relativePath = path.relative(knowledgeRoot, filePath).replace(/\\/g, "/");
-    const displayNameForFile = `setcraft/${relativePath}`;
+    const displayNameForFile = `lanelab/${relativePath}`;
     const sha256 = hashFile(filePath);
     managedNames.add(displayNameForFile);
     const existing = remoteDocuments.get(displayNameForFile);
 
-    if (existing && metadataValue(existing, "setcraft_sha256") === sha256) {
+    if (existing && metadataValue(existing, "lanelab_sha256") === sha256) {
       unchanged += 1;
       continue;
     }
@@ -144,10 +144,10 @@ async function main() {
       config: {
         displayName: displayNameForFile,
         customMetadata: [
-          { key: "managed_by", stringValue: "setcraft" },
+          { key: "managed_by", stringValue: "lanelab" },
           { key: "workflow", stringValue: workflowFor(relativePath) },
           { key: "review_status", stringValue: reviewStatus(filePath) },
-          { key: "setcraft_sha256", stringValue: sha256 },
+          { key: "lanelab_sha256", stringValue: sha256 },
         ],
         chunkingConfig: {
           whiteSpaceConfig: { maxTokensPerChunk: 500, maxOverlapTokens: 75 },
@@ -160,7 +160,7 @@ async function main() {
 
   if (hasFlag("--prune")) {
     for (const document of remoteDocuments.values()) {
-      if (metadataValue(document, "managed_by") !== "setcraft") continue;
+      if (metadataValue(document, "managed_by") !== "lanelab") continue;
       if (!document.displayName || managedNames.has(document.displayName) || !document.name) continue;
       await ai.fileSearchStores.documents.delete({ name: document.name, config: { force: true } });
     }
@@ -184,6 +184,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(`SetCraft knowledge setup failed: ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`LaneLab knowledge setup failed: ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 });

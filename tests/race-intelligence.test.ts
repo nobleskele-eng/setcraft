@@ -139,18 +139,18 @@ test("quality rewards verified entered splits without pretending estimates are m
   assert.equal(estimatedQuality.estimatedSplits, 2);
 });
 
-test("SetCraft scoring is bounded and improves toward the same goal", () => {
+test("LaneLab scoring is bounded and improves toward the same goal", () => {
   const slower = performanceScores(125, 15, "Men", "200 Free", 112.09);
   const faster = performanceScores(115, 15, "Men", "200 Free", 112.09);
   assert.ok(faster.aquaPoints > slower.aquaPoints);
   assert.ok(faster.goalReadiness > slower.goalReadiness);
-  assert.ok(faster.setcraftScore >= slower.setcraftScore);
-  assert.ok(faster.setcraftScore >= 0 && faster.setcraftScore <= 100);
+  assert.ok(faster.lanelabScore >= slower.lanelabScore);
+  assert.ok(faster.lanelabScore >= 0 && faster.lanelabScore <= 100);
 });
 
 test("analysis and strategy reports produce a valid paginated PDF", async () => {
   const bytes = await buildIntelligencePdf({
-    title: "200 Free Race Analysis", kicker: "SetCraft Analysis Studio", subtitle: "LCM test report",
+    title: "200 Free Race Analysis", kicker: "LaneLab Analysis Studio", subtitle: "LCM test report",
     generatedLabel: "11 Aug 2026", metrics: [{ label: "Race", value: "1:52.50" }],
     sections: [{ title: "Splits", table: { headers: ["Point", "Time"], rows: [["50 m", "26.10"], ["100 m", "54.20"]] } }],
     footerNote: "Test evidence note.",

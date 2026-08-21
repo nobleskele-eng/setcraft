@@ -1,6 +1,6 @@
 title: Session architecture and training-dose design
 review_status: approved_sample
-reviewer: SetCraft coaching baseline
+reviewer: LaneLab coaching baseline
 review_date: 2026-08-11
 applies_to: set-generator
 
@@ -26,7 +26,7 @@ Sequence can change. A short pre-fatigue block may be intentional, but its purpo
 
 # Dose variables
 
-The training dose is not distance alone. SetCraft should expose:
+The training dose is not distance alone. LaneLab should expose:
 
 - total distance and high-intensity distance;
 - repeat duration and count;
@@ -119,6 +119,6 @@ Progress only when the athlete or lane meets the current success criteria consis
 
 # Taper and competition preparation
 
-Evidence supports reduced volume with maintained quality as a broad taper principle, but the exact reduction, duration, and frequency are individual. Preserve familiar race skills, avoid last-minute novelty, and monitor response. SetCraft should draft options, not guarantee a percentage performance gain.
+Evidence supports reduced volume with maintained quality as a broad taper principle, but the exact reduction, duration, and frequency are individual. Preserve familiar race skills, avoid last-minute novelty, and monitor response. LaneLab should draft options, not guarantee a percentage performance gain.
 
 Source anchors: PMID 37163550 for tapering; PMID 32767794 and PMID 27918666 for load monitoring; PMID 23449237 for critical-velocity context.

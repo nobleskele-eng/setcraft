@@ -54,8 +54,8 @@ export default function FamousSetsView({ onOpenWorkout }: FamousSetsViewProps) {
   const [addOpen, setAddOpen] = useState(false);
 
   useEffect(() => {
-    const coachLibrary = safeArray<FamousWorkout>("setcraft_coach_famous_sets").filter((item) => item?.id && item?.title && Array.isArray(item?.nodes));
-    const projects = safeArray<StudioProject>("setcraft_studio_projects").filter((item) => item?.id && item?.name && Array.isArray(item?.nodes));
+    const coachLibrary = safeArray<FamousWorkout>("lanelab_coach_famous_sets").filter((item) => item?.id && item?.title && Array.isArray(item?.nodes));
+    const projects = safeArray<StudioProject>("lanelab_studio_projects").filter((item) => item?.id && item?.name && Array.isArray(item?.nodes));
     setCoachWorkouts(coachLibrary);
     setSavedProjects(projects);
     setSelectedProjectId(projects[0]?.id || "");
@@ -95,7 +95,7 @@ export default function FamousSetsView({ onOpenWorkout }: FamousSetsViewProps) {
       id: `coach-${project.id}`,
       title: project.name,
       subtitle: project.focus || "Coach-created editable workout",
-      attribution: "Added by the coach from SetCraft Projects",
+      attribution: "Added by the coach from LaneLab Projects",
       sourceName: "Coach Library",
       sourceUrl: "",
       level: "Advanced",
@@ -110,7 +110,7 @@ export default function FamousSetsView({ onOpenWorkout }: FamousSetsViewProps) {
     };
     const updated = [workout, ...coachWorkouts.filter((item) => item.id !== workout.id)];
     setCoachWorkouts(updated);
-    localStorage.setItem("setcraft_coach_famous_sets", JSON.stringify(updated));
+    localStorage.setItem("lanelab_coach_famous_sets", JSON.stringify(updated));
     setAddOpen(false);
     openPreview(workout);
   };
@@ -118,7 +118,7 @@ export default function FamousSetsView({ onOpenWorkout }: FamousSetsViewProps) {
   const deleteCoachWorkout = (id: string) => {
     const updated = coachWorkouts.filter((item) => item.id !== id);
     setCoachWorkouts(updated);
-    localStorage.setItem("setcraft_coach_famous_sets", JSON.stringify(updated));
+    localStorage.setItem("lanelab_coach_famous_sets", JSON.stringify(updated));
     if (selected?.id === id) {
       setSelected(FAMOUS_WORKOUTS[0] || null);
       setPreviewOpen(false);
@@ -157,7 +157,7 @@ export default function FamousSetsView({ onOpenWorkout }: FamousSetsViewProps) {
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-white shadow-lg shadow-hairline-on-canvas"><UserRound className="h-5 w-5" /></span>
           <div className="min-w-0 flex-1">
             <h2 className="text-base font-bold text-surface">Coach Library</h2>
-            <p className="mt-1 text-sm text-ink-muted-on-canvas">Turn any saved SetCraft project into a reusable library workout.</p>
+            <p className="mt-1 text-sm text-ink-muted-on-canvas">Turn any saved LaneLab project into a reusable library workout.</p>
           </div>
           <button type="button" onClick={() => setAddOpen((value) => !value)} className="premium-button flex items-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-bold text-white shadow-md shadow-hairline-on-canvas hover:bg-accent-active">
             <Plus className="h-4 w-4" /> Add my workout

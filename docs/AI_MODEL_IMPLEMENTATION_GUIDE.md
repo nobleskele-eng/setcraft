@@ -1,18 +1,18 @@
-# SetCraft Gemini setup and coaching-knowledge guide
+# LaneLab Gemini setup and coaching-knowledge guide
 
-SetCraft now has two separate AI layers:
+LaneLab now has two separate AI layers:
 
 1. **Gemini connection:** the private API key in `.env` lets the server call Gemini 3.6 Flash.
 2. **Coaching knowledge:** reviewed documents in `ai/knowledge/` are indexed in Gemini File Search and retrieved when relevant.
 
-This second layer is retrieval-augmented generation (RAG). It is the supported Gemini Developer API approach for SetCraft. It does not change Gemini’s model weights. Google AI Studio and the Gemini Developer API do not currently provide a tunable Gemini model.
+This second layer is retrieval-augmented generation (RAG). It is the supported Gemini Developer API approach for LaneLab. It does not change Gemini’s model weights. Google AI Studio and the Gemini Developer API do not currently provide a tunable Gemini model.
 
 ## Step 1 — Confirm the private environment file
 
-From the SetCraft repository in PowerShell:
+From the LaneLab repository in PowerShell:
 
 ```powershell
-cd "C:\Users\shaya\Downloads\SetCraft_Swim\with git\setcraft"
+cd "C:\Users\shaya\Downloads\LaneLab_Swim\with git\lanelab"
 notepad .env
 ```
 
@@ -32,7 +32,7 @@ Rules:
 - `.env` and `.env.local` are ignored by Git. `.env.example` is the safe template.
 - If the key has ever been exposed, revoke it in Google AI Studio and create a new authorization key.
 
-## Step 2 — Start SetCraft and verify Gemini
+## Step 2 — Start LaneLab and verify Gemini
 
 ```powershell
 npm ci
@@ -61,21 +61,21 @@ If it still says `simulation`, stop the server with `Ctrl+C`, confirm the key na
 
 ## Step 3 — Review the five knowledge areas
 
-SetCraft has one Gemini connection and five controlled workflows:
+LaneLab has one Gemini connection and five controlled workflows:
 
 | Workflow | Knowledge folder | Responsibility |
 | --- | --- | --- |
 | Coach Chat | `ai/knowledge/coach-chat/` | Coaching explanations and decision frameworks |
 | Set Generator | `ai/knowledge/set-generator/` | Structured workout drafts |
 | Set Modifier | `ai/knowledge/set-modifier/` | Constraint-preserving workout changes |
-| Race Analysis | `ai/knowledge/race-analysis/` | Explanations of locked SetCraft race calculations |
+| Race Analysis | `ai/knowledge/race-analysis/` | Explanations of locked LaneLab race calculations |
 | Race Strategy | `ai/knowledge/race-strategy/` | Explanations of locked goal splits and strategy plans |
 
 Shared terminology and safety rules live in `ai/knowledge/shared/`.
 
-The expanded SetCraft baseline includes 25 focused documents across all six folders, a source register, a knowledge audit, deterministic boundary tests, and 9,600 synthetic coverage scenarios. See `docs/AI_TRAINING_PACK_MANIFEST.md` for the inventory.
+The expanded LaneLab baseline includes 25 focused documents across all six folders, a source register, a knowledge audit, deterministic boundary tests, and 9,600 synthetic coverage scenarios. See `docs/AI_TRAINING_PACK_MANIFEST.md` for the inventory.
 
-The supplied `approved_sample` files are conservative starter rules. Open them, edit the guidance to match SetCraft’s actual coaching philosophy, and have a qualified coach review them. New documents should start with metadata like:
+The supplied `approved_sample` files are conservative starter rules. Open them, edit the guidance to match LaneLab’s actual coaching philosophy, and have a qualified coach review them. New documents should start with metadata like:
 
 ```text
 title: Sprint freestyle race playbook
@@ -93,8 +93,8 @@ Never upload:
 
 - athlete names, dates of birth, contact information or identifiable records about minors;
 - medical records or unnecessary health information;
-- copyrighted coaching books or paid material SetCraft does not have permission to use;
-- changing record tables, cuts, points or conversions that belong in SetCraft’s deterministic data.
+- copyrighted coaching books or paid material LaneLab does not have permission to use;
+- changing record tables, cuts, points or conversions that belong in LaneLab’s deterministic data.
 
 ## Step 4 — Upload and index the approved knowledge
 
@@ -107,7 +107,7 @@ npm run ai:setup-rag -- --write-env
 This command:
 
 - reads the private key from `.env` or `.env.local`;
-- creates or reuses the `SetCraft Coaching Knowledge` File Search store;
+- creates or reuses the `LaneLab Coaching Knowledge` File Search store;
 - uploads only `approved` and `approved_sample` documents;
 - skips unchanged files and replaces changed files;
 - writes `GEMINI_FILE_SEARCH_STORE` into your ignored `.env` file;
@@ -132,13 +132,13 @@ The local health endpoint should report `"knowledgeMode": "file-search"`.
 
 After editing or approving documents, run the same setup command again. Unchanged files are skipped; changed files are replaced.
 
-To remove remotely indexed SetCraft documents that no longer exist locally:
+To remove remotely indexed LaneLab documents that no longer exist locally:
 
 ```powershell
 npm run ai:setup-rag -- --write-env --prune
 ```
 
-To deliberately delete and rebuild the entire SetCraft knowledge store:
+To deliberately delete and rebuild the entire LaneLab knowledge store:
 
 ```powershell
 npm run ai:setup-rag -- --reset --write-env
@@ -153,7 +153,7 @@ npm run ai:audit-knowledge
 npm run ai:setup-rag -- --write-env --prune
 ```
 
-The audit reports uploadable documents, words, source links, and workflow coverage. `--prune` removes older SetCraft-managed remote documents that no longer exist locally while preserving the current store.
+The audit reports uploadable documents, words, source links, and workflow coverage. `--prune` removes older LaneLab-managed remote documents that no longer exist locally while preserving the current store.
 
 ## Step 5 — Evaluate all five workflows
 
@@ -163,7 +163,7 @@ Keep `npm run dev` running in the first PowerShell window. Open a second PowerSh
 npm run ai:eval
 ```
 
-The evaluator sends the cases in `ai/evals/setcraft-evals.jsonl` through the real website routes. It checks course language, locked numbers, estimated-split disclosure, workout constraints, conversion boundaries and physiology/medical boundaries.
+The evaluator sends the cases in `ai/evals/lanelab-evals.jsonl` through the real website routes. It checks course language, locked numbers, estimated-split disclosure, workout constraints, conversion boundaries and physiology/medical boundaries.
 
 The latest detailed report is written locally to:
 
@@ -187,9 +187,9 @@ To regenerate the broad scenario inventory:
 npm run ai:generate-coverage
 ```
 
-This writes 9,600 synthetic combinations to `ai/datasets/setcraft-coverage-cases.jsonl`. They are test-design cases, not real athlete records and not direct model-weight training.
+This writes 9,600 synthetic combinations to `ai/datasets/lanelab-coverage-cases.jsonl`. They are test-design cases, not real athlete records and not direct model-weight training.
 
-## Step 6 — Improve SetCraft safely
+## Step 6 — Improve LaneLab safely
 
 Use this repeatable cycle:
 
@@ -208,14 +208,14 @@ Start with roughly 25–50 high-quality approved examples or rules for each work
 Gemini may explain, organize, compare, draft and coach within the supplied boundaries. It does not own:
 
 - split math or missing-split calculations;
-- AQUA points and SetCraft scoring;
+- AQUA points and LaneLab scoring;
 - records, qualifying standards or course conversions;
 - reference-race filtering;
 - locked target checkpoints;
 - medical, readiness or return-to-sport decisions.
 
-Those remain deterministic SetCraft calculations or qualified human decisions. The server route passes them to Gemini as immutable facts.
+Those remain deterministic LaneLab calculations or qualified human decisions. The server route passes them to Gemini as immutable facts.
 
 ## Deployment note
 
-Your local `.env` is intentionally not committed or pushed. When SetCraft is deployed, add `GEMINI_API_KEY`, `GEMINI_MODEL` and `GEMINI_FILE_SEARCH_STORE` as private server-side environment variables in the hosting service. Never hard-code them in the repository.
+Your local `.env` is intentionally not committed or pushed. When LaneLab is deployed, add `GEMINI_API_KEY`, `GEMINI_MODEL` and `GEMINI_FILE_SEARCH_STORE` as private server-side environment variables in the hosting service. Never hard-code them in the repository.

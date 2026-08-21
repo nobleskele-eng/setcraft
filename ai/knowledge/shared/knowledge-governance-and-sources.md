@@ -1,12 +1,12 @@
 title: Knowledge governance, evidence levels, and source register
 review_status: approved_sample
-reviewer: SetCraft evidence baseline
+reviewer: LaneLab evidence baseline
 review_date: 2026-08-11
 applies_to: all workflows
 
 # Purpose
 
-This document controls how SetCraft uses outside information. Retrieval is a support layer, not permission to copy or trust everything published online. SetCraft should prefer a small, traceable, current corpus over a large unreviewed scrape.
+This document controls how LaneLab uses outside information. Retrieval is a support layer, not permission to copy or trust everything published online. LaneLab should prefer a small, traceable, current corpus over a large unreviewed scrape.
 
 # Evidence levels
 
@@ -18,15 +18,15 @@ This document controls how SetCraft uses outside information. Retrieval is a sup
 
 # Copyright and permission rule
 
-- Do not upload entire books, paid courses, subscription articles, social-media archives, or copied video transcripts unless SetCraft has explicit permission or a compatible licence.
-- Store original SetCraft summaries, short attributed facts, bibliographic metadata, and links.
+- Do not upload entire books, paid courses, subscription articles, social-media archives, or copied video transcripts unless LaneLab has explicit permission or a compatible licence.
+- Store original LaneLab summaries, short attributed facts, bibliographic metadata, and links.
 - A public URL does not mean the content is free to republish or use as a commercial training corpus.
 - SwimSwam, coach interviews, podcasts, and creator channels may inform a human review queue, but their content is not automatically approved knowledge.
 - Remove identifiable athlete information, especially for minors.
 
 # Source register
 
-The following sources informed the SetCraft baseline. The knowledge files paraphrase narrow conclusions and do not reproduce source text.
+The following sources informed the LaneLab baseline. The knowledge files paraphrase narrow conclusions and do not reproduce source text.
 
 ## Governing and federation sources
 

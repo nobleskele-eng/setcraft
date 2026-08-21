@@ -1,12 +1,12 @@
 title: Athlete-profile context rules for race analysis
 review_status: approved_sample
-reviewer: SetCraft performance baseline
+reviewer: LaneLab performance baseline
 review_date: 2026-08-11
 applies_to: race-analysis
 
 # Purpose
 
-Athlete-profile data can help choose questions, but it must not manufacture causes. SetCraft may use context only to prioritize coach checks.
+Athlete-profile data can help choose questions, but it must not manufacture causes. LaneLab may use context only to prioritize coach checks.
 
 # Ratings from 1 to 10
 
@@ -50,7 +50,7 @@ Coach-entered restrictions are hard programming constraints. Race analysis may i
 Use this order:
 
 1. measured race evidence;
-2. deterministic SetCraft calculations;
+2. deterministic LaneLab calculations;
 3. matched official references;
 4. measured profile data with protocol;
 5. coach observation;

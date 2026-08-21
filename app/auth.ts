@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 import { env } from "cloudflare:workers";
 
-export const SESSION_COOKIE = "setcraft_session";
+export const SESSION_COOKIE = "lanelab_session";
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 const PASSWORD_ITERATIONS = 210_000;
 const PASSWORD_RESET_MAX_AGE_MINUTES = 20;
@@ -31,7 +31,7 @@ export function authDatabaseAvailable() {
 }
 
 export async function ensureAuthSchema() {
-  if (!env.DB) throw new Error("SetCraft account storage is unavailable.");
+  if (!env.DB) throw new Error("LaneLab account storage is unavailable.");
   if (!schemaReady) {
     schemaReady = (async () => {
       await env.DB.batch([

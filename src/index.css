@@ -156,9 +156,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 /* v6 professional workspace */
 :root {
   color-scheme: light;
-  --setcraft-ink: #0f172a;
-  --setcraft-cyan: #3b82f6;
-  --setcraft-indigo: #4f46e5;
+  --lanelab-ink: #0f172a;
+  --lanelab-cyan: #3b82f6;
+  --lanelab-indigo: #4f46e5;
 }
 
 html { scroll-behavior: smooth; }
@@ -172,10 +172,10 @@ body {
 button, a, input, select, textarea { transition-property: color, background-color, border-color, box-shadow, transform, opacity; transition-duration: 180ms; }
 button:not(:disabled) { cursor: pointer; }
 
-.page-enter { animation: setcraft-page-in 260ms ease-out both; }
-.modal-enter { animation: setcraft-modal-in 220ms cubic-bezier(.2,.8,.2,1) both; }
-@keyframes setcraft-page-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes setcraft-modal-in { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.page-enter { animation: lanelab-page-in 260ms ease-out both; }
+.modal-enter { animation: lanelab-modal-in 220ms cubic-bezier(.2,.8,.2,1) both; }
+@keyframes lanelab-page-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes lanelab-modal-in { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
 .brand-orb { position: relative; }
 .brand-orb::after {
@@ -282,7 +282,7 @@ button:not(:disabled) { cursor: pointer; }
 
 .studio-meta-input { font-size: .875rem; }
 
-[data-setcraft-dropzone="true"] > div { transition: height .14s ease, background-color .14s ease, box-shadow .14s ease; }
+[data-lanelab-dropzone="true"] > div { transition: height .14s ease, background-color .14s ease, box-shadow .14s ease; }
 
 @media (max-width: 1279px) {
   .studio-workflow { top: 0; }
@@ -302,14 +302,14 @@ body { font-size: 17px; }
     linear-gradient(180deg, var(--color-canvas) 0%, var(--color-canvas-sunken) 100%);
 }
 
-#setcraft-swim-studio {
+#lanelab-swim-studio {
   font-size: 1rem;
 }
 
-#setcraft-swim-studio [class~="text-[9px]"] { font-size: .68rem !important; }
-#setcraft-swim-studio [class~="text-[10px]"] { font-size: .72rem !important; }
-#setcraft-swim-studio [class~="text-[11px]"] { font-size: .78rem !important; }
-#setcraft-swim-studio [class~="text-[12px]"] { font-size: .82rem !important; }
+#lanelab-swim-studio [class~="text-[9px]"] { font-size: .68rem !important; }
+#lanelab-swim-studio [class~="text-[10px]"] { font-size: .72rem !important; }
+#lanelab-swim-studio [class~="text-[11px]"] { font-size: .78rem !important; }
+#lanelab-swim-studio [class~="text-[12px]"] { font-size: .82rem !important; }
 
 .studio-meta-input {
   min-height: 50px;
@@ -371,7 +371,7 @@ body { font-size: 17px; }
 #swimblock-sidebar nav button { letter-spacing: -.005em; }
 
 @media (min-width: 1536px) {
-  #setcraft-swim-studio .studio-workflow { padding-left: 2rem; padding-right: 2rem; }
+  #lanelab-swim-studio .studio-workflow { padding-left: 2rem; padding-right: 2rem; }
 }
 
 @media (max-width: 1279px) {
@@ -379,16 +379,16 @@ body { font-size: 17px; }
 }
 
 /* User accessibility preferences stored by SettingsView. */
-html[data-setcraft-reduce-motion="true"] *,
-html[data-setcraft-reduce-motion="true"] *::before,
-html[data-setcraft-reduce-motion="true"] *::after {
+html[data-lanelab-reduce-motion="true"] *,
+html[data-lanelab-reduce-motion="true"] *::before,
+html[data-lanelab-reduce-motion="true"] *::after {
   scroll-behavior: auto !important;
   animation-duration: .01ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: .01ms !important;
 }
 
-html[data-setcraft-large-deck="true"] #setcraft-swim-studio pre {
+html[data-lanelab-large-deck="true"] #lanelab-swim-studio pre {
   font-size: .88rem !important;
   line-height: 2rem !important;
 }

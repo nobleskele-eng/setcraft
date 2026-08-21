@@ -37,7 +37,7 @@ interface NewProjectDraft {
 
 const readProjects = (): StudioProject[] => {
   try {
-    return JSON.parse(localStorage.getItem("setcraft_studio_projects") || "[]") as StudioProject[];
+    return JSON.parse(localStorage.getItem("lanelab_studio_projects") || "[]") as StudioProject[];
   } catch {
     return [];
   }
@@ -45,7 +45,7 @@ const readProjects = (): StudioProject[] => {
 
 const readFolders = (projects: StudioProject[]): string[] => {
   try {
-    const saved = JSON.parse(localStorage.getItem("setcraft_project_folders") || "[]") as string[];
+    const saved = JSON.parse(localStorage.getItem("lanelab_project_folders") || "[]") as string[];
     return [...new Set([...DEFAULT_PROJECT_FOLDERS, ...saved, ...projects.map((project) => project.folder || "Inbox")])];
   } catch {
     return [...new Set([...DEFAULT_PROJECT_FOLDERS, ...projects.map((project) => project.folder || "Inbox")])];
@@ -110,14 +110,14 @@ export default function ProjectsView({ onOpenProject, onCreateProject }: Project
 
   const persistProjects = (next: StudioProject[]) => {
     setProjects(next);
-    localStorage.setItem("setcraft_studio_projects", JSON.stringify(next));
-    localStorage.setItem("setcraft_studio_templates", JSON.stringify(next));
+    localStorage.setItem("lanelab_studio_projects", JSON.stringify(next));
+    localStorage.setItem("lanelab_studio_templates", JSON.stringify(next));
   };
 
   const persistFolders = (next: string[]) => {
     const unique = [...new Set(next.map((item) => item.trim()).filter(Boolean))];
     setFolders(unique);
-    localStorage.setItem("setcraft_project_folders", JSON.stringify(unique));
+    localStorage.setItem("lanelab_project_folders", JSON.stringify(unique));
   };
 
   const createFolder = () => {

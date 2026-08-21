@@ -1,10 +1,10 @@
-# SetCraft research and formula notes
+# LaneLab research and formula notes
 
 This document records the product patterns and mathematical assumptions used in the final research build. It is not a coaching certification curriculum or a universal training prescription.
 
 ## Workout-writing workflow
 
-U.S. Masters Swimming's workout-writing guidance emphasizes establishing the purpose of a workout, using simple and consistent terminology, distinguishing send-off intervals from fixed rest, estimating set duration, and adapting repetition count or send-off by lane while preserving the session goal. SetCraft reflects those ideas through Project Setup, explicit timing modes, recursive duration estimates, lane-specific overrides, and deck-sheet coaching points.
+U.S. Masters Swimming's workout-writing guidance emphasizes establishing the purpose of a workout, using simple and consistent terminology, distinguishing send-off intervals from fixed rest, estimating set duration, and adapting repetition count or send-off by lane while preserving the session goal. LaneLab reflects those ideas through Project Setup, explicit timing modes, recursive duration estimates, lane-specific overrides, and deck-sheet coaching points.
 
 Source:
 
@@ -13,7 +13,7 @@ Source:
 
 ## Visual programming research
 
-Blockly's workspace model separates a toolbox, flyout, workspace, zoom controls, and configurable UI components. Scratch's custom-block pattern demonstrates why users should be able to define reusable abstractions rather than repeatedly rebuilding the same sequence. SetCraft adapts these interaction principles to training blocks rather than programming commands.
+Blockly's workspace model separates a toolbox, flyout, workspace, zoom controls, and configurable UI components. Scratch's custom-block pattern demonstrates why users should be able to define reusable abstractions rather than repeatedly rebuilding the same sequence. LaneLab adapts these interaction principles to training blocks rather than programming commands.
 
 Sources:
 
@@ -24,7 +24,7 @@ Sources:
 
 ## Existing swim-planning product patterns
 
-Public product pages from MakoSets and Commit Swimming demonstrate demand for reusable set libraries, structured workout construction, automatic volume calculations, multiple-group planning, and readable delivery. SetCraft does not claim to invent those general categories. Its narrower differentiation is nested executable block logic, transparent AI-to-block conversion, deterministic validation, and lane-specific set overrides inside one visual graph.
+Public product pages from MakoSets and Commit Swimming demonstrate demand for reusable set libraries, structured workout construction, automatic volume calculations, multiple-group planning, and readable delivery. LaneLab does not claim to invent those general categories. Its narrower differentiation is nested executable block logic, transparent AI-to-block conversion, deterministic validation, and lane-specific set overrides inside one visual graph.
 
 Sources:
 
@@ -35,7 +35,7 @@ Sources:
 
 ## Workout-library research
 
-The editable library includes transformed, attributed templates inspired by public coaching articles as well as original SetCraft workouts. Source attribution is stored with the relevant library items. Coaches should still modify every practice for age, ability, current readiness, training history, facilities, and supervision.
+The editable library includes transformed, attributed templates inspired by public coaching articles as well as original LaneLab workouts. Source attribution is stored with the relevant library items. Coaches should still modify every practice for age, ability, current readiness, training history, facilities, and supervision.
 
 Sources used for inspiration and category coverage include:
 
@@ -60,7 +60,7 @@ This assumes constant average velocity. Starts, turns, fatigue, and event-specif
 
 ### 2. Split planner
 
-SetCraft distributes the entered total time across split distances using normalized weighting patterns:
+LaneLab distributes the entered total time across split distances using normalized weighting patterns:
 
 - even
 - negative split
@@ -91,7 +91,7 @@ critical speed = (D_long − D_short) / (T_long − T_short)
 pace per 100 = 100 / critical speed
 ```
 
-Critical-velocity research commonly models a linear relationship between swimming distance and time across maximal trials. SetCraft reports the result as a field estimate for coach interpretation, not a medical threshold or guaranteed prescription.
+Critical-velocity research commonly models a linear relationship between swimming distance and time across maximal trials. LaneLab reports the result as a field estimate for coach interpretation, not a medical threshold or guaranteed prescription.
 
 Research source:
 
@@ -123,7 +123,7 @@ total time = total repetitions × cycle time
 work-to-rest ratio = total swim time / total rest time
 ```
 
-When a send-off is impossible, SetCraft does not invent negative rest; it uses at least the modeled swim time for duration and displays a warning.
+When a send-off is impossible, LaneLab does not invent negative rest; it uses at least the modeled swim time for duration and displays a warning.
 
 ### 7. Metre/yard conversion
 
@@ -149,7 +149,7 @@ Source:
 ## Safety and product limits
 
 - The coach approves the final workout.
-- Athlete restrictions are constraints entered by a human, not diagnoses generated by SetCraft.
+- Athlete restrictions are constraints entered by a human, not diagnoses generated by LaneLab.
 - High-intensity labels are configurable planning categories, not universal prescriptions.
 - The app does not determine medical readiness.
 - Deterministic checks catch supported structural and timing errors but cannot guarantee that a session is appropriate for every athlete.

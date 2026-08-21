@@ -1,12 +1,12 @@
 title: Quality controls and reusable set patterns
 review_status: approved_sample
-reviewer: SetCraft coaching baseline
+reviewer: LaneLab coaching baseline
 review_date: 2026-08-11
 applies_to: set-generator
 
 # Pattern rule
 
-The examples below are structures, not ready-to-assign prescriptions. SetCraft must fill pace, send-off, volume, and equipment from the athlete and lane context, then calculate total distance exactly.
+The examples below are structures, not ready-to-assign prescriptions. LaneLab must fill pace, send-off, volume, and equipment from the athlete and lane context, then calculate total distance exactly.
 
 # Pace-window pattern
 

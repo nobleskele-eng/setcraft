@@ -38,7 +38,7 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
     {
       id: "m1",
       sender: "copilot",
-      text: "I'm **Coach Block**, SetCraft's evidence-aware coaching copilot. I can draft sets, explain race strategy, compare course demands and revise workouts. Give me the course, event, athlete level and objective for the strongest answer.",
+      text: "I'm **Coach Block**, LaneLab's evidence-aware coaching copilot. I can draft sets, explain race strategy, compare course demands and revise workouts. Give me the course, event, athlete level and objective for the strongest answer.",
       timestamp: "05:47 AM"
     }
   ]);
@@ -152,10 +152,10 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
     reader.onload = () => {
       const preview = typeof reader.result === "string" ? reader.result : "";
       const data = preview.split(",", 2)[1] || "";
-      if (!data) return setRequestError("SetCraft could not read that image.");
+      if (!data) return setRequestError("LaneLab could not read that image.");
       setChatImage({ name: file.name.slice(0, 120), mimeType: file.type, data, preview, size: file.size });
     };
-    reader.onerror = () => setRequestError("SetCraft could not read that image.");
+    reader.onerror = () => setRequestError("LaneLab could not read that image.");
     reader.readAsDataURL(file);
   };
 
@@ -228,7 +228,7 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(168,85,247,.28),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(34,211,238,.18),transparent_35%)]" />
         <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-disabled"><Sparkles className="h-5 w-5" /><span className="text-xs font-black uppercase tracking-[.2em]">SetCraft AI workspace v22</span></div>
+          <div className="flex items-center gap-2 text-disabled"><Sparkles className="h-5 w-5" /><span className="text-xs font-black uppercase tracking-[.2em]">LaneLab AI workspace v23</span></div>
           <h2 className="mt-3 text-4xl font-display font-black tracking-tight md:text-5xl">
             Coach Block AI
           </h2>
@@ -353,7 +353,7 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
           <div className="lg:col-span-4 space-y-4">
             <input ref={imageInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={handleImageChange} />
             <div className="rounded-2xl border border-dashed border-disabled bg-canvas/70 p-4">
-              <div className="flex items-start gap-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-accent-active shadow-xs"><ImagePlus className="h-4 w-4" /></span><div><strong className="text-xs text-surface">AI image review</strong><p className="mt-1 text-[10px] leading-relaxed text-ink-muted-on-canvas">Attach a stroke frame, deck photo, whiteboard, or race screenshot. SetCraft describes visible evidence and coach checks—not identity, diagnosis, or injury.</p></div></div>
+              <div className="flex items-start gap-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-accent-active shadow-xs"><ImagePlus className="h-4 w-4" /></span><div><strong className="text-xs text-surface">AI image review</strong><p className="mt-1 text-[10px] leading-relaxed text-ink-muted-on-canvas">Attach a stroke frame, deck photo, whiteboard, or race screenshot. LaneLab describes visible evidence and coach checks—not identity, diagnosis, or injury.</p></div></div>
               <button type="button" onClick={() => imageInputRef.current?.click()} className="mt-3 w-full rounded-xl border border-hairline-on-canvas bg-white px-3 py-2.5 text-[10px] font-bold text-surface hover:border-disabled">{chatImage ? "Replace image" : "Choose image"} · JPEG, PNG, WebP</button>
               <p className="mt-2 text-[9px] leading-relaxed text-ink-muted-on-canvas">6 MB max. Upload only content you are authorized to share; avoid medical records and identifiable minors without permission.</p>
             </div>
