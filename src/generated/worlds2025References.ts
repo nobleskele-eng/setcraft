@@ -2684,7 +2684,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-men-50-back-2",
@@ -2710,7 +2710,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-men-50-back-2",
@@ -2736,7 +2736,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-women-50-back-1",
@@ -2762,7 +2762,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-women-50-back-2",
@@ -2788,7 +2788,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-women-50-back-3",
@@ -2814,7 +2814,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-men-50-breast-1",
@@ -2840,7 +2840,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-men-50-breast-2",
@@ -2866,7 +2866,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-men-50-breast-3",
@@ -2892,7 +2892,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-women-50-breast-1",
@@ -2918,7 +2918,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-women-50-breast-2",
@@ -2944,7 +2944,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-women-50-breast-3",
@@ -2970,7 +2970,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-men-50-fly-1",
@@ -2996,7 +2996,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-men-50-fly-2",
@@ -3022,7 +3022,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-women-50-fly-2",
@@ -3048,7 +3048,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-women-50-fly-3",
@@ -3074,7 +3074,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-men-50-free-1",
@@ -3100,7 +3100,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-men-50-free-2",
@@ -3126,7 +3126,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-men-50-free-3",
@@ -3152,7 +3152,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-women-50-free-1",
@@ -3178,7 +3178,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-women-50-free-2",
@@ -3204,7 +3204,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-women-50-free-3",
@@ -3230,7 +3230,7 @@ export const WORLDS_2025_REFERENCES: RaceReference[] = [
     "sourceUrl": "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
     "verification": "official",
     "dataClass": "observed",
-    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates."
+    "notes": "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates."
   },
   {
     "id": "worlds-2025-men-800-free-1",

@@ -126,7 +126,7 @@ export default function SettingsView({ currentRole, onRoleChange }: SettingsView
       setStatus(`Restored ${restored} workspace data group${restored === 1 ? "" : "s"}. Reloading…`);
       window.setTimeout(() => window.location.reload(), 600);
     } catch {
-      setStatus("That file is not a valid SetCraft backup.");
+      setStatus("That file is not a valid LaneLab backup.");
     } finally {
       if (importRef.current) importRef.current.value = "";
     }

@@ -95,7 +95,7 @@ export default function FamousSetsView({ onOpenWorkout }: FamousSetsViewProps) {
       id: `coach-${project.id}`,
       title: project.name,
       subtitle: project.focus || "Coach-created editable workout",
-      attribution: "Added by the coach from SetCraft Projects",
+      attribution: "Added by the coach from LaneLab Projects",
       sourceName: "Coach Library",
       sourceUrl: "",
       level: "Advanced",
@@ -140,7 +140,7 @@ export default function FamousSetsView({ onOpenWorkout }: FamousSetsViewProps) {
               <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Curated + coach-created library</span>
             </div>
             <h1 className="font-display text-3xl font-bold tracking-tight md:text-5xl">Famous Sets</h1>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-disabled md:text-base">
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-ink-muted md:text-base">
               Preview a complete practice in a real pop-up, open it as editable visual blocks, customize it for your lanes, and save the result as a new project.
             </p>
           </div>
@@ -157,7 +157,7 @@ export default function FamousSetsView({ onOpenWorkout }: FamousSetsViewProps) {
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-white shadow-lg shadow-hairline-on-canvas"><UserRound className="h-5 w-5" /></span>
           <div className="min-w-0 flex-1">
             <h2 className="text-base font-bold text-surface">Coach Library</h2>
-            <p className="mt-1 text-sm text-ink-muted-on-canvas">Turn any saved SetCraft project into a reusable library workout.</p>
+            <p className="mt-1 text-sm text-ink-muted-on-canvas">Turn any saved LaneLab project into a reusable library workout.</p>
           </div>
           <button type="button" onClick={() => setAddOpen((value) => !value)} className="premium-button flex items-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-bold text-white shadow-md shadow-hairline-on-canvas hover:bg-accent-active">
             <Plus className="h-4 w-4" /> Add my workout
@@ -252,7 +252,7 @@ export default function FamousSetsView({ onOpenWorkout }: FamousSetsViewProps) {
               </div>
             </div>
             <aside className="border-l border-hairline bg-surface p-6 text-white">
-              <div className="flex items-center gap-2 text-disabled"><Waves className="h-4 w-4" /><span className="text-[10px] font-bold uppercase tracking-[0.16em]">Workout summary</span></div>
+              <div className="flex items-center gap-2 text-ink-muted"><Waves className="h-4 w-4" /><span className="text-[10px] font-bold uppercase tracking-[0.16em]">Workout summary</span></div>
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <DarkStat value={`${selectedStats.totalDistance.toLocaleString()}${selected.poolUnit}`} label="Distance" />
                 <DarkStat value={`${selected.durationMinutes} min`} label="Booking" />
@@ -261,11 +261,11 @@ export default function FamousSetsView({ onOpenWorkout }: FamousSetsViewProps) {
               </div>
               <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.055] p-4">
                 <p className="text-xs font-bold text-white">Focus</p>
-                <p className="mt-2 text-sm leading-6 text-disabled">{selected.focus}</p>
+                <p className="mt-2 text-sm leading-6 text-ink-muted">{selected.focus}</p>
                 <p className="mt-4 text-xs font-bold text-white">Phase</p>
-                <p className="mt-2 text-sm text-disabled">{selected.phase}</p>
+                <p className="mt-2 text-sm text-ink-muted">{selected.phase}</p>
               </div>
-              <div className="mt-5 flex flex-wrap gap-2">{selected.tags.map((item) => <span key={item} className="rounded-lg border border-white/10 bg-white/[0.06] px-2 py-1 text-[10px] font-bold text-disabled">{item}</span>)}</div>
+              <div className="mt-5 flex flex-wrap gap-2">{selected.tags.map((item) => <span key={item} className="rounded-lg border border-white/10 bg-white/[0.06] px-2 py-1 text-[10px] font-bold text-ink-muted">{item}</span>)}</div>
               <div className="mt-6 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-xs leading-5 text-amber-100">{selected.disclaimer}</div>
               <div className="mt-6 space-y-3">
                 <button type="button" onClick={() => onOpenWorkout(selected)} className="premium-button flex w-full items-center justify-center gap-2 rounded-xl bg-accent-hover px-4 py-3.5 text-sm font-bold text-surface hover:bg-disabled"><CheckCircle2 className="h-4 w-4" /> Open and edit in Studio</button>

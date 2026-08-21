@@ -75,7 +75,7 @@ for (const clubMatch of xml.matchAll(/<CLUB\s+([^>]*)>([\s\S]*?)<\/CLUB>/g)) {
         sourceUrl: "https://www.omegatiming.com/File/0001190001FFFFFFFFFFFFFFFFFFFFC0.lef",
         verification: "official",
         dataClass: "observed",
-        notes: event.distance === 50 ? "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; SetCraft keeps modeled intermediate checkpoints clearly labeled as estimates." : "Official cumulative split line from the championship final.",
+        notes: event.distance === 50 ? "Official final time and reaction time. The source does not publish 15/25/35 m checkpoints; LaneLab keeps modeled intermediate checkpoints clearly labeled as estimates." : "Official cumulative split line from the championship final.",
       });
     }
   }

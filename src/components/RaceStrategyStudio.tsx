@@ -83,8 +83,8 @@ export default function RaceStrategyStudio() {
     finally { setAiLoading(false); }
   };
 
-  const exportPdf = () => downloadIntelligencePdf(`setcraft-${event.toLowerCase().replaceAll(" ", "-")}-${course.toLowerCase()}-strategy.pdf`, {
-    title: `${event} Race Strategy`, kicker: "SetCraft Strategy Studio",
+  const exportPdf = () => downloadIntelligencePdf(`lanelab-${event.toLowerCase().replaceAll(" ", "-")}-${course.toLowerCase()}-strategy.pdf`, {
+    title: `${event} Race Strategy`, kicker: "LaneLab Strategy Studio",
     subtitle: `${course} ${sex} plan for a ${formatTime(goal)} goal. Strategy targets are coaching aids; reference checkpoints retain their source provenance.`,
     generatedLabel: new Date().toLocaleString(),
     metrics: [
@@ -114,7 +114,7 @@ export default function RaceStrategyStudio() {
     <section className="overflow-hidden rounded-[26px] border border-hairline bg-surface text-white">
       <div className="bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,.32),transparent_38%)] p-6 md:p-8">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-          <div><div className="flex items-center gap-2 text-disabled"><Sparkles className="h-4 w-4" /><span className="text-[10px] font-black uppercase tracking-[.2em]">Professional strategy workspace</span></div><h2 className="mt-2 text-3xl font-black">Plan. Compare. Brief.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-disabled">Build an exact race plan, control every athlete factor independently, and ground the recommendation in official comparison swims.</p></div>
+          <div><div className="flex items-center gap-2 text-ink-muted"><Sparkles className="h-4 w-4" /><span className="text-[10px] font-black uppercase tracking-[.2em]">Professional strategy workspace</span></div><h2 className="mt-2 text-3xl font-black">Plan. Compare. Brief.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-ink-muted">Build an exact race plan, control every athlete factor independently, and ground the recommendation in official comparison swims.</p></div>
           <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-white/[.06] p-2">{(["LCM", "SCM", "SCY"] as Course[]).map((item) => <button type="button" key={item} onClick={() => switchCourse(item)} className={`rounded-xl px-5 py-3 text-xs font-black ${course === item ? "bg-disabled text-surface" : "text-disabled hover:bg-white/10"}`}>{item}</button>)}</div>
         </div>
       </div>

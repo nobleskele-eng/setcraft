@@ -84,7 +84,7 @@ export async function buildIntelligencePdf(data: IntelligencePdfData) {
       page.drawText(ascii(data.kicker).toUpperCase(), { x: PAGE.margin, y: PAGE.height - 34, font: bold, size: 8.5, color: COLORS.cyan });
       page.drawText(ascii(data.title), { x: PAGE.margin + 120, y: PAGE.height - 36, font: bold, size: 11, color: COLORS.white });
     }
-    page.drawText(`SetCraft Intelligence - ${pageNumber}`, { x: PAGE.margin, y: 22, font: regular, size: 8, color: COLORS.muted });
+    page.drawText(`LaneLab Intelligence - ${pageNumber}`, { x: PAGE.margin, y: 22, font: regular, size: 8, color: COLORS.muted });
     page.drawText(ascii(data.generatedLabel), { x: PAGE.width - PAGE.margin - 150, y: 22, font: regular, size: 8, color: COLORS.muted });
     y = first ? PAGE.height - 184 : PAGE.height - 82;
   };
@@ -166,9 +166,9 @@ export async function buildIntelligencePdf(data: IntelligencePdfData) {
   drawLines(page, footerLines, regular, 7.8, PAGE.margin + 9, y - 8, 11, rgb(0.13, 0.27, 0.46));
 
   pdf.setTitle(ascii(data.title));
-  pdf.setAuthor("SetCraft Swim Studio");
+  pdf.setAuthor("LaneLab Swim Studio");
   pdf.setSubject(ascii(data.subtitle));
-  pdf.setCreator("SetCraft Performance Intelligence");
+  pdf.setCreator("LaneLab Performance Intelligence");
   return pdf.save();
 }
 

@@ -199,7 +199,7 @@ function parseLenex(config) {
           checkpointProvenance: monotonic.map(() => "official"),
           sourceMeetId: config.id,
           notes: isMinor
-            ? "Official result with the athlete identity anonymized in SetCraft. Every stored checkpoint is measured by the source timing system."
+            ? "Official result with the athlete identity anonymized in LaneLab. Every stored checkpoint is measured by the source timing system."
             : "Official result. Every stored checkpoint is measured by the source timing system.",
         });
       }
