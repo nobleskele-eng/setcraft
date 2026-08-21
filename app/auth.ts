@@ -31,7 +31,7 @@ export function authDatabaseAvailable() {
 }
 
 export async function ensureAuthSchema() {
-  if (!env.DB) throw new Error("SetCraft account storage is unavailable.");
+  if (!env.DB) throw new Error("LaneLab account storage is unavailable.");
   if (!schemaReady) {
     schemaReady = (async () => {
       await env.DB.batch([

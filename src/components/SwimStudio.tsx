@@ -1159,22 +1159,32 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
   return (
     <div className="w-full" id="setcraft-swim-studio">
       <section className="overflow-hidden bg-canvas-raised">
-        <div className="sc-nav studio-command-bar flex-wrap !h-auto py-2">
-          <span className="sc-nav-brand">Swim Studio</span>
-          <span className="text-[10px] font-medium text-ink-muted">Scratch-style set programming</span>
+        <div className="sc-nav studio-command-bar flex-wrap !h-auto">
+          <div className="flex items-center gap-3">
+            <span className="sc-nav-brand">Swim Studio</span>
+            <span className="text-[10px] font-medium text-ink-muted">Scratch-style set programming</span>
+          </div>
           <div className="h-6 w-px bg-hairline" />
-          <button type="button" onClick={() => setTemplateOpen((open) => !open)} className="sc-btn" data-variant="ghost-on-dark" data-size="sm"><ArrowDownToLine className="h-4 w-4" /> File <ChevronDown className="h-3 w-3" /></button>
-          <button type="button" onClick={undo} disabled={history.length === 0} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink)" }} title="Undo"><Undo2 className="h-4 w-4" /></button>
-          <button type="button" onClick={redo} disabled={future.length === 0} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink)" }} title="Redo"><Redo2 className="h-4 w-4" /></button>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={() => setTemplateOpen((open) => !open)} className="sc-btn" data-variant="ghost-on-dark" data-size="sm"><ArrowDownToLine className="h-4 w-4" /> File <ChevronDown className="h-3 w-3" /></button>
+            <button type="button" onClick={undo} disabled={history.length === 0} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink)" }} title="Undo"><Undo2 className="h-4 w-4" /></button>
+            <button type="button" onClick={redo} disabled={future.length === 0} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink)" }} title="Redo"><Redo2 className="h-4 w-4" /></button>
+          </div>
           <div className="sc-nav-spacer" />
-          <div className="flex flex-wrap items-center gap-2">
-            <button type="button" onClick={() => { setStudioPage("build"); setQuickWriteOpen(true); }} className="sc-btn" data-variant="ghost-on-dark" data-size="sm"><PenLine className="h-4 w-4" /> Quick write</button>
-            <button type="button" onClick={() => { setRightTab("analysis"); setStudioPage("review"); }} className="sc-btn" data-variant="ghost-on-dark" data-size="sm"><ShieldCheck className="h-4 w-4" /> Validate</button>
-            <button type="button" onClick={saveTemplate} className="sc-btn" data-variant="primary" data-size="sm"><Save className="h-4 w-4" /> {saveNotice ? "Saved" : "Save project"}</button>
-            <button type="button" onClick={exportPdf} className="sc-btn" data-variant="secondary" data-size="sm"><FileDown className="h-4 w-4" /> {pdfNotice ? "PDF ready" : "Export PDF"}</button>
-            <span className="sc-tag hidden 2xl:inline-flex" data-tone="neutral" style={{ background: "var(--color-surface-hover)", color: "var(--color-ink-muted)" }}>{autoSaveState === "saving" ? "Saving…" : "Auto-saved"}</span>
-            <button type="button" onClick={() => setShortcutsOpen(true)} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink-muted)" }} title="Keyboard shortcuts"><Keyboard className="h-4 w-4" /></button>
-            <button type="button" onClick={exportJson} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink-muted)" }} title="Export structured JSON"><FileJson className="h-4 w-4" /></button>
+          <div className="flex flex-wrap items-center gap-6">
+            <div className="flex items-center gap-3">
+              <button type="button" onClick={() => { setStudioPage("build"); setQuickWriteOpen(true); }} className="sc-btn" data-variant="ghost-on-dark" data-size="sm"><PenLine className="h-4 w-4" /> Quick write</button>
+              <button type="button" onClick={() => { setRightTab("analysis"); setStudioPage("review"); }} className="sc-btn" data-variant="ghost-on-dark" data-size="sm"><ShieldCheck className="h-4 w-4" /> Validate</button>
+            </div>
+            <div className="flex items-center gap-3">
+              <button type="button" onClick={saveTemplate} className="sc-btn" data-variant="primary" data-size="sm"><Save className="h-4 w-4" /> {saveNotice ? "Saved" : "Save project"}</button>
+              <button type="button" onClick={exportPdf} className="sc-btn" data-variant="secondary" data-size="sm"><FileDown className="h-4 w-4" /> {pdfNotice ? "PDF ready" : "Export PDF"}</button>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="sc-tag hidden 2xl:inline-flex" data-tone="neutral" style={{ background: "var(--color-surface-hover)", color: "var(--color-ink-muted)" }}>{autoSaveState === "saving" ? "Saving…" : "Auto-saved"}</span>
+              <button type="button" onClick={() => setShortcutsOpen(true)} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink-muted)" }} title="Keyboard shortcuts"><Keyboard className="h-4 w-4" /></button>
+              <button type="button" onClick={exportJson} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink-muted)" }} title="Export structured JSON"><FileJson className="h-4 w-4" /></button>
+            </div>
             <div className="rounded-[var(--radius)] bg-surface-raised px-[var(--space-3)] py-[var(--space-2)] text-body-sm font-bold text-ink-muted">{currentRole} perspective</div>
           </div>
         </div>

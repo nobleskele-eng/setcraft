@@ -45,7 +45,7 @@ export default function AuthGate() {
         <div className="sc-auth-brand">
           <span className="sc-auth-mark" aria-hidden="true"><span /><span /><span /></span>
           <div>
-            <p className="sc-auth-brand-name">SetCraft</p>
+            <p className="sc-auth-brand-name">LaneLab</p>
             <p className="sc-auth-brand-tag">Swim performance studio</p>
           </div>
         </div>
@@ -83,15 +83,15 @@ export default function AuthGate() {
         </div>
       </section>
 
-      <section className="sc-auth-access" aria-label="SetCraft account access">
+      <section className="sc-auth-access" aria-label="LaneLab account access">
         <div className="sc-auth-access-inner">
           <div className="sc-auth-lock" aria-hidden="true"><LockKeyhole /></div>
           <p className="sc-auth-panel-kicker">Secure workspace</p>
           <h2 className="sc-auth-panel-title">{isLogin ? "Welcome back." : "Create your workspace."}</h2>
           <p className="sc-auth-panel-copy">
             {isLogin
-              ? "Verify your identity to open the complete SetCraft studio."
-              : "Use one secure identity for your SetCraft workspace—no separate password to remember."}
+              ? "Verify your identity to open the complete LaneLab studio."
+              : "Use one secure identity for your LaneLab workspace—no separate password to remember."}
           </p>
 
           <div className="sc-auth-tabs" role="tablist" aria-label="Account action">
@@ -102,21 +102,21 @@ export default function AuthGate() {
           <div className="sc-auth-panel-body" role="tabpanel">
             {!isLogin && (
               <ul className="sc-auth-benefits">
-                {["Complete Swim Studio and project hub", "Race analysis, strategy and conversion tools", "Coach AI grounded in approved SetCraft knowledge"].map((benefit) => (
+                {["Complete Swim Studio and project hub", "Race analysis, strategy and conversion tools", "Coach AI grounded in approved LaneLab knowledge"].map((benefit) => (
                   <li key={benefit}><Check aria-hidden="true" />{benefit}</li>
                 ))}
               </ul>
             )}
 
             <a className="sc-auth-primary" href={AUTH_PATH}>
-              <span>{isLogin ? "Continue to secure login" : "Create my SetCraft account"}</span>
+              <span>{isLogin ? "Continue to secure login" : "Create my LaneLab account"}</span>
               <ArrowRight aria-hidden="true" />
             </a>
 
             <p className="sc-auth-identity-note">
               {isLogin
-                ? "SetCraft remains locked until your identity is verified."
-                : "Account verification is completed securely through ChatGPT. SetCraft never receives or stores your password."}
+                ? "LaneLab remains locked until your identity is verified."
+                : "Account verification is completed securely through ChatGPT. LaneLab never receives or stores your password."}
             </p>
           </div>
 

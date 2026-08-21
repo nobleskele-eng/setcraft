@@ -52,7 +52,7 @@ export default function DashboardView({ currentRole, onNavigateTo, savedWorkouts
   const quickActions = [
     { id: "studio", label: "Build a practice", helper: "Open Project Setup and the Scratch-style builder", icon: Blocks },
     { id: "projects", label: "Project Hub", helper: "Create folders, duplicate and reopen season projects", icon: FolderKanban },
-    { id: "famous", label: "Workout Library", helper: "Open one of the curated or SetCraft-original templates", icon: BookOpenCheck },
+    { id: "famous", label: "Workout Library", helper: "Open one of the curated or LaneLab-original templates", icon: BookOpenCheck },
     { id: "calculators", label: "Calculator Lab", helper: "Pace, splits, send-offs, CSS, stroke and set math", icon: Calculator },
     { id: "calendar", label: "Season Calendar", helper: "Place saved projects into weekly training plans", icon: Calendar },
     { id: "copilot", label: "AI Coach", helper: "Generate or revise a draft and convert it to blocks", icon: Sparkles },
@@ -71,7 +71,7 @@ export default function DashboardView({ currentRole, onNavigateTo, savedWorkouts
         <div style={{ maxWidth: 640, padding: "0 24px" }}>
           <span className="sc-tag" data-tone="accent">{currentRole} workspace</span>
           <h1 style={{ fontSize: "var(--text-display-xl)", marginTop: 14 }}>Build the practice. Verify the math. Coach the swimmers.</h1>
-          <p style={{ fontSize: "var(--text-body-lg)", color: "var(--color-ink-muted-on-canvas)", marginTop: 12, lineHeight: 1.5 }}>SetCraft keeps visual blocks, lane versions, project folders, deterministic calculations and the final pool-deck sheet in one workflow.</p>
+          <p style={{ fontSize: "var(--text-body-lg)", color: "var(--color-ink-muted-on-canvas)", marginTop: 12, lineHeight: 1.5 }}>LaneLab keeps visual blocks, lane versions, project folders, deterministic calculations and the final pool-deck sheet in one workflow.</p>
           <div style={{ marginTop: 20 }}>
             <button type="button" className="sc-btn" data-variant="primary" data-size="md" onClick={() => onNavigateTo("studio")}><Play className="h-4 w-4 fill-current" />Open Swim Studio</button>
           </div>

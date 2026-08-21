@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "SetCraft — Swim Performance Studio",
-    template: "%s | SetCraft",
+    default: "LaneLab — Swim Performance Studio",
+    template: "%s | LaneLab",
   },
   description: "Design workouts, organize lanes, deliver deck sheets, plan seasons, and analyze races in one professional swim coaching workspace.",
   other: {

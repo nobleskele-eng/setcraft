@@ -370,10 +370,6 @@ body { font-size: 17px; }
 
 #swimblock-sidebar nav button { letter-spacing: -.005em; }
 
-@media (min-width: 1536px) {
-  #setcraft-swim-studio .studio-workflow { padding-left: 2rem; padding-right: 2rem; }
-}
-
 @media (max-width: 1279px) {
   .studio-workflow { top: 0; }
 }
@@ -472,6 +468,8 @@ textarea:focus-visible {
   z-index: 20;
   border-bottom: 1px solid var(--color-hairline);
   box-shadow: none;
+  min-height: calc(var(--space-8) + var(--space-1));
+  padding: var(--space-3) var(--space-6);
 }
 
 .studio-workflow {
@@ -482,6 +480,8 @@ textarea:focus-visible {
   background: var(--color-surface) !important;
   box-shadow: 0 6px 18px rgba(4, 16, 24, .12);
   backdrop-filter: none;
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
 }
 
 .studio-workflow-track {

@@ -9,7 +9,7 @@ export default function ContactPage() {
   return (
     <PublicPageFrame>
       <section className="sc-contact-page">
-        <div className="sc-contact-intro"><p>SetCraft support</p><h1>Start with the<br />right lane.</h1><span>Questions about accounts, product workflows, club setup, privacy, or partnerships are welcome. Never send a password, athlete medical record, or other highly sensitive information by email.</span></div>
+        <div className="sc-contact-intro"><p>LaneLab support</p><h1>Start with the<br />right lane.</h1><span>Questions about accounts, product workflows, club setup, privacy, or partnerships are welcome. Never send a password, athlete medical record, or other highly sensitive information by email.</span></div>
         <div className="sc-contact-grid">
           <a href={`mailto:${SUPPORT_EMAIL}`}><Mail /><span><small>Email</small><strong>{SUPPORT_EMAIL}</strong><em>Best for product and account questions</em></span></a>
           <a href={`tel:${SUPPORT_PHONE_HREF}`}><Phone /><span><small>Phone</small><strong>{SUPPORT_PHONE}</strong><em>Placeholder North American support line</em></span></a>

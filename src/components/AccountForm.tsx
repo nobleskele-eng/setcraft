@@ -40,8 +40,8 @@ export default function AccountForm({ mode }: { mode: Mode }) {
 
   return (
     <main className="sc-account-page">
-      <section className="sc-account-visual" aria-label="SetCraft product introduction">
-        <Link className="sc-account-back" href="/"><ArrowLeft /> Back to SetCraft</Link>
+      <section className="sc-account-visual" aria-label="LaneLab product introduction">
+        <Link className="sc-account-back" href="/"><ArrowLeft /> Back to LaneLab</Link>
         <div className="sc-account-visual-content">
           <span className="sc-account-icon"><Waves /></span>
           <p className="sc-account-overline">The complete coaching workspace</p>
@@ -59,11 +59,11 @@ export default function AccountForm({ mode }: { mode: Mode }) {
 
       <section className="sc-account-form-side">
         <div className="sc-account-form-wrap">
-          <Link className="sc-account-logo" href="/" aria-label="SetCraft home"><span className="sc-landing-logo-mark" aria-hidden="true"><span /><span /><span /></span><strong>SetCraft</strong></Link>
+          <Link className="sc-account-logo" href="/" aria-label="LaneLab home"><span className="sc-landing-logo-mark" aria-hidden="true"><span /><span /><span /></span><strong>LaneLab</strong></Link>
           <div className="sc-account-heading">
             <p>{isLogin ? "Secure account access" : "Create your workspace"}</p>
-            <h2>{isLogin ? "Log in to SetCraft" : "Tell us about your coaching world"}</h2>
-            <span>{isLogin ? "Use the email and password attached to your SetCraft account." : "Start with your account details. Club information helps personalize the workspace and can be updated later."}</span>
+            <h2>{isLogin ? "Log in to LaneLab" : "Tell us about your coaching world"}</h2>
+            <span>{isLogin ? "Use the email and password attached to your LaneLab account." : "Start with your account details. Club information helps personalize the workspace and can be updated later."}</span>
           </div>
 
           <form className="sc-account-form" onSubmit={submit}>
@@ -108,10 +108,10 @@ export default function AccountForm({ mode }: { mode: Mode }) {
             )}
 
             {error && <div className="sc-account-error" role="alert">{error}</div>}
-            <button className="sc-account-submit" type="submit" disabled={pending}>{pending ? "Please wait…" : isLogin ? "Log in to SetCraft" : "Create my workspace"}<ArrowRight /></button>
+            <button className="sc-account-submit" type="submit" disabled={pending}>{pending ? "Please wait…" : isLogin ? "Log in to LaneLab" : "Create my workspace"}<ArrowRight /></button>
           </form>
 
-          <p className="sc-account-switch">{isLogin ? "New to SetCraft?" : "Already have an account?"} <a href={isLogin ? "/signup" : "/login"}>{isLogin ? "Create an account" : "Log in"}</a></p>
+          <p className="sc-account-switch">{isLogin ? "New to LaneLab?" : "Already have an account?"} <a href={isLogin ? "/signup" : "/login"}>{isLogin ? "Create an account" : "Log in"}</a></p>
           <div className="sc-account-security"><ShieldCheck /><span><strong>Secure by design</strong><small>Passwords are salted and hashed. Sessions use secure, private cookies.</small></span></div>
         </div>
       </section>

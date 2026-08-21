@@ -8,9 +8,9 @@ export default function PublicPageFrame({ children }: { children: ReactNode }) {
     <main className="sc-public-page">
       <a className="sc-skip-link" href="#main-content">Skip to content</a>
       <header className="sc-public-nav">
-        <Link className="sc-landing-logo" href="/" aria-label="SetCraft home">
+        <Link className="sc-landing-logo" href="/" aria-label="LaneLab home">
           <span className="sc-landing-logo-mark" aria-hidden="true"><span /><span /><span /></span>
-          <span><strong>SetCraft</strong><small>Swim performance studio</small></span>
+          <span><strong>LaneLab</strong><small>Swim performance studio</small></span>
         </Link>
         <nav aria-label="Public pages">
           <Link href="/">Home</Link>
@@ -25,13 +25,13 @@ export default function PublicPageFrame({ children }: { children: ReactNode }) {
       <div id="main-content">{children}</div>
       <footer className="sc-public-footer">
         <div>
-          <Link className="sc-landing-logo" href="/"><span className="sc-landing-logo-mark" aria-hidden="true"><span /><span /><span /></span><span><strong>SetCraft</strong><small>Swim performance studio</small></span></Link>
+          <Link className="sc-landing-logo" href="/"><span className="sc-landing-logo-mark" aria-hidden="true"><span /><span /><span /></span><span><strong>LaneLab</strong><small>Swim performance studio</small></span></Link>
           <p>Purpose-built workout design and race intelligence for competitive swimming.</p>
         </div>
         <div><strong>Product</strong><Link href="/#platform">Platform</Link><Link href="/login">Log in</Link><Link href="/signup">Sign up</Link></div>
         <div><strong>Trust</strong><Link href="/terms">Terms of Service</Link><Link href="/privacy">Privacy Policy</Link><Link href="/contact">Contact</Link></div>
         <div><strong>Contact</strong><a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a><a href={`tel:${SUPPORT_PHONE_HREF}`}>{SUPPORT_PHONE}</a></div>
-        <small>© 2026 SetCraft. Coaches remain responsible for athlete suitability and final practice decisions.</small>
+        <small>© 2026 LaneLab. Coaches remain responsible for athlete suitability and final practice decisions.</small>
       </footer>
     </main>
   );

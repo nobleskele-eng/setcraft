@@ -60,15 +60,15 @@ export default function LandingPage({ user }: { user: AppUser | null }) {
       <LandingLaneRope />
       <a className="sc-skip-link" href="#main-content">Skip to content</a>
       <header className="sc-landing-nav">
-        <Link className="sc-landing-logo" href="/" aria-label="SetCraft home">
+        <Link className="sc-landing-logo" href="/" aria-label="LaneLab home">
           <span className="sc-landing-logo-mark" aria-hidden="true"><span /><span /><span /></span>
-          <span><strong>SetCraft</strong><small>Swim performance studio</small></span>
+          <span><strong>LaneLab</strong><small>Swim performance studio</small></span>
         </Link>
         <nav className="sc-landing-links" aria-label="Landing page navigation">
           <a href="#platform">Platform</a>
           <a href="#workflow">Workflow</a>
           <a href="#intelligence">Race intelligence</a>
-          <a href="#standards">Why SetCraft</a>
+          <a href="#standards">Why LaneLab</a>
           <a href="#contact">Contact</a>
         </nav>
         <div className="sc-landing-actions">
@@ -88,7 +88,7 @@ export default function LandingPage({ user }: { user: AppUser | null }) {
           <div className="sc-landing-kicker"><span>Built for coaches on deck</span><span>LCM · SCM · SCY</span></div>
           <h1>From session brief<br />to <em>better swimming.</em></h1>
           <p className="sc-landing-hero-lede">
-            SetCraft brings workout design, lane planning, deck delivery, season planning, and race intelligence into one serious coaching workspace.
+            LaneLab brings workout design, lane planning, deck delivery, season planning, and race intelligence into one serious coaching workspace.
           </p>
           <div className="sc-landing-hero-actions">
             <a className="sc-landing-button sc-landing-button-primary sc-landing-button-large" href={user ? "/studio" : "/signup"}>
@@ -125,7 +125,7 @@ export default function LandingPage({ user }: { user: AppUser | null }) {
         </figure>
       </section>
 
-      <section className="sc-landing-format-bar" aria-label="SetCraft capability summary">
+      <section className="sc-landing-format-bar" aria-label="LaneLab capability summary">
         <p>One connected studio</p>
         <div><strong>01</strong><span>Design the work</span></div>
         <div><strong>02</strong><span>Organize the lanes</span></div>
@@ -149,7 +149,7 @@ export default function LandingPage({ user }: { user: AppUser | null }) {
                 <div className="sc-landing-feature-top"><span>{area.eyebrow}</span><Icon /></div>
                 <h3>{area.title}</h3>
                 <p>{area.copy}</p>
-                <a href={user ? "/studio" : "/signup"}>Explore in SetCraft <ChevronRight /></a>
+                <a href={user ? "/studio" : "/signup"}>Explore in LaneLab <ChevronRight /></a>
               </article>
             );
           })}
@@ -168,7 +168,7 @@ export default function LandingPage({ user }: { user: AppUser | null }) {
             <li><span>4</span><div><strong>Review and deliver</strong><small>Validation, totals, deck sheet, PDF, and calendar.</small></div></li>
           </ol>
         </div>
-        <div className="sc-landing-product-window" aria-label="SetCraft builder interface preview">
+        <div className="sc-landing-product-window" aria-label="LaneLab builder interface preview">
           <div className="sc-landing-window-bar"><span /><span /><span /><strong>Tuesday — Quality aerobic</strong><small>Auto-saved</small></div>
           <div className="sc-landing-window-layout">
             <aside>
@@ -198,7 +198,7 @@ export default function LandingPage({ user }: { user: AppUser | null }) {
         <div>
           <p className="sc-landing-overline">Race intelligence with boundaries</p>
           <h2>Explain the race.<br />Keep the evidence intact.</h2>
-          <p>SetCraft separates entered splits, modeled checkpoints, official references, athlete context, and AI narrative—so an explanation never quietly rewrites the facts.</p>
+          <p>LaneLab separates entered splits, modeled checkpoints, official references, athlete context, and AI narrative—so an explanation never quietly rewrites the facts.</p>
           <div className="sc-landing-intelligence-list">
             <span><ShieldCheck /><strong>Locked facts</strong><small>Records, standards, points, and supplied calculations stay immutable.</small></span>
             <span><Gauge /><strong>Course-aware</strong><small>LCM, SCM, and SCY are labeled and compared responsibly.</small></span>
@@ -223,25 +223,25 @@ export default function LandingPage({ user }: { user: AppUser | null }) {
         <div>
           <p className="sc-landing-overline">A real team behind the workspace</p>
           <h2>Questions before<br />the first session?</h2>
-          <p>Talk to SetCraft about account access, club setup, product feedback, privacy, or partnership ideas. The contact details below are placeholders for launch preparation.</p>
+          <p>Talk to LaneLab about account access, club setup, product feedback, privacy, or partnership ideas. The contact details below are placeholders for launch preparation.</p>
         </div>
         <div className="sc-landing-contact-actions">
           <a href={`mailto:${SUPPORT_EMAIL}`}><Mail /><span><small>Email support</small><strong>{SUPPORT_EMAIL}</strong></span><ArrowRight /></a>
-          <a href={`tel:${SUPPORT_PHONE_HREF}`}><Phone /><span><small>Call SetCraft</small><strong>{SUPPORT_PHONE}</strong></span><ArrowRight /></a>
+          <a href={`tel:${SUPPORT_PHONE_HREF}`}><Phone /><span><small>Call LaneLab</small><strong>{SUPPORT_PHONE}</strong></span><ArrowRight /></a>
           <Link href="/contact">Open the contact centre <ArrowRight /></Link>
         </div>
       </section>
 
       <section className="sc-landing-cta">
         <div><p className="sc-landing-overline">Your next session starts here</p><h2>Build the work.<br />Own the details.</h2></div>
-        <div><p>Create a SetCraft account and open the complete studio—from the first training idea to the race review.</p><a className="sc-landing-button sc-landing-button-light sc-landing-button-large" href={user ? "/studio" : "/signup"}>{user ? "Open studio" : "Get started"}<ArrowRight /></a></div>
+        <div><p>Create a LaneLab account and open the complete studio—from the first training idea to the race review.</p><a className="sc-landing-button sc-landing-button-light sc-landing-button-large" href={user ? "/studio" : "/signup"}>{user ? "Open studio" : "Get started"}<ArrowRight /></a></div>
       </section>
 
       <footer className="sc-landing-footer">
-        <Link className="sc-landing-logo" href="/"><span className="sc-landing-logo-mark" aria-hidden="true"><span /><span /><span /></span><span><strong>SetCraft</strong><small>Swim performance studio</small></span></Link>
+        <Link className="sc-landing-logo" href="/"><span className="sc-landing-logo-mark" aria-hidden="true"><span /><span /><span /></span><span><strong>LaneLab</strong><small>Swim performance studio</small></span></Link>
         <p>Purpose-built workout design and race intelligence for competitive swimming.</p>
         <div><a href="#platform">Platform</a><a href="#contact">Contact</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/login">Log in</a><a href="/signup">Sign up</a></div>
-        <small>© 2026 SetCraft. Coaches remain responsible for athlete suitability and final practice decisions.</small>
+        <small>© 2026 LaneLab. Coaches remain responsible for athlete suitability and final practice decisions.</small>
       </footer>
     </main>
   );

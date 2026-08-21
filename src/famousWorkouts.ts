@@ -50,13 +50,13 @@ const note = (label: string, text: string): StudioNode => ({
   locked: false,
 });
 
-const sourceDisclaimer = "Adapted into editable SetCraft blocks from a publicly described workout concept. Intervals and volumes must be adjusted by a qualified coach for the swimmers, pool and training phase.";
-const originalDisclaimer = "SetCraft original coaching template. A qualified coach must adjust volume, pace, recovery, equipment and technical expectations for the actual swimmers and training context.";
+const sourceDisclaimer = "Adapted into editable LaneLab blocks from a publicly described workout concept. Intervals and volumes must be adjusted by a qualified coach for the swimmers, pool and training phase.";
+const originalDisclaimer = "LaneLab original coaching template. A qualified coach must adjust volume, pace, recovery, equipment and technical expectations for the actual swimmers and training context.";
 
 const originalWorkout = (workout: Omit<FamousWorkout, "attribution" | "sourceName" | "sourceUrl" | "disclaimer">): FamousWorkout => ({
   ...workout,
-  attribution: "Created for the SetCraft editable practice library",
-  sourceName: "SetCraft Original",
+  attribution: "Created for the LaneLab editable practice library",
+  sourceName: "LaneLab Original",
   sourceUrl: "",
   disclaimer: originalDisclaimer,
 });

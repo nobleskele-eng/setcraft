@@ -450,16 +450,16 @@ export function getDerivedReferences(event: string, sex: SexCategory, age: numbe
     return strategyDefinitions(event).map((strategy) => ({
       id: `model-${course.toLowerCase()}-${level.toLowerCase().replace(" ", "-")}-${sex.toLowerCase()}-${event.toLowerCase().replace(" ", "-")}-${strategy.id}`,
       swimmer: `${course} ${level} strategy model`, event, sex, course,
-      meet: standard.official ? "Official standard · modeled race shape" : "SetCraft equivalent · modeled race shape",
+      meet: standard.official ? "Official standard · modeled race shape" : "LaneLab equivalent · modeled race shape",
       date: level === "Trials" ? "2024 cycle" : level === "World Class" ? "2025 Worlds" : "2026 standards",
       level, total: standard.time,
       cumulative: normalizeFactors(checkpoints, strategy.paceFactors, standard.time),
       checkpoints, archetype: strategy.name,
-      sourceName: course === "SCY" ? (level === "Sectionals" ? "2026 Speedo Sectionals SCY standards" : level === "Nationals" ? "2026 Winter Junior Championships SCY standards" : level === "Trials" ? "2027 NCAA Division I SCY standards" : "Current U.S. Open benchmark") : course === "SCM" ? "SetCraft record-ratio course equivalent" : level === "Sectionals" ? OFFICIAL_SOURCES[0].name : level === "Nationals" ? OFFICIAL_SOURCES[1].name : level === "Trials" ? (standard.official ? OFFICIAL_SOURCES[2].name : OFFICIAL_SOURCES[10].name) : OFFICIAL_SOURCES[10].name,
+      sourceName: course === "SCY" ? (level === "Sectionals" ? "2026 Speedo Sectionals SCY standards" : level === "Nationals" ? "2026 Winter Junior Championships SCY standards" : level === "Trials" ? "2027 NCAA Division I SCY standards" : "Current U.S. Open benchmark") : course === "SCM" ? "LaneLab record-ratio course equivalent" : level === "Sectionals" ? OFFICIAL_SOURCES[0].name : level === "Nationals" ? OFFICIAL_SOURCES[1].name : level === "Trials" ? (standard.official ? OFFICIAL_SOURCES[2].name : OFFICIAL_SOURCES[10].name) : OFFICIAL_SOURCES[10].name,
       sourceUrl: course === "SCY" ? (level === "Sectionals" ? "https://www.usaswimming.org/docs/default-source/timesdocuments/time-standards/2026/2026_speedosectionals_timestandards_max.pdf" : level === "Nationals" ? "https://www.usaswimming.org/docs/default-source/timesdocuments/time-standards/2026/11320828118_events_timestandards_2026_speedowinterjrs.pdf" : level === "Trials" ? "https://ncaaorg.s3.amazonaws.com/championships/sports/swimdive/d1/2026-27D1XSW_QUALSTANDARDS.pdf" : "https://www.usaswimming.org/times/otherorganizations/ncaa-division-i") : course === "SCM" ? "https://www.worldaquatics.com/swimming/records?pool=SCM&recordCode=WR" : level === "Sectionals" ? OFFICIAL_SOURCES[0].url : level === "Nationals" ? OFFICIAL_SOURCES[1].url : level === "Trials" ? (standard.official ? OFFICIAL_SOURCES[2].url : OFFICIAL_SOURCES[10].url) : OFFICIAL_SOURCES[10].url,
       verification: "secondary" as const, dataClass: "derived" as const,
       strategyDescription: strategy.description, bestFor: strategy.bestFor, risk: strategy.risk,
-      notes: standard.official ? "Final-time anchor is official; intermediate checkpoints are a normalized SetCraft strategy model, not an observed athlete split." : course === "SCM" ? "Final-time anchor is a transparent record-ratio conversion from the matching LCM comparison. It is not an official qualifying time." : "This clearly labeled comparison is modeled; it is not an observed athlete split or official qualifying time.",
+      notes: standard.official ? "Final-time anchor is official; intermediate checkpoints are a normalized LaneLab strategy model, not an observed athlete split." : course === "SCM" ? "Final-time anchor is a transparent record-ratio conversion from the matching LCM comparison. It is not an official qualifying time." : "This clearly labeled comparison is modeled; it is not an observed athlete split or official qualifying time.",
     }));
   });
 }
