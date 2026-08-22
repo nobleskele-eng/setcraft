@@ -29,7 +29,7 @@ interface DashboardViewProps {
 
 function readProjects(): StudioProject[] {
   try {
-    const projects: StudioProject[] = JSON.parse(localStorage.getItem("setcraft_studio_projects") || "[]");
+    const projects: StudioProject[] = JSON.parse(localStorage.getItem("lanelab_studio_projects") || "[]");
     return projects.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
   } catch {
     return [];

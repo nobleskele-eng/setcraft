@@ -669,11 +669,11 @@ export function performanceScores(time: number, age: number, sex: SexCategory, e
   const ageScore = agePerformanceScore(time, age, sex, event, course);
   const goalReadiness = goalTime > 0 && time > 0 ? Math.round(Math.min(100, 100 * Math.pow(goalTime / time, 3))) : 0;
   const aquaAsHundred = Math.min(100, aqua.points / 10);
-  const setcraft = ageScore == null
+  const lanelab = ageScore == null
     ? Math.round(aquaAsHundred * 0.8 + goalReadiness * 0.2)
     : Math.round(aquaAsHundred * 0.6 + ageScore * 0.25 + goalReadiness * 0.15);
   const record = getWorldRecord(event, sex, course);
-  return { aquaPoints: aqua.points, aquaBase: aqua.base, ageScore, goalReadiness, setcraftScore: Math.max(0, Math.min(100, setcraft)), liveWorldRecord: record?.total || null, worldRecordGapPct: record && time ? ((time - record.total) / record.total) * 100 : null };
+  return { aquaPoints: aqua.points, aquaBase: aqua.base, ageScore, goalReadiness, lanelabScore: Math.max(0, Math.min(100, lanelab)), liveWorldRecord: record?.total || null, worldRecordGapPct: record && time ? ((time - record.total) / record.total) * 100 : null };
 }
 
 export type CompletedSplitInput = {

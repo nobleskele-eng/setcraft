@@ -1,0 +1,7 @@
+# Copy this file to .dev.vars for local development only.
+# Never commit .dev.vars or real credentials.
+GEMINI_API_KEY=replace_with_your_google_ai_studio_key
+GEMINI_MODEL=gemini-3.6-flash
+GEMINI_FILE_SEARCH_STORE=
+RESEND_API_KEY=
+PASSWORD_RESET_FROM_EMAIL=LaneLab <noreply@lanelab.studio>

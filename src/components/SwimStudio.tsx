@@ -328,7 +328,7 @@ function DropZone({ parentId, index, active, label, onDropPayload }: { parentId:
   const [hovered, setHovered] = useState(false);
   return (
     <div
-      data-setcraft-dropzone="true"
+      data-lanelab-dropzone="true"
       className={`group relative flex items-center justify-center transition-all duration-100 ${hovered ? "h-16" : active ? "h-9" : "h-1.5"}`}
       onDragEnter={(event) => { event.preventDefault(); event.stopPropagation(); setHovered(true); }}
       onDragLeave={(event) => {
@@ -502,7 +502,7 @@ function NodeCard({ node, selectedId, draggingId, dragActive, dragLabel, collaps
             onDragOver={(event) => { event.preventDefault(); event.stopPropagation(); event.dataTransfer.dropEffect = "move"; }}
             onDrop={(event) => {
               const target = event.target as HTMLElement;
-              if (target.closest('[data-setcraft-dropzone="true"]')) return;
+              if (target.closest('[data-lanelab-dropzone="true"]')) return;
               onDropPayload(node.id, children.length, event);
             }}
           >
@@ -585,8 +585,8 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
   }, [onPageChange, requestedPage]);
 
   useEffect(() => {
-    const savedLibrary = localStorage.getItem("setcraft_builder_library_visible");
-    const savedInspector = localStorage.getItem("setcraft_builder_inspector_visible");
+    const savedLibrary = localStorage.getItem("lanelab_builder_library_visible");
+    const savedInspector = localStorage.getItem("lanelab_builder_inspector_visible");
     if (savedLibrary !== null) setPaletteVisible(savedLibrary !== "false");
     if (savedInspector !== null) setInspectorVisible(savedInspector !== "false");
     if (savedLibrary === null && savedInspector === null && window.matchMedia("(max-width: 1180px)").matches) {
@@ -596,18 +596,18 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("setcraft_builder_library_visible", String(paletteVisible));
-    localStorage.setItem("setcraft_builder_inspector_visible", String(inspectorVisible));
+    localStorage.setItem("lanelab_builder_library_visible", String(paletteVisible));
+    localStorage.setItem("lanelab_builder_inspector_visible", String(inspectorVisible));
   }, [paletteVisible, inspectorVisible]);
 
 
   useEffect(() => {
     try {
-      const templates = localStorage.getItem("setcraft_studio_projects") || localStorage.getItem("setcraft_studio_templates");
-      const myBlocks = localStorage.getItem("setcraft_my_blocks");
-      const folders = localStorage.getItem("setcraft_project_folders");
-      const backpack = localStorage.getItem("setcraft_backpack");
-      const favorites = localStorage.getItem("setcraft_favorite_presets");
+      const templates = localStorage.getItem("lanelab_studio_projects") || localStorage.getItem("lanelab_studio_templates");
+      const myBlocks = localStorage.getItem("lanelab_my_blocks");
+      const folders = localStorage.getItem("lanelab_project_folders");
+      const backpack = localStorage.getItem("lanelab_backpack");
+      const favorites = localStorage.getItem("lanelab_favorite_presets");
       if (templates) {
         const parsed = JSON.parse(templates) as Partial<StudioProject>[];
         setSavedTemplates(parsed.map((item) => ({
@@ -626,7 +626,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
       if (backpack) setBackpackBlocks(JSON.parse(backpack));
       if (favorites) setFavoritePresetIds(JSON.parse(favorites));
     } catch (error) {
-      console.error("Could not load SetCraft Studio data", error);
+      console.error("Could not load LaneLab Studio data", error);
     }
   }, []);
 
@@ -674,7 +674,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
     setAutoSaveState("saving");
     const timer = window.setTimeout(() => {
       try {
-        localStorage.setItem("setcraft_autosave_draft", JSON.stringify({
+        localStorage.setItem("lanelab_autosave_draft", JSON.stringify({
           name: sessionName,
           focus,
           phase,
@@ -773,7 +773,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
 
   const handlePaletteDragStart = (payload: DragPayload, event: React.DragEvent<HTMLButtonElement>) => {
     const raw = JSON.stringify(payload);
-    event.dataTransfer.setData("application/setcraft-block", raw);
+    event.dataTransfer.setData("application/lanelab-block", raw);
     event.dataTransfer.setData("text/plain", raw);
     event.dataTransfer.effectAllowed = "copyMove";
     const preset = payload.paletteId ? PALETTE_PRESETS.find((item) => item.id === payload.paletteId) : null;
@@ -786,7 +786,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
     event.stopPropagation();
     const payload: DragPayload = { source: "canvas", nodeId };
     const raw = JSON.stringify(payload);
-    event.dataTransfer.setData("application/setcraft-block", raw);
+    event.dataTransfer.setData("application/lanelab-block", raw);
     event.dataTransfer.setData("text/plain", raw);
     event.dataTransfer.effectAllowed = "copyMove";
     const moving = findNode(nodes, nodeId);
@@ -805,7 +805,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
     event.preventDefault();
     event.stopPropagation();
     setDragActive(false);
-    const raw = event.dataTransfer.getData("application/setcraft-block") || event.dataTransfer.getData("text/plain");
+    const raw = event.dataTransfer.getData("application/lanelab-block") || event.dataTransfer.getData("text/plain");
     if (!raw) return;
     try {
       const payload = JSON.parse(raw) as DragPayload;
@@ -847,7 +847,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
       setSelectedId(payload.nodeId);
       showDropMessage(`Snapped ${nodeLabel(removal.removed)} into place.`);
     } catch (error) {
-      console.error("Invalid SetCraft drag payload", error);
+      console.error("Invalid LaneLab drag payload", error);
       showDropMessage("The block could not be placed. Try dragging from its handle again.");
     } finally {
       setDraggingId(null);
@@ -922,8 +922,8 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
     };
     const updated = [template, ...savedTemplates.filter((item) => item.id !== template.id)].slice(0, 200);
     setSavedTemplates(updated);
-    localStorage.setItem("setcraft_studio_projects", JSON.stringify(updated));
-    localStorage.setItem("setcraft_studio_templates", JSON.stringify(updated));
+    localStorage.setItem("lanelab_studio_projects", JSON.stringify(updated));
+    localStorage.setItem("lanelab_studio_templates", JSON.stringify(updated));
     const legacy: WorkoutSession = { id: template.id, name: template.name, focus, phase, blocks: flattenToLegacyBlocks(nodes), totalDistance: stats.totalDistance, estimatedDuration: stats.estimatedDuration, avgIntensity: stats.averageIntensity };
     const old = JSON.parse(localStorage.getItem("swimblock_templates") || "[]") as WorkoutSession[];
     localStorage.setItem("swimblock_templates", JSON.stringify([legacy, ...old.filter((item) => item.id !== legacy.id)].slice(0, 200)));
@@ -950,8 +950,8 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
   const deleteTemplate = (id: string) => {
     const updated = savedTemplates.filter((item) => item.id !== id);
     setSavedTemplates(updated);
-    localStorage.setItem("setcraft_studio_projects", JSON.stringify(updated));
-    localStorage.setItem("setcraft_studio_templates", JSON.stringify(updated));
+    localStorage.setItem("lanelab_studio_projects", JSON.stringify(updated));
+    localStorage.setItem("lanelab_studio_templates", JSON.stringify(updated));
   };
 
   const saveSelectedAsCustom = () => {
@@ -960,14 +960,14 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
     const custom: CustomBlock = { id: `custom-${Date.now()}`, name, description: "Saved from the canvas", node: cloneNode(selectedNode), savedAt: new Date().toISOString() };
     const updated = [custom, ...customBlocks].slice(0, 40);
     setCustomBlocks(updated);
-    localStorage.setItem("setcraft_my_blocks", JSON.stringify(updated));
+    localStorage.setItem("lanelab_my_blocks", JSON.stringify(updated));
     setActiveCategory("My Blocks");
   };
 
   const deleteCustom = (id: string) => {
     const updated = customBlocks.filter((item) => item.id !== id);
     setCustomBlocks(updated);
-    localStorage.setItem("setcraft_my_blocks", JSON.stringify(updated));
+    localStorage.setItem("lanelab_my_blocks", JSON.stringify(updated));
   };
 
   const addProjectFolder = () => {
@@ -977,7 +977,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
     setProjectFolders(updated);
     setProjectFolder(name);
     setNewFolderName("");
-    localStorage.setItem("setcraft_project_folders", JSON.stringify(updated));
+    localStorage.setItem("lanelab_project_folders", JSON.stringify(updated));
   };
 
   const saveSelectedToBackpack = () => {
@@ -985,20 +985,20 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
     const item: CustomBlock = { id: `backpack-${Date.now()}`, name: nodeLabel(selectedNode), description: "Portable block copied from a workout", node: cloneNode(selectedNode), savedAt: new Date().toISOString() };
     const updated = [item, ...backpackBlocks].slice(0, 50);
     setBackpackBlocks(updated);
-    localStorage.setItem("setcraft_backpack", JSON.stringify(updated));
+    localStorage.setItem("lanelab_backpack", JSON.stringify(updated));
     showDropMessage("Copied to Backpack. You can reuse it in any project.");
   };
 
   const deleteBackpackItem = (id: string) => {
     const updated = backpackBlocks.filter((item) => item.id !== id);
     setBackpackBlocks(updated);
-    localStorage.setItem("setcraft_backpack", JSON.stringify(updated));
+    localStorage.setItem("lanelab_backpack", JSON.stringify(updated));
   };
 
   const toggleFavoritePreset = (id: string) => {
     const updated = favoritePresetIds.includes(id) ? favoritePresetIds.filter((item) => item !== id) : [...favoritePresetIds, id];
     setFavoritePresetIds(updated);
-    localStorage.setItem("setcraft_favorite_presets", JSON.stringify(updated));
+    localStorage.setItem("lanelab_favorite_presets", JSON.stringify(updated));
   };
 
   const runAiAudit = async () => {
@@ -1030,7 +1030,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${(sessionName || "setcraft-workout").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.json`;
+    link.download = `${(sessionName || "lanelab-workout").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.json`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -1116,7 +1116,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
     };
     const updated = [custom, ...customBlocks.filter((item) => item.name.toLowerCase() !== name.toLowerCase())].slice(0, 60);
     setCustomBlocks(updated);
-    localStorage.setItem("setcraft_my_blocks", JSON.stringify(updated));
+    localStorage.setItem("lanelab_my_blocks", JSON.stringify(updated));
     setMakeBlockDraft(DEFAULT_MAKE_BLOCK);
     setMakeBlockOpen(false);
     setActiveCategory("My Blocks");
@@ -1157,34 +1157,24 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
   const backpackItems = backpackBlocks.filter((item) => !searchQuery || item.name.toLowerCase().includes(searchQuery));
 
   return (
-    <div className="w-full" id="setcraft-swim-studio">
+    <div className="w-full" id="lanelab-swim-studio">
       <section className="overflow-hidden bg-canvas-raised">
-        <div className="sc-nav studio-command-bar flex-wrap !h-auto">
-          <div className="flex items-center gap-3">
-            <span className="sc-nav-brand">Swim Studio</span>
-            <span className="text-[10px] font-medium text-ink-muted">Scratch-style set programming</span>
-          </div>
+        <div className="sc-nav studio-command-bar flex-wrap !h-auto py-2">
+          <span className="sc-nav-brand">Swim Studio</span>
+          <span className="text-[10px] font-medium text-ink-muted">Scratch-style set programming</span>
           <div className="h-6 w-px bg-hairline" />
-          <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setTemplateOpen((open) => !open)} className="sc-btn" data-variant="ghost-on-dark" data-size="sm"><ArrowDownToLine className="h-4 w-4" /> File <ChevronDown className="h-3 w-3" /></button>
-            <button type="button" onClick={undo} disabled={history.length === 0} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink)" }} title="Undo"><Undo2 className="h-4 w-4" /></button>
-            <button type="button" onClick={redo} disabled={future.length === 0} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink)" }} title="Redo"><Redo2 className="h-4 w-4" /></button>
-          </div>
+          <button type="button" onClick={() => setTemplateOpen((open) => !open)} className="sc-btn" data-variant="ghost-on-dark" data-size="sm"><ArrowDownToLine className="h-4 w-4" /> File <ChevronDown className="h-3 w-3" /></button>
+          <button type="button" onClick={undo} disabled={history.length === 0} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink)" }} title="Undo"><Undo2 className="h-4 w-4" /></button>
+          <button type="button" onClick={redo} disabled={future.length === 0} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink)" }} title="Redo"><Redo2 className="h-4 w-4" /></button>
           <div className="sc-nav-spacer" />
-          <div className="flex flex-wrap items-center gap-6">
-            <div className="flex items-center gap-3">
-              <button type="button" onClick={() => { setStudioPage("build"); setQuickWriteOpen(true); }} className="sc-btn" data-variant="ghost-on-dark" data-size="sm"><PenLine className="h-4 w-4" /> Quick write</button>
-              <button type="button" onClick={() => { setRightTab("analysis"); setStudioPage("review"); }} className="sc-btn" data-variant="ghost-on-dark" data-size="sm"><ShieldCheck className="h-4 w-4" /> Validate</button>
-            </div>
-            <div className="flex items-center gap-3">
-              <button type="button" onClick={saveTemplate} className="sc-btn" data-variant="primary" data-size="sm"><Save className="h-4 w-4" /> {saveNotice ? "Saved" : "Save project"}</button>
-              <button type="button" onClick={exportPdf} className="sc-btn" data-variant="secondary" data-size="sm"><FileDown className="h-4 w-4" /> {pdfNotice ? "PDF ready" : "Export PDF"}</button>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="sc-tag hidden 2xl:inline-flex" data-tone="neutral" style={{ background: "var(--color-surface-hover)", color: "var(--color-ink-muted)" }}>{autoSaveState === "saving" ? "Saving…" : "Auto-saved"}</span>
-              <button type="button" onClick={() => setShortcutsOpen(true)} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink-muted)" }} title="Keyboard shortcuts"><Keyboard className="h-4 w-4" /></button>
-              <button type="button" onClick={exportJson} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink-muted)" }} title="Export structured JSON"><FileJson className="h-4 w-4" /></button>
-            </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" onClick={() => { setStudioPage("build"); setQuickWriteOpen(true); }} className="sc-btn" data-variant="ghost-on-dark" data-size="sm"><PenLine className="h-4 w-4" /> Quick write</button>
+            <button type="button" onClick={() => { setRightTab("analysis"); setStudioPage("review"); }} className="sc-btn" data-variant="ghost-on-dark" data-size="sm"><ShieldCheck className="h-4 w-4" /> Validate</button>
+            <button type="button" onClick={saveTemplate} className="sc-btn" data-variant="primary" data-size="sm"><Save className="h-4 w-4" /> {saveNotice ? "Saved" : "Save project"}</button>
+            <button type="button" onClick={exportPdf} className="sc-btn" data-variant="secondary" data-size="sm"><FileDown className="h-4 w-4" /> {pdfNotice ? "PDF ready" : "Export PDF"}</button>
+            <span className="sc-tag hidden 2xl:inline-flex" data-tone="neutral" style={{ background: "var(--color-surface-hover)", color: "var(--color-ink-muted)" }}>{autoSaveState === "saving" ? "Saving…" : "Auto-saved"}</span>
+            <button type="button" onClick={() => setShortcutsOpen(true)} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink-muted)" }} title="Keyboard shortcuts"><Keyboard className="h-4 w-4" /></button>
+            <button type="button" onClick={exportJson} className="sc-btn-icon" style={{ background: "transparent", borderColor: "transparent", color: "var(--color-ink-muted)" }} title="Export structured JSON"><FileJson className="h-4 w-4" /></button>
             <div className="rounded-[var(--radius)] bg-surface-raised px-[var(--space-3)] py-[var(--space-2)] text-body-sm font-bold text-ink-muted">{currentRole} perspective</div>
           </div>
         </div>
@@ -1416,7 +1406,7 @@ export default function SwimStudio({ currentRole, onSaveWorkoutToCalendar, initi
               onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; }}
               onDrop={(event) => {
                 const target = event.target as HTMLElement;
-                if (target.closest('[data-setcraft-dropzone="true"]')) return;
+                if (target.closest('[data-lanelab-dropzone="true"]')) return;
                 handleDropPayload(null, nodes.length, event);
               }}
             >

@@ -542,7 +542,7 @@ export const FAMOUS_WORKOUTS: FamousWorkout[] = [
     ],
   },
   originalWorkout({
-    id: "setcraft-sprint-neural-quality",
+    id: "lanelab-sprint-neural-quality",
     title: "Sprint Neural Quality",
     subtitle: "Low-volume, full-recovery speed built around starts, breakouts and technically perfect 25s.",
     level: "Advanced", focus: "Maximum velocity and race skills", phase: "Speed", durationMinutes: 65, poolLength: 25, poolUnit: "m", tags: ["Sprint", "Starts", "Quality"],
@@ -553,7 +553,7 @@ export const FAMOUS_WORKOUTS: FamousWorkout[] = [
     ],
   }),
   originalWorkout({
-    id: "setcraft-200-free-speed-endurance",
+    id: "lanelab-200-free-speed-endurance",
     title: "200 Freestyle Speed-Endurance Builder",
     subtitle: "Target 50 pace, controlled broken 200s and closing-speed work for the 200 freestyle.",
     level: "Advanced", focus: "200 freestyle pace and finish", phase: "Race preparation", durationMinutes: 80, poolLength: 25, poolUnit: "m", tags: ["200 free", "Race pace", "Speed endurance"],
@@ -565,7 +565,7 @@ export const FAMOUS_WORKOUTS: FamousWorkout[] = [
     ],
   }),
   originalWorkout({
-    id: "setcraft-distance-negative-split",
+    id: "lanelab-distance-negative-split",
     title: "Distance Negative-Split Control",
     subtitle: "Long aerobic work with progressive second halves and repeatable pace discipline.",
     level: "Advanced", focus: "Distance pacing and aerobic durability", phase: "Endurance", durationMinutes: 90, poolLength: 50, poolUnit: "m", tags: ["Distance", "Negative split", "Aerobic"],
@@ -576,7 +576,7 @@ export const FAMOUS_WORKOUTS: FamousWorkout[] = [
     ],
   }),
   originalWorkout({
-    id: "setcraft-im-transition-race",
+    id: "lanelab-im-transition-race",
     title: "IM Transition and Race-Rhythm Session",
     subtitle: "Legal walls, underwater control and race-rhythm work across every IM transition.",
     level: "Advanced", focus: "IM transitions and pace", phase: "Race preparation", durationMinutes: 85, poolLength: 25, poolUnit: "m", tags: ["IM", "Turns", "Race pace"],
@@ -588,7 +588,7 @@ export const FAMOUS_WORKOUTS: FamousWorkout[] = [
     ],
   }),
   originalWorkout({
-    id: "setcraft-breaststroke-tempo-turns",
+    id: "lanelab-breaststroke-tempo-turns",
     title: "Breaststroke Tempo and Wall Speed",
     subtitle: "Timing, pullout quality and race-tempo repetitions without excessive continuous volume.",
     level: "Advanced", focus: "Breaststroke timing and turns", phase: "Race preparation", durationMinutes: 75, poolLength: 25, poolUnit: "m", tags: ["Breaststroke", "Tempo", "Turns"],
@@ -600,7 +600,7 @@ export const FAMOUS_WORKOUTS: FamousWorkout[] = [
     ],
   }),
   originalWorkout({
-    id: "setcraft-backstroke-underwater",
+    id: "lanelab-backstroke-underwater",
     title: "Backstroke Underwater and Breakout Builder",
     subtitle: "Start alignment, underwater distance and first-stroke speed for backstroke specialists.",
     level: "Advanced", focus: "Backstroke starts and underwaters", phase: "Power", durationMinutes: 70, poolLength: 25, poolUnit: "m", tags: ["Backstroke", "Underwater", "Starts"],
@@ -611,7 +611,7 @@ export const FAMOUS_WORKOUTS: FamousWorkout[] = [
     ],
   }),
   originalWorkout({
-    id: "setcraft-fly-rhythm-quality",
+    id: "lanelab-fly-rhythm-quality",
     title: "Butterfly Rhythm Quality",
     subtitle: "Short technical repetitions, controlled aerobic support and high-quality fly speed.",
     level: "Advanced", focus: "Butterfly rhythm and sustainable mechanics", phase: "General preparation", durationMinutes: 70, poolLength: 25, poolUnit: "m", tags: ["Butterfly", "Technique", "Quality"],
@@ -622,7 +622,7 @@ export const FAMOUS_WORKOUTS: FamousWorkout[] = [
     ],
   }),
   originalWorkout({
-    id: "setcraft-taper-sharpening",
+    id: "lanelab-taper-sharpening",
     title: "Taper Sharpening Session",
     subtitle: "Reduced volume with race skills, target pace and generous recovery for a coach-managed taper.",
     level: "Advanced", focus: "Race readiness and speed retention", phase: "Taper", durationMinutes: 55, poolLength: 25, poolUnit: "m", tags: ["Taper", "Race pace", "Low volume"],
@@ -633,7 +633,7 @@ export const FAMOUS_WORKOUTS: FamousWorkout[] = [
     ],
   }),
   originalWorkout({
-    id: "setcraft-recovery-technique",
+    id: "lanelab-recovery-technique",
     title: "Recovery and Technique Reset",
     subtitle: "Low-intensity movement, sculling, body-line work and easy aerobic swimming for recovery days.",
     level: "Intermediate", focus: "Recovery and technical quality", phase: "Recovery", durationMinutes: 50, poolLength: 25, poolUnit: "m", tags: ["Recovery", "Technique", "Low intensity"],
@@ -644,7 +644,7 @@ export const FAMOUS_WORKOUTS: FamousWorkout[] = [
     ],
   }),
   originalWorkout({
-    id: "setcraft-css-efficiency-test",
+    id: "lanelab-css-efficiency-test",
     title: "Critical-Speed and Efficiency Test Day",
     subtitle: "A controlled test session for 400/200 results plus stroke-count and efficiency tracking.",
     level: "Advanced", focus: "Benchmark critical speed and mechanics", phase: "Testing", durationMinutes: 90, poolLength: 25, poolUnit: "m", tags: ["Testing", "Critical speed", "Stroke count"],
@@ -657,20 +657,20 @@ export const FAMOUS_WORKOUTS: FamousWorkout[] = [
     ],
   }),
   originalWorkout({
-    id: "setcraft-multi-lane-aerobic",
+    id: "lanelab-multi-lane-aerobic",
     title: "Multi-Lane Aerobic Equivalence",
     subtitle: "A full practice designed to be adapted through send-offs, repetition counts or time caps without changing the objective.",
     level: "Intermediate", focus: "Equivalent aerobic work across lanes", phase: "Aerobic base", durationMinutes: 75, poolLength: 25, poolUnit: "m", tags: ["Multi-lane", "Aerobic", "Adaptation"],
     nodes: [
       section("Shared warm-up", "Prepare all lanes together", "Use lane-specific send-offs", [createSetNode("warm-up", { label: "Mixed warm-up", reps: 1, distance: 700, interval: "14:00" })]),
-      section("Aerobic time block", "Accumulate comparable work time", "Use pace-appropriate distance and repeat count", [{ id: "setcraft-multi-lane-cap", kind: "time-cap", label: "Twenty-minute aerobic block", minutes: 20, behavior: "finish-current-rep", locked: false, children: [createSetNode("aerobic", { label: "Aerobic repeats", reps: 4, distance: 200, interval: "3:00", intensity: 6 })] }]),
+      section("Aerobic time block", "Accumulate comparable work time", "Use pace-appropriate distance and repeat count", [{ id: "lanelab-multi-lane-cap", kind: "time-cap", label: "Twenty-minute aerobic block", minutes: 20, behavior: "finish-current-rep", locked: false, children: [createSetNode("aerobic", { label: "Aerobic repeats", reps: 4, distance: 200, interval: "3:00", intensity: 6 })] }]),
       section("Shared skill", "Reconnect lanes through technique", "Quality before speed", [createSetNode("drill", { label: "Drill / swim", reps: 8, distance: 50, interval: "1:05" })]),
-      section("Threshold time block", "Create comparable controlled intensity", "Adjust repetition distance before sacrificing rest", [{ id: "setcraft-threshold-cap", kind: "time-cap", label: "Fifteen-minute threshold block", minutes: 15, behavior: "finish-current-rep", locked: false, children: [createSetNode("threshold", { label: "Threshold repeats", reps: 6, distance: 100, interval: "1:30", intensity: 8 })] }]),
+      section("Threshold time block", "Create comparable controlled intensity", "Adjust repetition distance before sacrificing rest", [{ id: "lanelab-threshold-cap", kind: "time-cap", label: "Fifteen-minute threshold block", minutes: 15, behavior: "finish-current-rep", locked: false, children: [createSetNode("threshold", { label: "Threshold repeats", reps: 6, distance: 100, interval: "1:30", intensity: 8 })] }]),
       section("Cool-down", "Finish together", "Easy choice", [createSetNode("recovery", { label: "Easy choice", reps: 1, distance: 300, interval: "6:00" })]),
     ],
   }),
   originalWorkout({
-    id: "setcraft-meet-warmup",
+    id: "lanelab-meet-warmup",
     title: "Competition Warm-Up Template",
     subtitle: "An editable meet warm-up with general swimming, event skills, target pace and start readiness.",
     level: "Advanced", focus: "Competition readiness", phase: "Competition week", durationMinutes: 35, poolLength: 25, poolUnit: "m", tags: ["Meet warm-up", "Competition", "Race skills"],

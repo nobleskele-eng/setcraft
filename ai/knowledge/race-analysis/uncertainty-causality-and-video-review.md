@@ -1,6 +1,6 @@
 title: Uncertainty, causal restraint, and video review protocol
 review_status: approved_sample
-reviewer: SetCraft performance baseline
+reviewer: LaneLab performance baseline
 review_date: 2026-08-11
 applies_to: race-analysis
 
@@ -96,4 +96,4 @@ Return no more than three main findings unless the coach asks for depth:
 2. largest controllable opportunity;
 3. next discriminating check.
 
-Keep locked SetCraft points, times, and provenance unchanged.
+Keep locked LaneLab points, times, and provenance unchanged.

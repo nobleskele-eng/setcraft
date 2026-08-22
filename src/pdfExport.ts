@@ -477,7 +477,7 @@ export async function exportWorkoutPdf(meta: PdfWorkoutMeta): Promise<void> {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${(meta.name || "setcraft-workout").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase()}.pdf`;
+  link.download = `${(meta.name || "lanelab-workout").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase()}.pdf`;
   document.body.appendChild(link);
   link.click();
   link.remove();

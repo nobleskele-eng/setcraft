@@ -8,7 +8,7 @@ function appendGuardrail(text: string, requiredPhrase: string, sentence: string)
 
 /**
  * Safety-critical product boundaries must not depend on probabilistic wording.
- * Gemini still writes the coaching explanation; SetCraft appends a concise,
+ * Gemini still writes the coaching explanation; LaneLab appends a concise,
  * deterministic disclosure whenever the supplied request triggers one.
  */
 export function applyPolicyGuardrails(workflow: AiWorkflow, prompt: string, generatedText: string) {

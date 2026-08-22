@@ -1,4 +1,4 @@
-# SetCraft Design Token Rationale
+# LaneLab Design Token Rationale
 
 Proposal only — [tokens.css](tokens.css) is not imported anywhere yet.
 

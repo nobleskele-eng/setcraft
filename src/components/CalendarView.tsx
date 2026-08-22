@@ -26,7 +26,7 @@ type PlannerDay = { phase: string; workout?: WorkoutSession };
 type CalendarPlans = Record<string, PlannerDay[]>;
 type CalendarViewMode = "week" | "month" | "year";
 
-const STORAGE_KEY = "setcraft_calendar_plan";
+const STORAGE_KEY = "lanelab_calendar_plan";
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const DAY_INITIALS = ["M", "T", "W", "T", "F", "S", "S"];
 const VIEW_MODES: CalendarViewMode[] = ["week", "month", "year"];
@@ -112,7 +112,7 @@ function loadPlans(): CalendarPlans {
 
 function projectSessions(): WorkoutSession[] {
   try {
-    const projects: StudioProject[] = JSON.parse(localStorage.getItem("setcraft_studio_projects") || "[]");
+    const projects: StudioProject[] = JSON.parse(localStorage.getItem("lanelab_studio_projects") || "[]");
     return projects.map((project) => {
       const stats = calculateStats(project.nodes || []);
       return {

@@ -1,8 +1,8 @@
-# SetCraft Final Research Build — implementation notes
+# LaneLab Final Research Build — implementation notes
 
 ## Release
 
-- Product label: SetCraft Swim Studio — Final Research Build
+- Product label: LaneLab Swim Studio — Final Research Build
 - Application version: 1.1.0
 - Interface badge: v8 Final
 - Scope: swim-first coaching workflow; multi-sport remains a roadmap item
@@ -50,7 +50,7 @@ The language model is not the source of mathematical truth. `swimStudioEngine.ts
 `famousWorkouts.ts` contains 30 complete workouts:
 
 - transformed, attributed public-source-inspired templates
-- original SetCraft templates for common training purposes
+- original LaneLab templates for common training purposes
 - every item opens as an editable Studio project
 - coach-created projects can be added to the local Coach Library
 

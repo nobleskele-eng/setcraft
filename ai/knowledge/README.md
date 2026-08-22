@@ -1,18 +1,18 @@
-# SetCraft coaching knowledge
+# LaneLab coaching knowledge
 
-These files are the knowledge Gemini may retrieve while answering. This is the practical SetCraft “training” layer: Gemini’s model weights are not changed.
+These files are the knowledge Gemini may retrieve while answering. This is the practical LaneLab “training” layer: Gemini’s model weights are not changed.
 
 Before uploading a document:
 
 1. Remove athlete names, dates of birth, contact details, medical records and unnecessary information about minors.
-2. Confirm SetCraft has permission to use the material.
+2. Confirm LaneLab has permission to use the material.
 3. Have a qualified coach review the content.
 4. Change its metadata line to `review_status: approved` and add the reviewer and review date.
 5. Run `npm run ai:setup-rag -- --write-env`.
 
-Files marked `approved_sample` are conservative SetCraft starter rules. Replace or expand them with your own approved coaching philosophy. Files marked `draft` are skipped automatically.
+Files marked `approved_sample` are conservative LaneLab starter rules. Replace or expand them with your own approved coaching philosophy. Files marked `draft` are skipped automatically.
 
-Keep changing facts—records, qualifying standards, AQUA points, conversions and the race library—in deterministic SetCraft data, not in these documents.
+Keep changing facts—records, qualifying standards, AQUA points, conversions and the race library—in deterministic LaneLab data, not in these documents.
 
 ## Expanded baseline
 

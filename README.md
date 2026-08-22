@@ -1,117 +1,83 @@
-# SetCraft Swim Studio v22
+# LaneLab Swim Studio v23
 
-SetCraft is a coach-first swim planning and race-intelligence workspace. v22 adds a complete trust centre, stronger account recovery, and image-enabled Coach Block AI while retaining the public product website and protected studio introduced in v21.
+LaneLab is a production-ready swim coaching workspace for workout design, lane planning, deck delivery, season calendars, race intelligence, and coach-reviewed AI. This release is prepared for Cloudflare Workers at **https://lanelab.studio**.
 
-## What changed in v22
+## Deploy after your Cloudflare nameserver step
 
-- Added dedicated **Terms of Service**, **Privacy Policy**, and **Contact** pages plus visible landing-page and footer links.
-- Added a professional landing-page contact section with replaceable placeholder email, phone, location, and response expectations.
-- Sign-up now requires a matching repeated password and explicit acceptance of the Terms and Privacy Policy.
-- Added `/forgot-password` and `/reset-password` with generic account-enumeration-safe responses, hashed single-use D1 reset tokens, a 20-minute expiry, session revocation after reset, and an optional Resend email-delivery hook.
-- Coach Block AI now accepts one JPEG, PNG, or WebP image up to 6 MB, shows a preview, and sends the image only with the current protected Gemini request. The assistant is instructed to describe visible evidence and never identify, diagnose, or assess athlete readiness from an image.
-- Added clear privacy language for essential cookies, account data, device-local workouts, AI prompts, temporary image processing, retention, access, correction, and deletion requests.
+On your Windows computer:
 
-## Included from v21
+1. Extract this ZIP.
+2. Confirm Cloudflare shows `lanelab.studio` as **Active**.
+3. In Cloudflare DNS, delete the old Porkbun parking records: the two `207.207.210.*` apex A records and the `pixie.porkbun.com` CNAME records for `www` and `*`.
+4. Open PowerShell in the extracted project folder.
+5. Run:
 
-- A responsive public landing page now loads at `/`, so visitors no longer meet an authentication wall or dead entry route before seeing SetCraft.
-- The landing page uses an editorial, sport-led visual system with real swimming photography, clear product storytelling, strong navigation, and direct links into the working studio.
-- **Log in** and **Sign up** sit at the top right on desktop and remain easy to reach on smaller screens.
-- First-party account creation supports full name, email, password, phone, swim club, club role, city/region, and primary course.
-- Credentials and sessions are stored in D1. Passwords use PBKDF2-SHA-256 with a unique salt and 210,000 iterations; session tokens are hashed before storage and sent in HttpOnly, SameSite cookies.
-- `/studio` and the Gemini coaching routes require a valid SetCraft session. Anonymous studio visits redirect to `/login`.
-- A branded not-found page replaces the unhelpful black `Not Found` response for unknown application routes.
-- v20's collapsible application sidebar, closable builder library and inspector, focus-canvas mode, corrected inspector sizing, and persisted panel preferences remain included.
-- The Season Calendar still provides accessible Week, Month, and Year views with period summaries and drill-down navigation.
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\setup-cloudflare.ps1
+```
 
-## Main routes
+The wizard installs exact packages, signs in to Cloudflare, creates or finds the D1 database, inserts its real ID into `wrangler.jsonc`, applies the login migrations, securely prompts for optional Gemini and Resend keys, builds the production Worker, and deploys both `lanelab.studio` and `www.lanelab.studio`.
 
-- `/` — public SetCraft landing page
-- `/login` — email and password login
-- `/signup` — account and swim-club profile creation
-- `/forgot-password` — account recovery request
-- `/reset-password` — single-use password reset
-- `/terms` — Terms of Service
-- `/privacy` — Privacy Policy
-- `/contact` — support and privacy contact centre
+Read [README_V23_DEPLOYMENT.md](./README_V23_DEPLOYMENT.md) for exact dashboard steps, troubleshooting, local development, and secret-management commands.
+
+## What is included
+
+- Public, responsive LaneLab landing page with editorial swimming photography, platform storytelling, top-right login/sign-up actions, contact section, accessible navigation, and production social metadata.
+- Email/password login and D1-backed account creation with full name, optional phone, swim club, role, city, and course.
+- Repeated password validation on sign-up and password reset.
+- PBKDF2-SHA-256 password hashing with per-user salts and 210,000 iterations.
+- Hashed 30-day session tokens in HttpOnly, Secure, SameSite cookies.
+- Forgot-password and single-use reset-token flow with 20-minute expiry and session revocation.
+- Terms of Service, Privacy Policy, Contact, custom 404, and security headers.
+- Authenticated studio and Gemini routes.
+- Coach Block AI text and image input for JPEG, PNG, and WebP files up to 6 MB. Images are sent only with the protected request and are not stored in D1 or R2 by this release.
+- Collapsible application sidebar, closable builder library and inspector, focus-canvas mode, and corrected panel sizing.
+- Week, Month, and Year calendar views.
+- Cloudflare Worker, static asset, Images, D1, custom-domain, and Smart Placement configuration.
+- Windows setup/deploy wizard, checked-in D1 migrations, local secret templates, and release validator.
+
+## Routes
+
+- `/` — public landing page
+- `/login` and `/signup` — account access
+- `/forgot-password` and `/reset-password` — account recovery
+- `/terms`, `/privacy`, and `/contact` — trust and support pages
 - `/studio` — authenticated coaching workspace
+- `/api/health` — deployment and AI configuration health
 
-## Main workspaces
+## Runtime services
 
-- **Project Hub** — create, save, organize, reopen, and group workout projects by season folder.
-- **Project Setup** — define the practice name, phase, pool course, duration, focus, tags, and folder.
-- **Build Sets** — compose nested sections, repeats, conditions, progressions, time caps, lane branches, notes, and swim blocks.
-- **Lane Plan** — assign swimmers, lanes, send-offs, pace versions, and lane-specific set variants.
-- **Deck Sheet** — prepare practice headers, coach notes, targets, goal-time tables, and print-ready information.
-- **Review & Export** — validate totals, preview the deck sheet, and export PDF or structured JSON.
-- **Season Calendar** — plan by week and review monthly or yearly training load.
-- **Race Analysis Lab** — compare LCM, SCM, and SCY performances with clear evidence boundaries.
-- **Race Strategy Studio** — build athlete-aware plans without overwriting locked records or calculations.
-- **Coach Block AI** — generate and revise coach-reviewed drafts through protected server routes.
+| Service | Binding or secret | Purpose | Required |
+|---|---|---|---|
+| Cloudflare D1 | `DB` | Users, hashed sessions, reset tokens | Yes |
+| Worker Assets | `ASSETS` | Built site assets | Yes |
+| Cloudflare Images | `IMAGES` | Vinext image optimization | Configured |
+| Gemini | `GEMINI_API_KEY` | Live coach AI and image review | Optional |
+| Gemini File Search | `GEMINI_FILE_SEARCH_STORE` | Reviewed coaching knowledge retrieval | Optional |
+| Resend | `RESEND_API_KEY` | Password-reset email delivery | Optional |
 
-## Local requirements
+API keys are never placed in client code or committed configuration. The setup wizard stores them as encrypted Cloudflare Worker secrets.
 
-- Node.js 22.13 or newer
-- npm
+## Local development
 
-## Install and run
+Requirements: Node.js 22.13 or newer and npm.
 
-```bash
-npm run install:ci
+```powershell
+npm ci
+Copy-Item .dev.vars.example .dev.vars
+npm run db:migrate:local
 npm run dev
 ```
 
-Open the local address shown by the development server.
-
-## Account database
-
-The hosted configuration binds a D1 database as `DB`. Checked-in Drizzle migrations create `users`, `sessions`, and `password_reset_tokens`.
-
-Optional password-reset email delivery uses `RESEND_API_KEY` and `PASSWORD_RESET_FROM_EMAIL`. When these are not configured, the recovery page safely directs users to the placeholder support contact without exposing whether an account exists.
-
-When changing the schema, generate a new migration with:
-
-```bash
-npm run db:generate
-```
-
-## Optional Gemini configuration
-
-The application remains usable without AI credentials. For live AI responses, copy `.env.example` to `.env.local`, add the required Gemini key, and restart the development server. Gemini calls are made through authenticated server routes; keys must never be placed in client-side code or committed to source control.
-
-To prepare the reviewed coaching-knowledge layer and run the AI evaluation set:
-
-```bash
-npm run ai:setup-rag -- --write-env
-npm run ai:eval
-```
-
-See `docs/AI_MODEL_IMPLEMENTATION_GUIDE.md` for the complete configuration, evaluation, and privacy workflow.
+Add local-only keys to `.dev.vars`. The file is ignored by Git. Without Gemini, LaneLab uses its offline coaching fallback. Without Resend, the recovery endpoint stays account-enumeration safe but does not send email.
 
 ## Verification
 
-Run the complete production and policy test suite:
-
 ```bash
+npm run release:validate
+npm run lint
 npm test
 ```
 
-Individual checks are also available:
-
-```bash
-npm run lint
-npm run build
-npm run test:race
-npm run test:ai-policy
-npm run validate:artifact
-```
-
-## Data storage and privacy
-
-- Account profiles, hashed sessions, and hashed short-lived password-reset tokens are stored in the hosted D1 database.
-- Workout drafts, panel preferences, saved projects, custom blocks, and calendar plans remain in the browser unless a future hosted project-data layer is configured.
-- Gemini text and image requests pass through session-protected server routes. AI image attachments are not saved to SetCraft D1 or R2 in v22.
-- Coaches remain responsible for athlete suitability, medical restrictions, intervals, recovery, and final practice decisions.
-
-## Release
-
-This source package corresponds to **SetCraft Swim Studio v22**.
+This source package corresponds to **LaneLab Swim Studio v23** (`5.0.0`).

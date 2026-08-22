@@ -1,4 +1,4 @@
-# SetCraft v13 final validation report
+# LaneLab v13 final validation report
 
 Date: 11 August 2026  
 Build: 4.0.0 / v13 Professional Race Intelligence
@@ -45,7 +45,7 @@ Date: 11 August 2026
 
 - Confirmed `.env`/`.env.local` remain ignored and are consumed only by server-side Gemini routes and local setup scripts.
 - Upgraded the five generative workflows to Gemini 3.6 Flash through the Interactions API.
-- Added optional Gemini File Search grounding without allowing retrieved text to change locked SetCraft calculations.
+- Added optional Gemini File Search grounding without allowing retrieved text to change locked LaneLab calculations.
 - Added an idempotent reviewed-knowledge uploader with safe draft skipping, content-hash replacement, pruning and deliberate reset support.
 - Added starter knowledge for shared safety, terminology, coaching chat, set generation, set modification, race analysis and race strategy.
 - Added a live UI status that distinguishes offline mode, live Gemini and File Search grounding.

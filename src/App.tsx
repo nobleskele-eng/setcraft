@@ -97,13 +97,13 @@ type AppProps = {
 export default function App({ userDisplayName, userEmail, signOutPath }: AppProps) {
   const [activeTab, setActiveTab] = useState<string>("studio");
   const [currentRole, setCurrentRole] = useState<UserRole>(() => {
-    const saved = typeof window !== "undefined" ? localStorage.getItem("setcraft_active_role") : null;
+    const saved = typeof window !== "undefined" ? localStorage.getItem("lanelab_active_role") : null;
     return saved === "Athlete" || saved === "ClubAdmin" || saved === "Coach" ? saved : "Coach";
   });
   const [savedCount, setSavedCount] = useState<number>(() => {
     if (typeof window === "undefined") return 0;
     try {
-      const cached = localStorage.getItem("setcraft_studio_projects") || localStorage.getItem("swimblock_templates");
+      const cached = localStorage.getItem("lanelab_studio_projects") || localStorage.getItem("swimblock_templates");
       return cached ? JSON.parse(cached).length || 0 : 0;
     } catch { return 0; }
   });
@@ -114,13 +114,13 @@ export default function App({ userDisplayName, userEmail, signOutPath }: AppProp
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     if (typeof window === "undefined") return false;
-    return localStorage.getItem("setcraft_sidebar_collapsed") === "true";
+    return localStorage.getItem("lanelab_sidebar_collapsed") === "true";
   });
   const mainRef = useRef<HTMLElement | null>(null);
 
   const updateSavedCount = () => {
     try {
-      const cached = localStorage.getItem("setcraft_studio_projects") || localStorage.getItem("swimblock_templates");
+      const cached = localStorage.getItem("lanelab_studio_projects") || localStorage.getItem("swimblock_templates");
       if (cached) setSavedCount(JSON.parse(cached).length || 0);
     } catch (error) {
       console.error("Could not count saved projects", error);
@@ -129,12 +129,12 @@ export default function App({ userDisplayName, userEmail, signOutPath }: AppProp
 
   useEffect(() => {
     try {
-      const settings = JSON.parse(localStorage.getItem("setcraft_settings") || "{}");
-      document.documentElement.dataset.setcraftReduceMotion = String(Boolean(settings.reduceMotion));
-      document.documentElement.dataset.setcraftLargeDeck = String(settings.largerDeckText !== false);
+      const settings = JSON.parse(localStorage.getItem("lanelab_settings") || "{}");
+      document.documentElement.dataset.lanelabReduceMotion = String(Boolean(settings.reduceMotion));
+      document.documentElement.dataset.lanelabLargeDeck = String(settings.largerDeckText !== false);
     } catch {
-      document.documentElement.dataset.setcraftReduceMotion = "false";
-      document.documentElement.dataset.setcraftLargeDeck = "true";
+      document.documentElement.dataset.lanelabReduceMotion = "false";
+      document.documentElement.dataset.lanelabLargeDeck = "true";
     }
   }, []);
 
@@ -144,7 +144,7 @@ export default function App({ userDisplayName, userEmail, signOutPath }: AppProp
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("setcraft_sidebar_collapsed", String(sidebarCollapsed));
+    localStorage.setItem("lanelab_sidebar_collapsed", String(sidebarCollapsed));
   }, [sidebarCollapsed]);
 
   useEffect(() => {
@@ -190,8 +190,6 @@ export default function App({ userDisplayName, userEmail, signOutPath }: AppProp
       : PRIMARY_NAV_ITEMS.find((item) => item.id === activeTab)?.label || "LaneLab";
 
   const studioActive = activeTab === "studio" || activeTab === "projects";
-  const dashboardNavItem = PRIMARY_NAV_ITEMS.find((item) => item.id === "dashboard")!;
-  const restNavItems = PRIMARY_NAV_ITEMS.filter((item) => item.id !== "dashboard");
   const accountInitial = userDisplayName.trim().charAt(0).toUpperCase() || "S";
 
   return (
@@ -227,16 +225,6 @@ export default function App({ userDisplayName, userEmail, signOutPath }: AppProp
         </div>
 
         <nav className="sc-sidebar-nav" aria-label="Primary navigation">
-          {(() => { const DashboardIcon = dashboardNavItem.icon; return (
-            <button type="button" className="sc-sidebar-item" data-active={activeTab === dashboardNavItem.id ? "true" : "false"} aria-current={activeTab === dashboardNavItem.id ? "page" : undefined} title={dashboardNavItem.label} onClick={() => { setActiveTab(dashboardNavItem.id); setMobileNavOpen(false); }}>
-              <DashboardIcon className="sc-sidebar-item-icon" />
-              <div className="sc-sidebar-item-text">
-                <span className="sc-sidebar-item-label">{dashboardNavItem.label}</span>
-                <span className="sc-sidebar-item-desc">{dashboardNavItem.helper}</span>
-              </div>
-            </button>
-          ); })()}
-
           <button
             type="button"
             className="sc-sidebar-item"
@@ -278,7 +266,7 @@ export default function App({ userDisplayName, userEmail, signOutPath }: AppProp
             </div>
           )}
 
-          {restNavItems.map((item) => {
+          {PRIMARY_NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const active = activeTab === item.id;
             return (
@@ -311,7 +299,7 @@ export default function App({ userDisplayName, userEmail, signOutPath }: AppProp
             </div>
           </div>
           <div className="sc-sidebar-meta-row"><span>{savedCount} saved project{savedCount === 1 ? "" : "s"} on this device</span></div>
-          <div className="sc-sidebar-meta-row sc-session-row"><span><span className="sc-sidebar-dot" />Session secured</span><span>v22</span></div>
+          <div className="sc-sidebar-meta-row sc-session-row"><span><span className="sc-sidebar-dot" />Session secured</span><span>v23</span></div>
         </div>
       </aside>
 

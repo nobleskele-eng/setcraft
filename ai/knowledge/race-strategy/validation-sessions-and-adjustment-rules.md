@@ -1,6 +1,6 @@
 title: Race-plan validation sessions and adjustment rules
 review_status: approved_sample
-reviewer: SetCraft strategy baseline
+reviewer: LaneLab strategy baseline
 review_date: 2026-08-11
 applies_to: race-strategy
 
@@ -37,7 +37,7 @@ Progress when the target is repeatable, not after one lucky attempt.
 
 # Broken-race validation
 
-Use SetCraft's supplied checkpoints. Define recovery and whether the modeled cumulative result is shown. Label the result as broken and planning-only.
+Use LaneLab's supplied checkpoints. Define recovery and whether the modeled cumulative result is shown. Label the result as broken and planning-only.
 
 Assess:
 
@@ -77,7 +77,7 @@ Every strategy should specify:
 
 # Readiness and health boundary
 
-Validation is coach-supervised. SetCraft cannot medically clear maximal testing or return to sport. Athlete self-ratings may influence the coach's questions but are not measured lactate, fatigue, injury, or readiness.
+Validation is coach-supervised. LaneLab cannot medically clear maximal testing or return to sport. Athlete self-ratings may influence the coach's questions but are not measured lactate, fatigue, injury, or readiness.
 
 # Review after competition
 

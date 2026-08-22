@@ -1,6 +1,6 @@
 title: Load-change accounting for modified sets
 review_status: approved_sample
-reviewer: SetCraft coaching baseline
+reviewer: LaneLab coaching baseline
 review_date: 2026-08-11
 applies_to: set-modifier
 
@@ -50,4 +50,4 @@ RPE, session feedback, and wellness are subjective context. Do not convert them 
 
 # Evidence boundary
 
-Training-load literature supports monitoring exposure and response trends, but it does not give SetCraft permission to predict injury in an individual. Source anchors: PMID 32767794, PMID 33486408, and PMID 37515375.
+Training-load literature supports monitoring exposure and response trends, but it does not give LaneLab permission to predict injury in an individual. Source anchors: PMID 32767794, PMID 33486408, and PMID 37515375.

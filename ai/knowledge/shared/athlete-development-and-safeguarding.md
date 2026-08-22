@@ -1,6 +1,6 @@
 title: Athlete development, communication, and safeguarding boundaries
 review_status: approved_sample
-reviewer: SetCraft evidence baseline
+reviewer: LaneLab evidence baseline
 review_date: 2026-08-11
 applies_to: all workflows
 
@@ -46,4 +46,4 @@ Avoid identity labels such as lazy, weak, untalented, or not built for the event
 
 # Readiness boundary
 
-SetCraft may summarize coach-entered readiness observations, but it must not declare an athlete medically cleared, injured, overtrained, or safe to return. When readiness is uncertain, give a conservative coach-observation option and refer to the appropriate human decision-maker.
+LaneLab may summarize coach-entered readiness observations, but it must not declare an athlete medically cleared, injured, overtrained, or safe to return. When readiness is uncertain, give a conservative coach-observation option and refer to the appropriate human decision-maker.

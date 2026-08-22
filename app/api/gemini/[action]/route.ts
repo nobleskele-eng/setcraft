@@ -1,14 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
+import { env } from "cloudflare:workers";
 import { applyPolicyGuardrails, type AiWorkflow } from "../../../../src/aiPolicyGuardrails";
 import { getAppUserFromRequest } from "../../../auth";
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
+type AiEnv = {
+  GEMINI_API_KEY?: string;
+  GOOGLE_API_KEY?: string;
+  GEMINI_MODEL?: string;
+  GEMINI_FILE_SEARCH_STORE?: string;
+};
+
+const runtimeEnv = env as unknown as AiEnv;
+const MODEL = runtimeEnv.GEMINI_MODEL || "gemini-3.6-flash";
 
 type GeminiResult = {
   text: string;
   meta: {
-    provider: "gemini" | "setcraft-offline";
+    provider: "gemini" | "lanelab-offline";
     mode: "rag" | "live" | "offline";
     model: string;
     sourceCount: number;
@@ -43,7 +52,7 @@ function safeCoachingImage(value: unknown): CoachingImage | null {
 }
 
 function fileSearchStoreName() {
-  const value = process.env.GEMINI_FILE_SEARCH_STORE?.trim();
+  const value = runtimeEnv.GEMINI_FILE_SEARCH_STORE?.trim();
   if (!value) return "";
   return value.startsWith("fileSearchStores/") ? value : `fileSearchStores/${value}`;
 }
@@ -75,13 +84,13 @@ function extractSources(interaction: unknown) {
 function offlineResult(fallback: string): GeminiResult {
   return {
     text: `${fallback}\n\n*(Offline LaneLab draft — add GEMINI_API_KEY to enable live generation.)*`,
-    meta: { provider: "setcraft-offline", mode: "offline", model: MODEL, sourceCount: 0 },
+    meta: { provider: "lanelab-offline", mode: "offline", model: MODEL, sourceCount: 0 },
     sources: [],
   };
 }
 
 async function generate(workflow: AiWorkflow, system: string, prompt: string, fallback: string, image?: CoachingImage): Promise<GeminiResult> {
-  const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  const key = runtimeEnv.GEMINI_API_KEY || runtimeEnv.GOOGLE_API_KEY;
   if (!key) return offlineResult(fallback);
 
   const storeName = fileSearchStoreName();
@@ -121,7 +130,7 @@ async function generate(workflow: AiWorkflow, system: string, prompt: string, fa
       sources,
     };
   } catch (error) {
-    console.error("[SetCraft AI] Gemini request failed:", error instanceof Error ? error.message : "Unknown error");
+    console.error("[LaneLab AI] Gemini request failed:", error instanceof Error ? error.message : "Unknown error");
     return {
       ...offlineResult(fallback),
       text: `${fallback}\n\n*(Live generation was unavailable; this is the verified offline fallback.)*`,

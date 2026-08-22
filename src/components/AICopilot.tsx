@@ -228,11 +228,11 @@ export default function AICopilot({ onOpenGeneratedSet }: AICopilotProps) {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(168,85,247,.28),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(34,211,238,.18),transparent_35%)]" />
         <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-ink-muted"><Sparkles className="h-5 w-5" /><span className="text-xs font-black uppercase tracking-[.2em]">LaneLab AI workspace v22</span></div>
+          <div className="flex items-center gap-2 text-disabled"><Sparkles className="h-5 w-5" /><span className="text-xs font-black uppercase tracking-[.2em]">LaneLab AI workspace v23</span></div>
           <h2 className="mt-3 text-4xl font-display font-black tracking-tight md:text-5xl">
             Coach Block AI
           </h2>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-ink-muted md:text-base">
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-disabled md:text-base">
             Evidence-aware coaching chat, structured set generation and constraint-preserving workout edits—ready for your Gemini knowledge system.
           </p>
           <div className="mt-5 flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-wide">
