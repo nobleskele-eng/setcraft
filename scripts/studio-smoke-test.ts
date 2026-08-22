@@ -72,7 +72,7 @@ async function main() {
   // One-page PDF export must remain exactly one A4 portrait page.
   const starter = starterWorkout();
   const pdfBytes = await createWorkoutPdfBytes({
-    name: "SetCraft smoke test",
+    name: "LaneLab smoke test",
     focus: "Race pace",
     phase: "Race preparation",
     poolLength: 25,

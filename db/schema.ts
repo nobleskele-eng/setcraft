@@ -21,7 +21,10 @@ export const sessions = sqliteTable("sessions", {
   userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   expiresAt: text("expires_at").notNull(),
   createdAt: text("created_at").notNull(),
-});
+}, (table) => [
+  index("sessions_user_id_idx").on(table.userId),
+  index("sessions_expires_at_idx").on(table.expiresAt),
+]);
 
 export const passwordResetTokens = sqliteTable("password_reset_tokens", {
   id: text("id").primaryKey(),

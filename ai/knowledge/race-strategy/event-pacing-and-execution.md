@@ -1,6 +1,6 @@
 title: Event pacing and execution strategy library
 review_status: approved_sample
-reviewer: SetCraft strategy baseline
+reviewer: LaneLab strategy baseline
 review_date: 2026-08-11
 applies_to: race-strategy
 
@@ -10,7 +10,7 @@ A race plan should specify controllable actions, locked target checkpoints, a pr
 
 # General pacing rules
 
-- Use the split plan supplied by SetCraft; do not recalculate it in prose.
+- Use the split plan supplied by LaneLab; do not recalculate it in prose.
 - Match comparisons by event and course.
 - Separate start, turns, free swimming, and finish where data exists.
 - Use no more than three cues during the race.

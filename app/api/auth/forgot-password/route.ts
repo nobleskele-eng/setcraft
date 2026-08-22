@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       await sendPasswordResetEmail({ to: reset.email, displayName: reset.displayName, resetUrl });
     }
   } catch (error) {
-    console.error("[SetCraft auth] Password reset request failed:", error instanceof Error ? error.message : "Unknown error");
+    console.error("[LaneLab auth] Password reset request failed:", error instanceof Error ? error.message : "Unknown error");
   }
   return NextResponse.json({ ok: true, deliveryConfigured: true, message: GENERIC_MESSAGE });
 }

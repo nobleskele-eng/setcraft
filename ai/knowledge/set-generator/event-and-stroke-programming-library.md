@@ -1,6 +1,6 @@
 title: Event and stroke programming library
 review_status: approved_sample
-reviewer: SetCraft coaching baseline
+reviewer: LaneLab coaching baseline
 review_date: 2026-08-11
 applies_to: set-generator
 

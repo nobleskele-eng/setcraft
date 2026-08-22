@@ -30,7 +30,7 @@ export default function AthleteProfilePanel({ value, onChange }: { value: Athlet
 
     {!value.enabled ? <div className="rounded-2xl border-2 border-dashed border-hairline-on-canvas bg-canvas p-8 text-center"><Activity className="mx-auto h-7 w-7 text-disabled" /><p className="mt-3 text-sm font-bold text-ink-muted-on-canvas">Race-only mode is active. No physiology or body-performance factor affects strategy fit.</p></div> : <>
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface px-5 py-4 text-white">
-        <div><p className="text-[10px] font-black uppercase tracking-[.15em] text-ink-muted">Profile evidence</p><p className="mt-1 text-sm font-bold">{evidence.label} · {evidence.active} active</p></div>
+        <div><p className="text-[10px] font-black uppercase tracking-[.15em] text-disabled">Profile evidence</p><p className="mt-1 text-sm font-bold">{evidence.label} · {evidence.active} active</p></div>
         <div className="text-right"><p className="font-mono text-2xl font-black">{evidence.score ?? "—"}%</p><p className="text-[10px] text-ink-muted-on-canvas">{evidence.measured} measured · {evidence.rated} rated</p></div>
       </div>
       <div className="grid gap-4 lg:grid-cols-2">

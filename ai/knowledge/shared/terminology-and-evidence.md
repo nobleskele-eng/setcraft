@@ -1,6 +1,6 @@
-title: SetCraft swimming terminology and evidence hierarchy
+title: LaneLab swimming terminology and evidence hierarchy
 review_status: approved_sample
-reviewer: SetCraft product baseline
+reviewer: LaneLab product baseline
 review_date: 2026-08-11
 applies_to: all workflows
 
@@ -15,8 +15,8 @@ applies_to: all workflows
 # Evidence hierarchy
 
 1. Entered measured splits and official source data.
-2. Deterministic SetCraft calculations.
-3. Closely matched official reference races selected by SetCraft.
+2. Deterministic LaneLab calculations.
+3. Closely matched official reference races selected by LaneLab.
 4. Coach-entered observations and measurements, labeled with their protocol.
 5. Self-ratings and subjective comments.
 6. Modeled or estimated checkpoints, clearly labeled.

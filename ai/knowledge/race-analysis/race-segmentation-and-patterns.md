@@ -1,12 +1,12 @@
 title: Race segmentation and evidence-based pattern interpretation
 review_status: approved_sample
-reviewer: SetCraft performance baseline
+reviewer: LaneLab performance baseline
 review_date: 2026-08-11
 applies_to: race-analysis
 
 # Segment before interpreting
 
-Use the definitions supplied by SetCraft. A race may be described through:
+Use the definitions supplied by LaneLab. A race may be described through:
 
 - start phase to a fixed distance;
 - free-swimming segments;

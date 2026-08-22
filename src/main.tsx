@@ -12,7 +12,7 @@ createRoot(document.getElementById('root')!).render(
     {localWorkspacePreview ? (
       <App
         userDisplayName="Taylor Coach"
-        userEmail="coach@setcraft.local"
+        userEmail="coach@lanelab.local"
         signOutPath="/"
       />
     ) : <LandingPage user={null} />}

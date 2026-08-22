@@ -1,12 +1,24 @@
 import { SUPPORT_EMAIL } from "../src/siteDetails";
+import { env } from "cloudflare:workers";
+
+type EmailEnv = {
+  RESEND_API_KEY?: string;
+  PASSWORD_RESET_FROM_EMAIL?: string;
+};
+
+function emailEnv() {
+  return env as unknown as EmailEnv;
+}
 
 export function passwordResetEmailConfigured() {
-  return Boolean(process.env.RESEND_API_KEY?.trim() && process.env.PASSWORD_RESET_FROM_EMAIL?.trim());
+  const config = emailEnv();
+  return Boolean(config.RESEND_API_KEY?.trim() && config.PASSWORD_RESET_FROM_EMAIL?.trim());
 }
 
 export async function sendPasswordResetEmail(input: { to: string; displayName: string; resetUrl: string }) {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.PASSWORD_RESET_FROM_EMAIL?.trim();
+  const config = emailEnv();
+  const apiKey = config.RESEND_API_KEY?.trim();
+  const from = config.PASSWORD_RESET_FROM_EMAIL?.trim();
   if (!apiKey || !from) return false;
 
   const response = await fetch("https://api.resend.com/emails", {
@@ -34,4 +46,3 @@ function resetEmailHtml(displayName: string, resetUrl: string) {
 function escapeHtml(value: string) {
   return value.replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character] || character);
 }
-

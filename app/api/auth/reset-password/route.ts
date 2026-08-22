@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("[SetCraft auth] Password reset failed:", error instanceof Error ? error.message : "Unknown error");
+    console.error("[LaneLab auth] Password reset failed:", error instanceof Error ? error.message : "Unknown error");
     return NextResponse.json({ error: "Password reset is temporarily unavailable. Please try again." }, { status: 500 });
   }
 }

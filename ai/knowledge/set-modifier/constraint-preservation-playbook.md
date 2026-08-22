@@ -1,6 +1,6 @@
 title: Constraint-preserving workout modification playbook
 review_status: approved_sample
-reviewer: SetCraft coaching baseline
+reviewer: LaneLab coaching baseline
 review_date: 2026-08-11
 applies_to: set-modifier
 
@@ -58,7 +58,7 @@ Offer the nearest purpose that is feasible and label it as changed.
 
 Return:
 
-1. revised SetCraft Quick Write set;
+1. revised LaneLab Quick Write set;
 2. original purpose;
 3. constraints respected;
 4. distance and intensity changes;

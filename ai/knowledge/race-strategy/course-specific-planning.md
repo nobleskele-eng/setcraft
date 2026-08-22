@@ -1,6 +1,6 @@
 title: LCM, SCM, and SCY strategy boundaries
 review_status: approved_sample
-reviewer: SetCraft strategy baseline
+reviewer: LaneLab strategy baseline
 review_date: 2026-08-11
 applies_to: race-strategy
 
@@ -61,7 +61,7 @@ Transfer the underlying questions, not raw splits:
 - mid-race stability;
 - closing execution.
 
-Then use SetCraft's locked course-specific checkpoints. Do not manually scale every segment in prose.
+Then use LaneLab's locked course-specific checkpoints. Do not manually scale every segment in prose.
 
 # Rule currency
 

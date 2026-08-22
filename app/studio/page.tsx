@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import SetCraftApp from "../../src/App";
+import LaneLabApp from "../../src/App";
 import { getAppUser } from "../auth";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +9,7 @@ export default async function StudioPage() {
   if (!user) redirect("/login");
 
   return (
-    <SetCraftApp
+    <LaneLabApp
       userDisplayName={user.displayName}
       userEmail={user.email}
       signOutPath="/api/auth/logout"

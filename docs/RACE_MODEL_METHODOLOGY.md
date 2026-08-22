@@ -1,8 +1,8 @@
-# SetCraft Race Model v4
+# LaneLab Race Model v4
 
 ## Purpose and coverage
 
-SetCraft separates official facts, deterministic planning math and AI explanation. Every result is event-, category- and course-specific.
+LaneLab separates official facts, deterministic planning math and AI explanation. Every result is event-, category- and course-specific.
 
 | Dimension | v13 coverage |
 |---|---|
@@ -51,7 +51,7 @@ For official base time \(B\) and swim time \(T\):
 P=\operatorname{trunc}\left(1000\left(\frac{B}{T}\right)^3\right)
 \]
 
-This is official World Aquatics points methodology for LCM and SCM. SCY uses the same cubic shape against the U.S. Open benchmark but is labeled **SetCraft course index**, not AQUA points.
+This is official World Aquatics points methodology for LCM and SCM. SCY uses the same cubic shape against the U.S. Open benchmark but is labeled **LaneLab course index**, not AQUA points.
 
 ## Course conversion
 
@@ -64,7 +64,7 @@ Every competitive conversion is a planning estimate. Meet-entry acceptance depen
 
 ## Scores and input quality
 
-Goal readiness is \(100(G/T)^3\), capped at 100. The SetCraft performance score combines course points/index, exact or normalized age context, and goal readiness. Input quality separately evaluates total validity, monotonic splits, entered-versus-estimated coverage, age/goal context and timing provenance. Course choice and optional profile completeness do not inflate input quality.
+Goal readiness is \(100(G/T)^3\), capped at 100. The LaneLab performance score combines course points/index, exact or normalized age context, and goal readiness. Input quality separately evaluates total validity, monotonic splits, entered-versus-estimated coverage, age/goal context and timing provenance. Course choice and optional profile completeness do not inflate input quality.
 
 ## Athlete and lactate boundaries
 

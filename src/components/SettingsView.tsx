@@ -36,7 +36,7 @@ type LocalSettings = {
   inviteCode: string;
 };
 
-const SETTINGS_KEY = "setcraft_settings";
+const SETTINGS_KEY = "lanelab_settings";
 const DEFAULT_SETTINGS: LocalSettings = {
   emailNotify: false,
   pushNotify: true,
@@ -48,16 +48,16 @@ const DEFAULT_SETTINGS: LocalSettings = {
 };
 
 const BACKUP_KEYS = [
-  "setcraft_studio_projects",
-  "setcraft_project_folders",
-  "setcraft_autosave_draft",
-  "setcraft_my_blocks",
-  "setcraft_favorite_presets",
-  "setcraft_backpack",
-  "setcraft_coach_library",
-  "setcraft_calendar_plan",
+  "lanelab_studio_projects",
+  "lanelab_project_folders",
+  "lanelab_autosave_draft",
+  "lanelab_my_blocks",
+  "lanelab_favorite_presets",
+  "lanelab_backpack",
+  "lanelab_coach_library",
+  "lanelab_calendar_plan",
   SETTINGS_KEY,
-  "setcraft_active_role",
+  "lanelab_active_role",
 ];
 
 function readSettings(): LocalSettings {
@@ -76,9 +76,9 @@ export default function SettingsView({ currentRole, onRoleChange }: SettingsView
 
   React.useEffect(() => {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(preferences));
-    localStorage.setItem("setcraft_active_role", currentRole);
-    document.documentElement.dataset.setcraftReduceMotion = String(preferences.reduceMotion);
-    document.documentElement.dataset.setcraftLargeDeck = String(preferences.largerDeckText);
+    localStorage.setItem("lanelab_active_role", currentRole);
+    document.documentElement.dataset.lanelabReduceMotion = String(preferences.reduceMotion);
+    document.documentElement.dataset.lanelabLargeDeck = String(preferences.largerDeckText);
   }, [preferences, currentRole]);
 
   const setPreference = <K extends keyof LocalSettings>(key: K, value: LocalSettings[K]) => {
@@ -88,7 +88,7 @@ export default function SettingsView({ currentRole, onRoleChange }: SettingsView
 
   const chooseRole = (role: UserRole) => {
     onRoleChange(role);
-    localStorage.setItem("setcraft_active_role", role);
+    localStorage.setItem("lanelab_active_role", role);
     setStatus(`${role} perspective saved.`);
   };
 
@@ -104,7 +104,7 @@ export default function SettingsView({ currentRole, onRoleChange }: SettingsView
     const href = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = href;
-    anchor.download = `setcraft-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.download = `lanelab-backup-${new Date().toISOString().slice(0, 10)}.json`;
     anchor.click();
     URL.revokeObjectURL(href);
     setStatus("Workspace backup downloaded.");
@@ -135,7 +135,7 @@ export default function SettingsView({ currentRole, onRoleChange }: SettingsView
   const resetPreferences = () => {
     setPreferences(DEFAULT_SETTINGS);
     onRoleChange("Coach");
-    localStorage.removeItem("setcraft_active_role");
+    localStorage.removeItem("lanelab_active_role");
     setStatus("Interface preferences reset. Projects were not deleted.");
   };
 

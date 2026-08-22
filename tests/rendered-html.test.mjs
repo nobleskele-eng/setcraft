@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-const developmentPreviewMeta =
-  /<meta(?=[^>]*\bname=["']codex-preview["'])(?=[^>]*\bcontent=["']development["'])[^>]*>/i;
+const canonicalHome =
+  /<link(?=[^>]*\brel=["']canonical["'])(?=[^>]*\bhref=["']https:\/\/lanelab\.studio\/?["'])[^>]*>/i;
 
-test("renders the public landing page with development preview metadata", async () => {
+test("renders the public LaneLab landing page with production metadata", async () => {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
@@ -30,7 +30,8 @@ test("renders the public landing page with development preview metadata", async 
     /^text\/html\b/i,
   );
   const html = await response.text();
-  assert.match(html, developmentPreviewMeta);
+  assert.match(html, canonicalHome);
+  assert.match(html, /LaneLab — Swim Performance Studio/i);
   assert.match(html, /From session brief/i);
   assert.match(html, /Create your workspace/i);
   assert.match(html, /Log in/i);
@@ -72,7 +73,7 @@ test("renders complete login and sign-up routes", async () => {
   );
   assert.equal(loginResponse.status, 200);
   const loginHtml = await loginResponse.text();
-  assert.match(loginHtml, /Log in to SetCraft/i);
+  assert.match(loginHtml, /Log in to LaneLab/i);
   assert.match(loginHtml, /Email address/i);
   assert.match(loginHtml, /Forgot password/i);
 

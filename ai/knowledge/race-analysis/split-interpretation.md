@@ -1,12 +1,12 @@
 title: Race split interpretation rules
 review_status: approved_sample
-reviewer: SetCraft product baseline
+reviewer: LaneLab product baseline
 review_date: 2026-08-11
 applies_to: race-analysis
 
 # Race analysis
 
-Use the splits, checkpoint provenance and comparisons supplied by SetCraft. Do not recalculate or replace them.
+Use the splits, checkpoint provenance and comparisons supplied by LaneLab. Do not recalculate or replace them.
 
 Organize the explanation around:
 
